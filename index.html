@@ -142,6 +142,24 @@
             background: #134a3b;
             transform: scale(1.02);
         }
+        .section-title .btn-tambah-anggota {
+            background: #2a7f6e;
+            border: none;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .section-title .btn-tambah-anggota:hover {
+            background: #1c5f4e;
+            transform: scale(1.02);
+        }
 
         .table-responsive {
             overflow-x: auto;
@@ -197,6 +215,21 @@
             gap: 4px;
         }
         .btn-edit:hover { background: #d5deea; }
+        .btn-tambah-anggota-row {
+            background: #2a7f6e;
+            border: none;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-tambah-anggota-row:hover { background: #1c5f4e; }
 
         .keluarga-clickable {
             cursor: pointer;
@@ -256,13 +289,13 @@
         .modal-overlay.show { display: flex; }
         .modal-box {
             background: white;
-            max-width: 520px;
-            width: 92%;
+            max-width: 560px;
+            width: 94%;
             border-radius: 32px;
             padding: 2rem 1.8rem;
             box-shadow: 0 30px 50px rgba(0,0,0,0.3);
             animation: slideUp 0.25s ease;
-            max-height: 90vh;
+            max-height: 92vh;
             overflow-y: auto;
         }
         @keyframes slideUp {
@@ -276,19 +309,21 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            font-size: 1.2rem;
         }
         .modal-box label {
             font-weight: 500;
             color: #1d3b4f;
             display: block;
-            margin: 0.8rem 0 0.2rem;
+            margin: 0.6rem 0 0.2rem;
+            font-size: 0.9rem;
         }
         .modal-box input, .modal-box select {
             width: 100%;
-            padding: 0.7rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 40px;
             border: 1px solid #d0dbe9;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             background: #fafcff;
             transition: 0.1s;
         }
@@ -300,7 +335,7 @@
         .modal-actions {
             display: flex;
             gap: 12px;
-            margin-top: 1.8rem;
+            margin-top: 1.5rem;
             justify-content: flex-end;
         }
         .modal-actions button {
@@ -310,6 +345,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.1s;
+            font-size: 0.9rem;
         }
         .modal-actions .btn-batal {
             background: #e9eef6;
@@ -331,8 +367,16 @@
             font-size: 0.9rem;
             color: #1a4d3e;
         }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
 
-        /* ========== MODAL KARTU KELUARGA - PERSIS SEPERTI GAMBAR ========== */
+        /* MODAL KARTU KELUARGA */
         .modal-kk {
             max-width: 1200px !important;
             width: 97% !important;
@@ -468,7 +512,10 @@
     <div id="tab-keluarga" class="panel active">
         <div class="section-title">
             <span><i class="fas fa-people-arrows" style="color: #1f6b58;"></i> Data Keluarga</span>
-            <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Tambah</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-tambah-anggota" id="btnTambahAnggotaUtama"><i class="fas fa-user-plus"></i> Tambah Anggota</button>
+                <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Tambah Keluarga</button>
+            </div>
         </div>
         <div class="table-responsive">
             <table>
@@ -516,18 +563,86 @@
         <div class="flex-end" style="margin-top:1rem;"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span></div>
     </div>
 
-    <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.4</div>
+    <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.5</div>
 </div>
 
-<!-- ========== MODAL KELUARGA (TAMBAH / EDIT) ========== -->
+<!-- ========== MODAL KELUARGA (TAMBAH / EDIT KELUARGA) ========== -->
 <div class="modal-overlay" id="modalKeluarga">
     <div class="modal-box">
         <h2 id="modalKeluargaTitle"><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
         <div id="infoEditKeluarga" class="info-edit" style="display:none;"></div>
         <label>Kepala Keluarga</label><input id="inpKepala" placeholder="Nama lengkap" />
-        <label>Jumlah Anggota</label><input id="inpAnggota" type="number" placeholder="Contoh: 4" />
         <label>Alamat</label><input id="inpAlamat" placeholder="Jl. Contoh 12" />
         <label>Kontak</label><input id="inpKontak" placeholder="0812-3456" />
+        <label>No. KK</label><input id="inpNoKK" placeholder="9207011408171003" />
+        <div class="form-row">
+            <div><label>RT</label><input id="inpRT" placeholder="001" /></div>
+            <div><label>RW</label><input id="inpRW" placeholder="002" /></div>
+        </div>
+        <label>Kode Pos</label><input id="inpKodePos" placeholder="98362" />
+        <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
+        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota Keluarga</h3>
+        <div id="anggotaFields">
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Nama</label><input class="anggota-nama" placeholder="Nama anggota" /></div>
+                <div><label>NIK</label><input class="anggota-nik" placeholder="NIK" /></div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Jenis Kelamin</label>
+                    <select class="anggota-jk"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select>
+                </div>
+                <div><label>Tempat Lahir</label><input class="anggota-tmpLahir" placeholder="Tempat lahir" /></div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Tanggal Lahir</label><input class="anggota-tglLahir" type="date" /></div>
+                <div><label>Agama</label>
+                    <select class="anggota-agama">
+                        <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
+                        <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
+                        <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Pendidikan</label>
+                    <select class="anggota-pendidikan">
+                        <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
+                        <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
+                        <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
+                        <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
+                        <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/STRATA 1)</option>
+                        <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/STRATA 1)</option>
+                        <option value="SARJANA (S1)">SARJANA (S1)</option>
+                        <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
+                    </select>
+                </div>
+                <div><label>Pekerjaan</label>
+                    <select class="anggota-pekerjaan">
+                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                        <option value="PEGAWAI NEGERI SIPIL (PNS)">PEGAWAI NEGERI SIPIL (PNS)</option>
+                        <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
+                        <option value="WIRASWASTA">WIRASWASTA</option>
+                        <option value="GURU">GURU</option>
+                        <option value="TANI">TANI</option>
+                        <option value="NELAYAN">NELAYAN</option>
+                        <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div><label>Golongan Darah</label>
+                    <select class="anggota-golDarah">
+                        <option value="A">A</option><option value="B">B</option>
+                        <option value="AB">AB</option><option value="O">O</option>
+                        <option value="TIDAK TAHU">TIDAK TAHU</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.5rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah Anggota</button>
+                </div>
+            </div>
+            <div id="anggotaTambahanContainer"></div>
+        </div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalKeluarga">Batal</button>
             <button class="btn-simpan" id="simpanKeluarga">Simpan</button>
@@ -535,7 +650,77 @@
     </div>
 </div>
 
-<!-- ========== MODAL KARTU KELUARGA (PERSIS SEPERTI GAMBAR) ========== -->
+<!-- ========== MODAL TAMBAH ANGGOTA KE KELUARGA EXISTING ========== -->
+<div class="modal-overlay" id="modalTambahAnggota">
+    <div class="modal-box">
+        <h2><i class="fas fa-user-plus" style="color:#1c5f4e;"></i> Tambah Anggota Keluarga</h2>
+        <div class="info-edit" id="infoTambahAnggota">Pilih keluarga tujuan</div>
+        <label>Pilih Keluarga</label>
+        <select id="selectKeluargaTujuan"></select>
+        <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
+        <div class="form-row">
+            <div><label>Nama</label><input id="inpAnggotaNama" placeholder="Nama anggota" /></div>
+            <div><label>NIK</label><input id="inpAnggotaNIK" placeholder="NIK" /></div>
+        </div>
+        <div class="form-row">
+            <div><label>Jenis Kelamin</label>
+                <select id="inpAnggotaJK"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select>
+            </div>
+            <div><label>Tempat Lahir</label><input id="inpAnggotaTmpLahir" placeholder="Tempat lahir" /></div>
+        </div>
+        <div class="form-row">
+            <div><label>Tanggal Lahir</label><input id="inpAnggotaTglLahir" type="date" /></div>
+            <div><label>Agama</label>
+                <select id="inpAnggotaAgama">
+                    <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
+                    <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
+                    <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div><label>Pendidikan</label>
+                <select id="inpAnggotaPendidikan">
+                    <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
+                    <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
+                    <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
+                    <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
+                    <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/STRATA 1)</option>
+                    <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/STRATA 1)</option>
+                    <option value="SARJANA (S1)">SARJANA (S1)</option>
+                    <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
+                </select>
+            </div>
+            <div><label>Pekerjaan</label>
+                <select id="inpAnggotaPekerjaan">
+                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                    <option value="PEGAWAI NEGERI SIPIL (PNS)">PEGAWAI NEGERI SIPIL (PNS)</option>
+                    <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
+                    <option value="WIRASWASTA">WIRASWASTA</option>
+                    <option value="GURU">GURU</option>
+                    <option value="TANI">TANI</option>
+                    <option value="NELAYAN">NELAYAN</option>
+                    <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div><label>Golongan Darah</label>
+                <select id="inpAnggotaGolDarah">
+                    <option value="A">A</option><option value="B">B</option>
+                    <option value="AB">AB</option><option value="O">O</option>
+                    <option value="TIDAK TAHU">TIDAK TAHU</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalTambahAnggota">Batal</button>
+            <button class="btn-simpan" id="simpanTambahAnggota">Tambah Anggota</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL KARTU KELUARGA ========== -->
 <div class="modal-overlay" id="modalKartuKeluarga">
     <div class="modal-box modal-kk">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
@@ -547,9 +732,7 @@
                 <i class="fas fa-print"></i> Download
             </div>
         </div>
-        <div id="kkContent">
-            <!-- diisi oleh JS -->
-        </div>
+        <div id="kkContent"></div>
         <div class="modal-actions" style="margin-top:1.2rem;">
             <button class="btn-batal" data-close="modalKartuKeluarga">Tutup</button>
         </div>
@@ -618,7 +801,7 @@
 
 <script>
     (function() {
-        // ---------- DATA KELUARGA dengan detail lengkap seperti gambar ----------
+        // ---------- DATA KELUARGA ----------
         let dataKeluarga = [
             {
                 kepala: 'UJANG PRYATNA WAPRAK',
@@ -669,7 +852,6 @@
             }
         ];
 
-        // Data lain
         let dokumentasi = [
             { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
             { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
@@ -703,7 +885,10 @@
                         <td>${k.anggota} jiwa</td>
                         <td>${k.alamat}</td>
                         <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
-                        <td><button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i> Edit</button></td>
+                        <td>
+                            <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i> Tambah Anggota</button>
+                            <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i> Edit</button>
+                        </td>
                     </tr>
                 `;
             }).join('');
@@ -723,9 +908,17 @@
                     editKeluarga(idx);
                 });
             });
+
+            document.querySelectorAll('.btn-tambah-anggota-row').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const idx = parseInt(this.dataset.index);
+                    openTambahAnggota(idx);
+                });
+            });
         }
 
-        // ---------- KARTU KELUARGA (PERSIS SEPERTI GAMBAR) ----------
+        // ---------- KARTU KELUARGA ----------
         function showKartuKeluarga(index) {
             const k = dataKeluarga[index];
             if (!k) return;
@@ -733,7 +926,6 @@
             const container = document.getElementById('kkContent');
             document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
             
-            // Header info - seperti gambar
             let headerHtml = `
                 <div class="kk-header-box">
                     <div>
@@ -750,7 +942,6 @@
                 </div>
             `;
 
-            // Tabel utama sesuai gambar: No, Nama Lengkap, NIK, Jenis Kelamin, Tempat Lahir, Tanggal Lahir, Agama, Pendidikan, Jenis Pekerjaan, Golongan Darah
             let rows = '';
             const anggota = k.anggotaDetail || [];
             if (anggota.length === 0) {
@@ -854,9 +1045,39 @@
             document.getElementById('infoEditKeluarga').style.display = 'block';
             document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Sedang mengedit: <strong>${k.kepala}</strong>`;
             document.getElementById('inpKepala').value = k.kepala;
-            document.getElementById('inpAnggota').value = k.anggota;
             document.getElementById('inpAlamat').value = k.alamat;
             document.getElementById('inpKontak').value = k.kontak;
+            document.getElementById('inpNoKK').value = k.noKK || '';
+            document.getElementById('inpRT').value = k.rt || '';
+            document.getElementById('inpRW').value = k.rw || '';
+            document.getElementById('inpKodePos').value = k.kodePos || '';
+            
+            // Kosongkan anggota tambahan
+            document.getElementById('anggotaTambahanContainer').innerHTML = '';
+            // Isi field pertama dengan data kepala keluarga
+            const firstNama = document.querySelector('.anggota-nama');
+            const firstNik = document.querySelector('.anggota-nik');
+            const firstJk = document.querySelector('.anggota-jk');
+            const firstTmp = document.querySelector('.anggota-tmpLahir');
+            const firstTgl = document.querySelector('.anggota-tglLahir');
+            const firstAgama = document.querySelector('.anggota-agama');
+            const firstPend = document.querySelector('.anggota-pendidikan');
+            const firstPek = document.querySelector('.anggota-pekerjaan');
+            const firstGol = document.querySelector('.anggota-golDarah');
+            
+            if (k.anggotaDetail && k.anggotaDetail.length > 0) {
+                const kepala = k.anggotaDetail[0];
+                firstNama.value = kepala.nama || '';
+                firstNik.value = kepala.nik || '';
+                firstJk.value = kepala.jk || 'Laki-Laki';
+                firstTmp.value = kepala.tmpLahir || '';
+                firstTgl.value = kepala.tglLahir || '';
+                firstAgama.value = kepala.agama || 'ISLAM';
+                firstPend.value = kepala.pendidikan || 'SLTA/SEDERAJAT';
+                firstPek.value = kepala.pekerjaan || 'PELAJAR/MAHASISWA';
+                firstGol.value = kepala.golDarah || 'TIDAK TAHU';
+            }
+            
             document.getElementById('simpanKeluarga').textContent = 'Update';
             openModal('modalKeluarga');
         }
@@ -867,10 +1088,145 @@
             document.getElementById('infoEditKeluarga').style.display = 'none';
             document.getElementById('simpanKeluarga').textContent = 'Simpan';
             document.getElementById('inpKepala').value = '';
-            document.getElementById('inpAnggota').value = '';
             document.getElementById('inpAlamat').value = '';
             document.getElementById('inpKontak').value = '';
+            document.getElementById('inpNoKK').value = '';
+            document.getElementById('inpRT').value = '';
+            document.getElementById('inpRW').value = '';
+            document.getElementById('inpKodePos').value = '';
+            document.getElementById('anggotaTambahanContainer').innerHTML = '';
+            // Reset field pertama
+            document.querySelectorAll('.anggota-nama, .anggota-nik, .anggota-tmpLahir, .anggota-tglLahir').forEach(el => el.value = '');
+            document.querySelector('.anggota-jk').value = 'Laki-Laki';
+            document.querySelector('.anggota-agama').value = 'ISLAM';
+            document.querySelector('.anggota-pendidikan').value = 'SLTA/SEDERAJAT';
+            document.querySelector('.anggota-pekerjaan').value = 'PELAJAR/MAHASISWA';
+            document.querySelector('.anggota-golDarah').value = 'TIDAK TAHU';
         }
+
+        // ---------- TAMBAH ANGGOTA FIELD ----------
+        document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
+            const container = document.getElementById('anggotaTambahanContainer');
+            const idx = container.children.length + 2;
+            const div = document.createElement('div');
+            div.className = 'form-row';
+            div.style.marginBottom = '0.5rem';
+            div.style.border = '1px solid #e5ecf5';
+            div.style.padding = '0.5rem';
+            div.style.borderRadius = '12px';
+            div.innerHTML = `
+                <div><label>Nama</label><input class="anggota-nama-tambahan" placeholder="Nama anggota" /></div>
+                <div><label>NIK</label><input class="anggota-nik-tambahan" placeholder="NIK" /></div>
+                <div><label>JK</label>
+                    <select class="anggota-jk-tambahan">
+                        <option value="Laki-Laki">Laki-Laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+                <div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" placeholder="Tempat lahir" /></div>
+                <div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" type="date" /></div>
+                <div><label>Agama</label>
+                    <select class="anggota-agama-tambahan">
+                        <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
+                        <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
+                        <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
+                    </select>
+                </div>
+                <div><label>Pendidikan</label>
+                    <select class="anggota-pendidikan-tambahan">
+                        <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD</option>
+                        <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
+                        <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
+                        <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
+                        <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option>
+                        <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option>
+                        <option value="SARJANA (S1)">SARJANA (S1)</option>
+                        <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
+                    </select>
+                </div>
+                <div><label>Pekerjaan</label>
+                    <select class="anggota-pekerjaan-tambahan">
+                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                        <option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option>
+                        <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
+                        <option value="WIRASWASTA">WIRASWASTA</option>
+                        <option value="GURU">GURU</option>
+                        <option value="TANI">TANI</option>
+                        <option value="NELAYAN">NELAYAN</option>
+                        <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
+                    </select>
+                </div>
+                <div><label>Gol Darah</label>
+                    <select class="anggota-golDarah-tambahan">
+                        <option value="A">A</option><option value="B">B</option>
+                        <option value="AB">AB</option><option value="O">O</option>
+                        <option value="TIDAK TAHU">TIDAK TAHU</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.3rem 0.8rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i> Hapus</button>
+                </div>
+            `;
+            container.appendChild(div);
+            
+            div.querySelector('.btn-hapus-anggota').addEventListener('click', function() {
+                div.remove();
+            });
+        });
+
+        // ---------- TAMBAH ANGGOTA KE KELUARGA EXISTING ----------
+        let targetKeluargaIndex = -1;
+        function openTambahAnggota(index) {
+            targetKeluargaIndex = index;
+            const select = document.getElementById('selectKeluargaTujuan');
+            select.innerHTML = dataKeluarga.map((k, i) => 
+                `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`
+            ).join('');
+            document.getElementById('infoTambahAnggota').innerHTML = `<i class="fas fa-edit"></i> Menambah anggota ke keluarga: <strong>${dataKeluarga[index].kepala}</strong>`;
+            
+            document.getElementById('inpAnggotaNama').value = '';
+            document.getElementById('inpAnggotaNIK').value = '';
+            document.getElementById('inpAnggotaTmpLahir').value = '';
+            document.getElementById('inpAnggotaTglLahir').value = '';
+            document.getElementById('inpAnggotaJK').value = 'Laki-Laki';
+            document.getElementById('inpAnggotaAgama').value = 'ISLAM';
+            document.getElementById('inpAnggotaPendidikan').value = 'SLTA/SEDERAJAT';
+            document.getElementById('inpAnggotaPekerjaan').value = 'PELAJAR/MAHASISWA';
+            document.getElementById('inpAnggotaGolDarah').value = 'TIDAK TAHU';
+            
+            openModal('modalTambahAnggota');
+        }
+
+        document.getElementById('simpanTambahAnggota').addEventListener('click', function() {
+            const idx = parseInt(document.getElementById('selectKeluargaTujuan').value);
+            const k = dataKeluarga[idx];
+            if (!k) { alert('Keluarga tidak ditemukan'); return; }
+            
+            const nama = document.getElementById('inpAnggotaNama').value.trim().toUpperCase();
+            const nik = document.getElementById('inpAnggotaNIK').value.trim();
+            const jk = document.getElementById('inpAnggotaJK').value;
+            const tmpLahir = document.getElementById('inpAnggotaTmpLahir').value.trim().toUpperCase();
+            const tglLahir = document.getElementById('inpAnggotaTglLahir').value;
+            const agama = document.getElementById('inpAnggotaAgama').value;
+            const pendidikan = document.getElementById('inpAnggotaPendidikan').value;
+            const pekerjaan = document.getElementById('inpAnggotaPekerjaan').value;
+            const golDarah = document.getElementById('inpAnggotaGolDarah').value;
+            
+            if (!nama) { alert('Nama anggota harus diisi'); return; }
+            
+            const newAnggota = {
+                no: (k.anggotaDetail || []).length + 1,
+                nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan, golDarah
+            };
+            
+            if (!k.anggotaDetail) k.anggotaDetail = [];
+            k.anggotaDetail.push(newAnggota);
+            k.anggota = k.anggotaDetail.length;
+            
+            renderKeluarga();
+            closeModal('modalTambahAnggota');
+            alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
+        });
 
         // ---------- MODAL UTILITY ----------
         function openModal(id) {
@@ -903,36 +1259,102 @@
             });
         });
 
+        document.getElementById('btnTambahAnggotaUtama').addEventListener('click', function() {
+            if (dataKeluarga.length === 0) {
+                alert('Belum ada data keluarga. Tambahkan keluarga terlebih dahulu.');
+                return;
+            }
+            openTambahAnggota(0);
+        });
+
         // ---------- SIMPAN KELUARGA ----------
         document.getElementById('simpanKeluarga').addEventListener('click', function() {
             const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
-            const anggota = parseInt(document.getElementById('inpAnggota').value) || 0;
             const alamat = document.getElementById('inpAlamat').value.trim().toUpperCase();
             const kontak = document.getElementById('inpKontak').value.trim();
+            const noKK = document.getElementById('inpNoKK').value.trim() || '920701140817' + (1000 + dataKeluarga.length);
+            const rt = document.getElementById('inpRT').value.trim() || '001';
+            const rw = document.getElementById('inpRW').value.trim() || '002';
+            const kodePos = document.getElementById('inpKodePos').value.trim() || '98362';
 
             if (!kepala || !alamat || !kontak) { alert('Isi semua field'); return; }
 
+            // Kumpulkan data anggota
+            const anggotaList = [];
+            
+            // Anggota pertama (kepala)
+            const nama1 = document.querySelector('.anggota-nama').value.trim().toUpperCase() || kepala;
+            const nik1 = document.querySelector('.anggota-nik').value.trim();
+            const jk1 = document.querySelector('.anggota-jk').value;
+            const tmp1 = document.querySelector('.anggota-tmpLahir').value.trim().toUpperCase();
+            const tgl1 = document.querySelector('.anggota-tglLahir').value;
+            const agama1 = document.querySelector('.anggota-agama').value;
+            const pend1 = document.querySelector('.anggota-pendidikan').value;
+            const pek1 = document.querySelector('.anggota-pekerjaan').value;
+            const gol1 = document.querySelector('.anggota-golDarah').value;
+            
+            anggotaList.push({
+                no: 1,
+                nama: nama1,
+                nik: nik1 || '-',
+                jk: jk1,
+                tmpLahir: tmp1 || '-',
+                tglLahir: tgl1 || '-',
+                agama: agama1,
+                pendidikan: pend1,
+                pekerjaan: pek1,
+                golDarah: gol1
+            });
+
+            // Anggota tambahan
+            document.querySelectorAll('.anggota-nama-tambahan').forEach((el, i) => {
+                const nama = el.value.trim().toUpperCase();
+                if (!nama) return;
+                const container = el.closest('.form-row');
+                const nik = container.querySelector('.anggota-nik-tambahan').value.trim();
+                const jk = container.querySelector('.anggota-jk-tambahan').value;
+                const tmp = container.querySelector('.anggota-tmpLahir-tambahan').value.trim().toUpperCase();
+                const tgl = container.querySelector('.anggota-tglLahir-tambahan').value;
+                const agama = container.querySelector('.anggota-agama-tambahan').value;
+                const pend = container.querySelector('.anggota-pendidikan-tambahan').value;
+                const pek = container.querySelector('.anggota-pekerjaan-tambahan').value;
+                const gol = container.querySelector('.anggota-golDarah-tambahan').value;
+                
+                anggotaList.push({
+                    no: anggotaList.length + 1,
+                    nama: nama,
+                    nik: nik || '-',
+                    jk: jk,
+                    tmpLahir: tmp || '-',
+                    tglLahir: tgl || '-',
+                    agama: agama,
+                    pendidikan: pend,
+                    pekerjaan: pek,
+                    golDarah: gol
+                });
+            });
+
             if (editIndex === -1) {
                 dataKeluarga.push({
-                    kepala, anggota, alamat, kontak,
-                    noKK: '920701140817' + (1000 + dataKeluarga.length),
-                    rt: '001', rw: '002', kodePos: '98362',
-                    anggotaDetail: [
-                        { no:1, nama:kepala, nik:'-', jk:'-', tmpLahir:'-', tglLahir:'-', agama:'-', pendidikan:'-', pekerjaan:'-', golDarah:'-' }
-                    ]
+                    kepala, anggota: anggotaList.length, alamat, kontak,
+                    noKK, rt, rw, kodePos,
+                    anggotaDetail: anggotaList
                 });
             } else {
                 dataKeluarga[editIndex].kepala = kepala;
-                dataKeluarga[editIndex].anggota = anggota;
+                dataKeluarga[editIndex].anggota = anggotaList.length;
                 dataKeluarga[editIndex].alamat = alamat;
                 dataKeluarga[editIndex].kontak = kontak;
-                if (dataKeluarga[editIndex].anggotaDetail && dataKeluarga[editIndex].anggotaDetail.length > 0) {
-                    dataKeluarga[editIndex].anggotaDetail[0].nama = kepala;
-                }
+                dataKeluarga[editIndex].noKK = noKK;
+                dataKeluarga[editIndex].rt = rt;
+                dataKeluarga[editIndex].rw = rw;
+                dataKeluarga[editIndex].kodePos = kodePos;
+                dataKeluarga[editIndex].anggotaDetail = anggotaList;
                 editIndex = -1;
             }
             renderKeluarga();
             closeModal('modalKeluarga');
+            alert('Data keluarga berhasil disimpan!');
         });
 
         // ---------- SIMPAN DOKUMENTASI ----------
