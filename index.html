@@ -829,7 +829,7 @@
         </button>
     </nav>
     <div class="sidebar-footer">
-        <i class="fas fa-database"></i> Data simulasi v2.8
+        <i class="fas fa-database"></i> Data simulasi v2.9
     </div>
 </aside>
 
@@ -854,7 +854,7 @@
         </div>
         <div class="user-info">
             <i class="fas fa-user-circle"></i>
-            <span>Ketua RT</span>
+            <span id="headerKetuaRT">Ketua RT</span>
         </div>
     </div>
 
@@ -946,6 +946,8 @@
                 <h3><i class="fas fa-users" style="color:#1c5f4e;"></i> Data Pengurus</h3>
                 <label>Nama RT</label>
                 <input type="text" id="settingNamaRT" placeholder="Contoh: RT 08" />
+                <label>Nama Ketua RT</label>
+                <input type="text" id="settingKetuaRT" placeholder="Nama Ketua RT" />
                 <label>Nama Wakil RT</label>
                 <input type="text" id="settingWakilRT" placeholder="Nama Wakil RT" />
                 <label>Nama Bendahara RT</label>
@@ -1202,6 +1204,7 @@
     // ======================================================================
     let settingsData = {
         namaRT: localStorage.getItem('rt_namaRT') || 'RT 08 · Kelurahan Makmur',
+        ketuaRT: localStorage.getItem('rt_ketuaRT') || '',
         wakilRT: localStorage.getItem('rt_wakilRT') || '',
         bendahara: localStorage.getItem('rt_bendahara') || '',
         logoProvinsi: localStorage.getItem('rt_logoProvinsi') || '',
@@ -1321,11 +1324,15 @@
 
     function renderSettings() {
         document.getElementById('settingNamaRT').value = settingsData.namaRT;
+        document.getElementById('settingKetuaRT').value = settingsData.ketuaRT;
         document.getElementById('settingWakilRT').value = settingsData.wakilRT;
         document.getElementById('settingBendahara').value = settingsData.bendahara;
         
         // Update sidebar RT name
         document.getElementById('sidebarRTName').textContent = settingsData.namaRT || 'RT 08 · Kelurahan Makmur';
+        
+        // Update header Ketua RT
+        document.getElementById('headerKetuaRT').textContent = settingsData.ketuaRT || 'Ketua RT';
         
         // Preview logo provinsi
         const previewProv = document.getElementById('previewProvinsi');
@@ -1360,10 +1367,12 @@
     // ======================================================================
     document.getElementById('simpanPengurus').addEventListener('click', function() {
         settingsData.namaRT = document.getElementById('settingNamaRT').value.trim() || 'RT 08 · Kelurahan Makmur';
+        settingsData.ketuaRT = document.getElementById('settingKetuaRT').value.trim();
         settingsData.wakilRT = document.getElementById('settingWakilRT').value.trim();
         settingsData.bendahara = document.getElementById('settingBendahara').value.trim();
         
         localStorage.setItem('rt_namaRT', settingsData.namaRT);
+        localStorage.setItem('rt_ketuaRT', settingsData.ketuaRT);
         localStorage.setItem('rt_wakilRT', settingsData.wakilRT);
         localStorage.setItem('rt_bendahara', settingsData.bendahara);
         
