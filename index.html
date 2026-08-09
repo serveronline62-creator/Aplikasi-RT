@@ -829,7 +829,7 @@
         </button>
     </nav>
     <div class="sidebar-footer">
-        <i class="fas fa-database"></i> Data simulasi v2.9
+        <i class="fas fa-database"></i> Data simulasi v3.0
     </div>
 </aside>
 
@@ -840,12 +840,10 @@
         <div class="top-header-left">
             <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
             <div class="logo-container" id="logoContainer">
-                <!-- Logo Provinsi -->
                 <div id="logoProvinsiHeader">
                     <span class="no-logo-small">Logo Provinsi</span>
                 </div>
                 <div class="logo-divider"></div>
-                <!-- Logo Kabupaten -->
                 <div id="logoKabupatenHeader">
                     <span class="no-logo-small">Logo Kabupaten</span>
                 </div>
@@ -912,7 +910,7 @@
         </div>
         <div class="table-responsive">
             <table>
-                <thead><tr><th>Nama Tamu</th><th>Keperluan</th><th>Tanggal</th><th>Status</th></tr></thead>
+                <thead><tr><th>Nama Tamu</th><th>Keperluan</th><th>Tanggal</th><th>Status</th><th>Dokumen</th></tr></thead>
                 <tbody id="tableTamu"></tbody>
             </table>
         </div>
@@ -941,7 +939,6 @@
             <span><i class="fas fa-gear" style="color:#1f6b58;"></i> Pengaturan RT</span>
         </div>
         <div class="settings-grid">
-            <!-- Data Pengurus -->
             <div class="settings-card">
                 <h3><i class="fas fa-users" style="color:#1c5f4e;"></i> Data Pengurus</h3>
                 <label>Nama RT</label>
@@ -954,8 +951,6 @@
                 <input type="text" id="settingBendahara" placeholder="Nama Bendahara RT" />
                 <button class="btn-simpan-setting" id="simpanPengurus">Simpan Pengurus</button>
             </div>
-
-            <!-- Logo -->
             <div class="settings-card">
                 <h3><i class="fas fa-image" style="color:#1c5f4e;"></i> Logo</h3>
                 <label>Logo Provinsi</label>
@@ -1041,7 +1036,35 @@
     </div>
 </div>
 
-<!-- MODAL UPLOAD -->
+<!-- MODAL UPLOAD TAMU -->
+<div class="modal-overlay" id="modalUploadTamu">
+    <div class="modal-box">
+        <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen Tamu</h2>
+        <div class="info-edit" id="infoUploadTamu">Upload KTP atau Kartu Keluarga</div>
+        <label>Tamu</label>
+        <div id="uploadTamuInfo" style="font-weight:600;color:#0b2b3d;padding:0.3rem 0;margin-bottom:0.5rem;"></div>
+        <label>Jenis Dokumen</label>
+        <select id="inpJenisDokumenTamu">
+            <option value="KTP">KTP</option>
+            <option value="KARTU KELUARGA">KARTU KELUARGA</option>
+            <option value="AKTA LAHIR">AKTA LAHIR</option>
+            <option value="LAINNYA">LAINNYA</option>
+        </select>
+        <label>Upload File (PDF / JPEG / PNG)</label>
+        <input type="file" id="inpFileUploadTamu" accept=".pdf,.jpeg,.jpg,.png" />
+        <div id="filePreviewTamu" class="file-preview" style="display:none;">
+            <i class="fas fa-file"></i>
+            <span id="fileNamePreviewTamu"></span>
+            <button class="btn-hapus-file" id="btnHapusFileTamu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalUploadTamu">Batal</button>
+            <button class="btn-simpan" id="simpanUploadTamu">Upload</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UPLOAD KELUARGA -->
 <div class="modal-overlay" id="modalUpload">
     <div class="modal-box">
         <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen</h2>
@@ -1184,13 +1207,13 @@
     ];
 
     let tamuWajibLapor = [
-        { nama: 'Irfan Hakim', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor' },
-        { nama: 'Dewi Sartika', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor' },
-        { nama: 'Budi Santoso', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor' },
-        { nama: 'Rina Anggraeni', keperluan: 'Penelitian skripsi', tanggal: '2026-04-16', status: 'Sudah Lapor' },
-        { nama: 'Teguh Wicaksono', keperluan: 'Pemasangan internet', tanggal: '2026-04-18', status: 'Belum Lapor' },
-        { nama: 'Nadia Putri', keperluan: 'Kunjungan sosial', tanggal: '2026-04-20', status: 'Sudah Lapor' },
-        { nama: 'Rizky Fauzan', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor' }
+        { nama: 'Irfan Hakim', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor', fileUpload: null },
+        { nama: 'Dewi Sartika', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor', fileUpload: null },
+        { nama: 'Budi Santoso', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor', fileUpload: null },
+        { nama: 'Rina Anggraeni', keperluan: 'Penelitian skripsi', tanggal: '2026-04-16', status: 'Sudah Lapor', fileUpload: null },
+        { nama: 'Teguh Wicaksono', keperluan: 'Pemasangan internet', tanggal: '2026-04-18', status: 'Belum Lapor', fileUpload: null },
+        { nama: 'Nadia Putri', keperluan: 'Kunjungan sosial', tanggal: '2026-04-20', status: 'Sudah Lapor', fileUpload: null },
+        { nama: 'Rizky Fauzan', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor', fileUpload: null }
     ];
 
     let iuranRT = [
@@ -1200,7 +1223,7 @@
     ];
 
     // ======================================================================
-    // SETTINGS DATA (disimpan di localStorage)
+    // SETTINGS DATA
     // ======================================================================
     let settingsData = {
         namaRT: localStorage.getItem('rt_namaRT') || 'RT 08 · Kelurahan Makmur',
@@ -1285,11 +1308,33 @@
 
     function renderTamu() {
         const tbody = document.getElementById('tableTamu');
-        tbody.innerHTML = tamuWajibLapor.map(t => {
+        tbody.innerHTML = tamuWajibLapor.map((t, index) => {
+            const hasFile = t.fileUpload && t.fileUpload.base64;
+            const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
+            const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
+            const uploadText = hasFile ? 'Tersimpan' : 'Upload';
             const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
-            return `<tr><td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td><td>${t.keperluan}</td><td>${t.tanggal}</td><td><span class="tag ${cls}">${t.status}</span></td></tr>`;
+            return `
+                <tr>
+                    <td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td>
+                    <td>${t.keperluan}</td>
+                    <td>${t.tanggal}</td>
+                    <td><span class="tag ${cls}">${t.status}</span></td>
+                    <td>
+                        <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                    </td>
+                </tr>
+            `;
         }).join('');
         document.getElementById('statTamu').textContent = tamuWajibLapor.length;
+
+        document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.tamuIndex);
+                openUploadTamuModal(idx);
+            });
+        });
     }
 
     function renderIuran() {
@@ -1305,7 +1350,6 @@
     }
 
     function renderHeaderLogos() {
-        // Logo Provinsi di header
         const provContainer = document.getElementById('logoProvinsiHeader');
         if (settingsData.logoProvinsi) {
             provContainer.innerHTML = `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" title="Logo Provinsi" />`;
@@ -1313,7 +1357,6 @@
             provContainer.innerHTML = `<span class="no-logo-small">Logo Provinsi</span>`;
         }
         
-        // Logo Kabupaten di header
         const kabContainer = document.getElementById('logoKabupatenHeader');
         if (settingsData.logoKabupaten) {
             kabContainer.innerHTML = `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" title="Logo Kabupaten" />`;
@@ -1328,13 +1371,9 @@
         document.getElementById('settingWakilRT').value = settingsData.wakilRT;
         document.getElementById('settingBendahara').value = settingsData.bendahara;
         
-        // Update sidebar RT name
         document.getElementById('sidebarRTName').textContent = settingsData.namaRT || 'RT 08 · Kelurahan Makmur';
-        
-        // Update header Ketua RT
         document.getElementById('headerKetuaRT').textContent = settingsData.ketuaRT || 'Ketua RT';
         
-        // Preview logo provinsi
         const previewProv = document.getElementById('previewProvinsi');
         if (settingsData.logoProvinsi) {
             previewProv.innerHTML = `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" />`;
@@ -1342,7 +1381,6 @@
             previewProv.innerHTML = `<span class="no-logo">Belum ada logo</span>`;
         }
         
-        // Preview logo kabupaten
         const previewKab = document.getElementById('previewKabupaten');
         if (settingsData.logoKabupaten) {
             previewKab.innerHTML = `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" />`;
@@ -1350,7 +1388,6 @@
             previewKab.innerHTML = `<span class="no-logo">Belum ada logo</span>`;
         }
         
-        // Update header logos
         renderHeaderLogos();
     }
 
@@ -1380,27 +1417,23 @@
         alert('Data pengurus berhasil disimpan!');
     });
 
-    // Logo Provinsi
     document.getElementById('settingLogoProvinsi').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(ev) {
-            const preview = document.getElementById('previewProvinsi');
-            preview.innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
+            document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
             settingsData.logoProvinsi = ev.target.result;
         };
         reader.readAsDataURL(file);
     });
 
-    // Logo Kabupaten
     document.getElementById('settingLogoKabupaten').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(ev) {
-            const preview = document.getElementById('previewKabupaten');
-            preview.innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
+            document.getElementById('previewKabupaten').innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
             settingsData.logoKabupaten = ev.target.result;
         };
         reader.readAsDataURL(file);
@@ -1415,6 +1448,158 @@
         }
         renderSettings();
         alert('Logo berhasil disimpan!');
+    });
+
+    // ======================================================================
+    // UPLOAD TAMU
+    // ======================================================================
+    let uploadTamuIndex = -1;
+    let selectedFileTamu = null;
+
+    function openUploadTamuModal(index) {
+        uploadTamuIndex = index;
+        const t = tamuWajibLapor[index];
+        document.getElementById('uploadTamuInfo').textContent = `${t.nama} - ${t.keperluan}`;
+        document.getElementById('inpJenisDokumenTamu').value = 'KTP';
+        document.getElementById('inpFileUploadTamu').value = '';
+        document.getElementById('filePreviewTamu').style.display = 'none';
+        selectedFileTamu = null;
+        
+        if (t.fileUpload && t.fileUpload.base64) {
+            document.getElementById('filePreviewTamu').style.display = 'flex';
+            document.getElementById('fileNamePreviewTamu').textContent = t.fileUpload.nama || 'Dokumen';
+            document.getElementById('inpJenisDokumenTamu').value = t.fileUpload.jenis || 'KTP';
+            selectedFileTamu = t.fileUpload;
+        }
+        openModal('modalUploadTamu');
+    }
+
+    document.getElementById('inpFileUploadTamu').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedFileTamu = {
+                nama: file.name,
+                jenis: document.getElementById('inpJenisDokumenTamu').value,
+                base64: e.target.result,
+                tipe: file.type
+            };
+            document.getElementById('filePreviewTamu').style.display = 'flex';
+            document.getElementById('fileNamePreviewTamu').textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btnHapusFileTamu').addEventListener('click', function() {
+        document.getElementById('inpFileUploadTamu').value = '';
+        document.getElementById('filePreviewTamu').style.display = 'none';
+        selectedFileTamu = null;
+    });
+
+    document.getElementById('simpanUploadTamu').addEventListener('click', function() {
+        if (!selectedFileTamu || !selectedFileTamu.base64) {
+            alert('Silakan pilih file terlebih dahulu');
+            return;
+        }
+        const t = tamuWajibLapor[uploadTamuIndex];
+        if (!t) return;
+        t.fileUpload = {
+            nama: selectedFileTamu.nama,
+            jenis: document.getElementById('inpJenisDokumenTamu').value,
+            base64: selectedFileTamu.base64,
+            tipe: selectedFileTamu.tipe
+        };
+        renderTamu();
+        closeModal('modalUploadTamu');
+        alert(`File ${selectedFileTamu.nama} berhasil diupload untuk tamu ${t.nama}`);
+    });
+
+    // ======================================================================
+    // UPLOAD KELUARGA
+    // ======================================================================
+    let uploadTargetIndex = -1;
+    let selectedFile = null;
+
+    function openUploadModal(index) {
+        uploadTargetIndex = index;
+        const k = dataKeluarga[index];
+        document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
+        document.getElementById('inpJenisDokumen').value = 'KTP';
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+        
+        if (k.fileUpload && k.fileUpload.base64) {
+            document.getElementById('filePreview').style.display = 'flex';
+            document.getElementById('fileNamePreview').textContent = k.fileUpload.nama || 'Dokumen';
+            document.getElementById('inpJenisDokumen').value = k.fileUpload.jenis || 'KTP';
+            selectedFile = k.fileUpload;
+        }
+        openModal('modalUpload');
+    }
+
+    document.getElementById('inpFileUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedFile = {
+                nama: file.name,
+                jenis: document.getElementById('inpJenisDokumen').value,
+                base64: e.target.result,
+                tipe: file.type
+            };
+            document.getElementById('filePreview').style.display = 'flex';
+            document.getElementById('fileNamePreview').textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btnHapusFile').addEventListener('click', function() {
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+    });
+
+    document.getElementById('simpanUpload').addEventListener('click', function() {
+        if (!selectedFile || !selectedFile.base64) {
+            alert('Silakan pilih file terlebih dahulu');
+            return;
+        }
+        const k = dataKeluarga[uploadTargetIndex];
+        if (!k) return;
+        k.fileUpload = {
+            nama: selectedFile.nama,
+            jenis: document.getElementById('inpJenisDokumen').value,
+            base64: selectedFile.base64,
+            tipe: selectedFile.tipe
+        };
+        renderKeluarga();
+        closeModal('modalUpload');
+        alert(`File ${selectedFile.nama} berhasil diupload untuk keluarga ${k.kepala}`);
     });
 
     // ======================================================================
@@ -1660,82 +1845,6 @@
     });
 
     // ======================================================================
-    // UPLOAD
-    // ======================================================================
-    let uploadTargetIndex = -1;
-    let selectedFile = null;
-
-    function openUploadModal(index) {
-        uploadTargetIndex = index;
-        const k = dataKeluarga[index];
-        document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
-        document.getElementById('inpJenisDokumen').value = 'KTP';
-        document.getElementById('inpFileUpload').value = '';
-        document.getElementById('filePreview').style.display = 'none';
-        selectedFile = null;
-        
-        if (k.fileUpload && k.fileUpload.base64) {
-            document.getElementById('filePreview').style.display = 'flex';
-            document.getElementById('fileNamePreview').textContent = k.fileUpload.nama || 'Dokumen';
-            document.getElementById('inpJenisDokumen').value = k.fileUpload.jenis || 'KTP';
-            selectedFile = k.fileUpload;
-        }
-        openModal('modalUpload');
-    }
-
-    document.getElementById('inpFileUpload').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
-            this.value = '';
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB');
-            this.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedFile = {
-                nama: file.name,
-                jenis: document.getElementById('inpJenisDokumen').value,
-                base64: e.target.result,
-                tipe: file.type
-            };
-            document.getElementById('filePreview').style.display = 'flex';
-            document.getElementById('fileNamePreview').textContent = file.name;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('btnHapusFile').addEventListener('click', function() {
-        document.getElementById('inpFileUpload').value = '';
-        document.getElementById('filePreview').style.display = 'none';
-        selectedFile = null;
-    });
-
-    document.getElementById('simpanUpload').addEventListener('click', function() {
-        if (!selectedFile || !selectedFile.base64) {
-            alert('Silakan pilih file terlebih dahulu');
-            return;
-        }
-        const k = dataKeluarga[uploadTargetIndex];
-        if (!k) return;
-        k.fileUpload = {
-            nama: selectedFile.nama,
-            jenis: document.getElementById('inpJenisDokumen').value,
-            base64: selectedFile.base64,
-            tipe: selectedFile.tipe
-        };
-        renderKeluarga();
-        closeModal('modalUpload');
-        alert(`File ${selectedFile.nama} berhasil diupload untuk keluarga ${k.kepala}`);
-    });
-
-    // ======================================================================
     // EDIT KELUARGA
     // ======================================================================
     let editIndex = -1;
@@ -1972,7 +2081,7 @@
         const tanggal = document.getElementById('inpTglTamu').value;
         const status = document.getElementById('inpStatusTamu').value;
         if (!nama || !keperluan || !tanggal) { alert('Semua field harus diisi'); return; }
-        tamuWajibLapor.push({ nama, keperluan, tanggal, status });
+        tamuWajibLapor.push({ nama, keperluan, tanggal, status, fileUpload: null });
         renderTamu();
         closeModal('modalTamu');
         document.getElementById('inpNamaTamu').value = '';
@@ -2011,6 +2120,11 @@
             document.getElementById('filePreview').style.display = 'none';
             selectedFile = null;
         }
+        if (id === 'modalUploadTamu') {
+            document.getElementById('inpFileUploadTamu').value = '';
+            document.getElementById('filePreviewTamu').style.display = 'none';
+            selectedFileTamu = null;
+        }
     }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
@@ -2022,6 +2136,11 @@
                     document.getElementById('inpFileUpload').value = '';
                     document.getElementById('filePreview').style.display = 'none';
                     selectedFile = null;
+                }
+                if (this.id === 'modalUploadTamu') {
+                    document.getElementById('inpFileUploadTamu').value = '';
+                    document.getElementById('filePreviewTamu').style.display = 'none';
+                    selectedFileTamu = null;
                 }
             }
         });
