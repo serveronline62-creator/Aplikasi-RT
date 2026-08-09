@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RT Kita · Manajemen Rukun Tetangga</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- html2pdf + html2canvas untuk generate PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         * {
@@ -15,110 +14,222 @@
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
         }
         body {
-            background: #f4f7fc;
+            background: #f0f2f5;
             display: flex;
-            justify-content: center;
-            padding: 2rem 1rem;
+            min-height: 100vh;
         }
-        .app-wrapper {
-            max-width: 1300px;
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 260px;
+            background: #0b2b3d;
+            color: white;
+            padding: 1.8rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.8rem;
+        }
+        .sidebar-brand i {
+            font-size: 2.2rem;
+            color: #5bc0a8;
+        }
+        .sidebar-brand h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-brand .rt-badge {
+            font-size: 0.7rem;
+            background: rgba(91, 192, 168, 0.25);
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            color: #5bc0a8;
+            margin-top: 2px;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .sidebar-menu .menu-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 1px;
+            padding: 0.8rem 0.6rem 0.3rem;
+            font-weight: 600;
+        }
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            background: transparent;
             width: 100%;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 40px -12px rgba(0,20,30,0.25);
-            padding: 2rem 1.8rem;
+            text-align: left;
+        }
+        .sidebar-menu .menu-item i {
+            width: 22px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.5);
             transition: 0.2s;
         }
-        .header {
+        .sidebar-menu .menu-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+        .sidebar-menu .menu-item:hover i {
+            color: #5bc0a8;
+        }
+        .sidebar-menu .menu-item.active {
+            background: rgba(91, 192, 168, 0.2);
+            color: white;
+            box-shadow: inset 3px 0 0 #5bc0a8;
+        }
+        .sidebar-menu .menu-item.active i {
+            color: #5bc0a8;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 2rem 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        /* ========== HEADER ========== */
+        .top-header {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            border-bottom: 2px solid #e9edf4;
             padding-bottom: 1.2rem;
+            border-bottom: 2px solid #e9edf4;
         }
-        .header h1 {
-            font-size: 1.9rem;
+        .top-header .page-title {
+            font-size: 1.6rem;
             font-weight: 600;
             color: #0b2b3d;
-            letter-spacing: -0.3px;
         }
-        .header h1 i {
+        .top-header .page-title i {
             color: #2a7f6e;
             margin-right: 10px;
         }
-        .header .badge-rt {
-            background: #e2f0ee;
-            color: #1b5e4a;
-            padding: 0.5rem 1.2rem;
-            border-radius: 60px;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-        .tabs {
+        .top-header .user-info {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 2.2rem;
-            border-bottom: 1px solid #dde3ed;
-            padding-bottom: 0.5rem;
-        }
-        .tab-btn {
-            background: transparent;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #3d4d62;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: 0.15s;
-            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            background: white;
+            padding: 0.4rem 1.2rem 0.4rem 0.8rem;
+            border-radius: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
-        .tab-btn i { color: #5b6f84; }
-        .tab-btn:hover { background: #e9eef6; color: #0f2b3b; }
-        .tab-btn.active {
-            background: #1c5f4e;
-            color: white;
-            box-shadow: 0 6px 12px rgba(28,95,78,0.25);
+        .top-header .user-info i {
+            font-size: 1.4rem;
+            color: #2a7f6e;
+            background: #e2f0ee;
+            padding: 8px;
+            border-radius: 50%;
         }
-        .tab-btn.active i { color: white; }
-        .panel { display: none; animation: fade 0.2s ease; }
-        .panel.active { display: block; }
-        @keyframes fade { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+        .top-header .user-info span {
+            font-weight: 500;
+            color: #1a3b4f;
+            font-size: 0.9rem;
+        }
 
+        /* ========== STATS ========== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1.2rem;
             margin-bottom: 2rem;
         }
         .stat-card {
-            background: #f8faff;
-            border-radius: 24px;
-            padding: 1.2rem 0.8rem;
-            text-align: center;
-            border: 1px solid #e3eaf2;
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem 1.2rem;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
-        .stat-card i {
-            font-size: 1.8rem;
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: #e8f4f0;
             color: #1c5f4e;
-            background: #e0f0ec;
-            padding: 10px;
-            border-radius: 60px;
-            margin-bottom: 6px;
         }
-        .stat-card .angka { font-size: 1.9rem; font-weight: 700; color: #0b2b3d; }
-        .stat-card .label { color: #4d6279; font-weight: 500; font-size: 0.9rem; }
+        .stat-card .stat-info .angka {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0b2b3d;
+            line-height: 1.2;
+        }
+        .stat-card .stat-info .label {
+            font-size: 0.8rem;
+            color: #6a7e94;
+            font-weight: 500;
+        }
+
+        /* ========== PANELS ========== */
+        .panel {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .panel.active {
+            display: block;
+        }
+        @keyframes fade {
+            0% { opacity: 0.3; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
 
         .section-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #0b2b3d;
-            margin: 1.8rem 0 1.2rem 0;
+            margin: 1.5rem 0 1.2rem 0;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -129,10 +240,10 @@
             background: #1c5f4e;
             border: none;
             color: white;
-            padding: 0.5rem 1.4rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 60px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -160,31 +271,34 @@
         }
         .section-title .btn-tambah-anggota:hover {
             background: #1c5f4e;
-            transform: scale(1.02);
         }
 
         .table-responsive {
             overflow-x: auto;
-            background: #fafcff;
+            background: white;
             border-radius: 20px;
-            border: 1px solid #e5ecf5;
+            border: 1px solid #e9edf4;
             padding: 0.2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         th {
             text-align: left;
-            padding: 1rem 0.8rem 0.8rem 0.8rem;
+            padding: 0.9rem 0.8rem 0.7rem 0.8rem;
             color: #2b445a;
             font-weight: 600;
-            border-bottom: 2px solid #dde3ed;
+            border-bottom: 2px solid #e9edf4;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         td {
-            padding: 0.8rem;
-            border-bottom: 1px solid #e5ecf5;
+            padding: 0.7rem 0.8rem;
+            border-bottom: 1px solid #f0f2f5;
             color: #1a3145;
             vertical-align: middle;
         }
@@ -193,7 +307,7 @@
             background: #e3f0f5;
             padding: 0.2rem 0.9rem;
             border-radius: 40px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
             color: #12507a;
             display: inline-block;
@@ -205,9 +319,9 @@
         .btn-edit {
             background: #e9eef6;
             border: none;
-            padding: 0.2rem 0.9rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 40px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             color: #1f3d58;
             cursor: pointer;
@@ -221,9 +335,9 @@
         .btn-upload {
             background: #2a7f6e;
             border: none;
-            padding: 0.2rem 0.9rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 40px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             color: white;
             cursor: pointer;
@@ -240,9 +354,9 @@
         .btn-tambah-anggota-row {
             background: #2a7f6e;
             border: none;
-            padding: 0.2rem 0.9rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 40px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             color: white;
             cursor: pointer;
@@ -266,38 +380,36 @@
 
         .dokumentasi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.4rem;
-            margin-top: 0.8rem;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin-top: 0.5rem;
         }
         .dok-item {
-            background: #f6faff;
-            border-radius: 24px;
+            background: white;
+            border-radius: 20px;
             padding: 1rem 0.8rem 0.8rem;
-            border: 1px solid #e3ebf5;
+            border: 1px solid #e9edf4;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .dok-item i {
-            font-size: 2.6rem;
+            font-size: 2.4rem;
             color: #2c7f6b;
             background: #dff0ea;
-            padding: 14px;
+            padding: 12px;
             border-radius: 60px;
             margin-bottom: 6px;
         }
-        .dok-item .dok-title { font-weight: 600; color: #103f31; }
-        .dok-item .dok-date { font-size: 0.8rem; color: #4a6a7a; }
+        .dok-item .dok-title { font-weight: 600; color: #103f31; font-size: 0.9rem; }
+        .dok-item .dok-date { font-size: 0.75rem; color: #4a6a7a; }
 
-        .footer-note {
-            margin-top: 2.8rem;
-            font-size: 0.8rem;
-            color: #6b7e93;
-            border-top: 1px solid #e2eaf2;
-            padding-top: 1.4rem;
-            text-align: right;
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
         }
 
-        /* MODAL UMUM */
+        /* ========== MODAL ========== */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -313,7 +425,7 @@
             background: white;
             max-width: 560px;
             width: 94%;
-            border-radius: 32px;
+            border-radius: 28px;
             padding: 2rem 1.8rem;
             box-shadow: 0 30px 50px rgba(0,0,0,0.3);
             animation: slideUp 0.25s ease;
@@ -325,7 +437,7 @@
             100% { transform: translateY(0); opacity: 1; }
         }
         .modal-box h2 {
-            margin-bottom: 1.4rem;
+            margin-bottom: 1.2rem;
             font-weight: 600;
             color: #0b2b3d;
             display: flex;
@@ -338,7 +450,7 @@
             color: #1d3b4f;
             display: block;
             margin: 0.6rem 0 0.2rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .modal-box input, .modal-box select {
             width: 100%;
@@ -364,13 +476,13 @@
             justify-content: flex-end;
         }
         .modal-actions button {
-            padding: 0.6rem 1.8rem;
+            padding: 0.5rem 1.6rem;
             border-radius: 60px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: 0.1s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .modal-actions .btn-batal {
             background: #e9eef6;
@@ -389,7 +501,7 @@
             border-radius: 12px;
             padding: 0.5rem 1rem;
             margin-bottom: 0.8rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #1a4d3e;
         }
         .form-row {
@@ -401,29 +513,44 @@
             .form-row { grid-template-columns: 1fr; }
         }
 
+        .file-preview {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f7f5;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #1a4d3e;
+        }
+        .file-preview .btn-hapus-file {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+        }
+
         /* MODAL KARTU KELUARGA */
         .modal-kk {
             max-width: 1200px !important;
             width: 97% !important;
             padding: 1.8rem 2rem !important;
-            background: white;
         }
         .kk-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #0b2b3d;
-            letter-spacing: 0.5px;
         }
         .kk-subtitle {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #3d5a73;
-            margin-bottom: 0.2rem;
             font-weight: 500;
         }
         .kk-header-box {
             background: #f8faff;
             border: 1px solid #dde3ed;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0.8rem 1.2rem;
             margin: 0.8rem 0 1.2rem 0;
             display: flex;
@@ -433,13 +560,12 @@
         }
         .kk-header-box .kk-nama {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: #0b2b3d;
-            letter-spacing: 0.3px;
         }
         .kk-header-box .kk-detail {
             color: #2a5f7a;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .kk-header-box .kk-detail i {
             margin-right: 4px;
@@ -448,14 +574,14 @@
         .kk-table-wrap {
             overflow-x: auto;
             border: 1px solid #dde3ed;
-            border-radius: 8px;
+            border-radius: 10px;
             background: white;
             margin-top: 0.5rem;
         }
         .kk-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             min-width: 1000px;
         }
         .kk-table th {
@@ -465,15 +591,14 @@
             font-weight: 600;
             color: #1d3b4f;
             border-bottom: 2px solid #c8d4e3;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             white-space: nowrap;
-            letter-spacing: 0.3px;
         }
         .kk-table td {
-            padding: 0.45rem 0.6rem;
+            padding: 0.4rem 0.6rem;
             border-bottom: 1px solid #e5ecf5;
             color: #1a3145;
-            font-size: 0.75rem;
+            font-size: 0.73rem;
         }
         .kk-table tr:last-child td { border-bottom: none; }
         .kk-table .no-col {
@@ -490,6 +615,8 @@
             font-size: 0.8rem;
             color: #1c5f4e;
             font-weight: 500;
+            border-top: 1px solid #dde3ed;
+            padding-top: 0.8rem;
         }
         .kk-footer span {
             cursor: pointer;
@@ -502,78 +629,128 @@
             color: #0d3d31;
             text-decoration: underline;
         }
-        .kk-footer i {
-            font-size: 0.9rem;
-        }
 
-        /* File preview */
-        .file-preview {
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f0f7f5;
-            padding: 0.3rem 0.8rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            color: #1a4d3e;
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                padding: 1.2rem 0.8rem;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1.2rem;
+            }
+            .top-header .page-title { font-size: 1.2rem; }
+            .modal-kk { padding: 1.2rem !important; }
+            .kk-table { font-size: 0.65rem; min-width: 700px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .hamburger {
+                display: flex !important;
+            }
         }
-        .file-preview i {
-            color: #1c5f4e;
-        }
-        .file-preview .btn-hapus-file {
+        .hamburger {
+            display: none;
             background: none;
             border: none;
-            color: #e74c3c;
+            font-size: 1.6rem;
+            color: #0b2b3d;
             cursor: pointer;
-            font-size: 0.8rem;
+            padding: 0.3rem;
         }
-        .file-preview .btn-hapus-file:hover {
-            color: #c0392b;
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 99;
         }
-
-        /* PDF content wrapper untuk download */
-        #kkPdfContent {
-            background: white;
-            padding: 1.5rem;
+        .sidebar-overlay.show {
+            display: block;
         }
-
         @media (max-width: 768px) {
-            .modal-kk { padding: 1.2rem !important; }
-            .kk-table { font-size: 0.65rem; min-width: 800px; }
-            .kk-table th, .kk-table td { padding: 0.3rem 0.4rem; }
-            .kk-title { font-size: 1.2rem; }
+            .sidebar-overlay.show { display: block; }
         }
     </style>
 </head>
 <body>
-<div class="app-wrapper">
-    <div class="header">
-        <h1><i class="fas fa-people-roof"></i> RT 08 · Kelurahan Makmur</h1>
-        <span class="badge-rt"><i class="fas fa-circle-check" style="margin-right: 6px;"></i> data terbaru</span>
+
+<!-- ========== SIDEBAR OVERLAY (mobile) ========== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ========== SIDEBAR ========== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-people-roof"></i>
+        <div>
+            <h2>RT Kita</h2>
+            <div class="rt-badge">RT 08 · Kelurahan Makmur</div>
+        </div>
+    </div>
+    <nav class="sidebar-menu">
+        <div class="menu-label">Menu Utama</div>
+        <button class="menu-item active" data-tab="tab-keluarga">
+            <i class="fas fa-people-group"></i> Data Keluarga
+        </button>
+        <button class="menu-item" data-tab="tab-dokumentasi">
+            <i class="fas fa-camera"></i> Kerja Bakti
+        </button>
+        <button class="menu-item" data-tab="tab-tamu">
+            <i class="fas fa-address-book"></i> Tamu Wajib Lapor
+        </button>
+        <button class="menu-item" data-tab="tab-iuran">
+            <i class="fas fa-coins"></i> Iuran RT
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <i class="fas fa-database"></i> Data simulasi v2.7
+    </div>
+</aside>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main class="main-content">
+    <!-- TOP HEADER -->
+    <div class="top-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+            <div class="page-title" id="pageTitle"><i class="fas fa-people-group"></i> Data Keluarga</div>
+        </div>
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span>Ketua RT</span>
+        </div>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="tab-keluarga"><i class="fas fa-people-group"></i> Keluarga</button>
-        <button class="tab-btn" data-tab="tab-dokumentasi"><i class="fas fa-camera"></i> Kerja Bakti</button>
-        <button class="tab-btn" data-tab="tab-tamu"><i class="fas fa-address-book"></i> Tamu Wajib Lapor</button>
-        <button class="tab-btn" data-tab="tab-iuran"><i class="fas fa-coins"></i> Iuran RT</button>
-    </div>
-
+    <!-- STATS -->
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><i class="fas fa-people-group"></i><div class="angka" id="statKeluarga">12</div><div class="label">Keluarga</div></div>
-        <div class="stat-card"><i class="fas fa-camera"></i><div class="angka" id="statDokumentasi">4</div><div class="label">Dokumentasi</div></div>
-        <div class="stat-card"><i class="fas fa-user-plus"></i><div class="angka" id="statTamu">7</div><div class="label">Tamu Lapor</div></div>
-        <div class="stat-card"><i class="fas fa-coins"></i><div class="angka" id="statIuran">Rp 2.4Jt</div><div class="label">Terkumpul</div></div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-people-group"></i></div>
+            <div class="stat-info"><div class="angka" id="statKeluarga">12</div><div class="label">Keluarga</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-camera"></i></div>
+            <div class="stat-info"><div class="angka" id="statDokumentasi">4</div><div class="label">Dokumentasi</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="stat-info"><div class="angka" id="statTamu">7</div><div class="label">Tamu Lapor</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-info"><div class="angka" id="statIuran">Rp 2.4Jt</div><div class="label">Terkumpul</div></div>
+        </div>
     </div>
 
-    <!-- PANEL KELUARGA -->
+    <!-- ========== PANEL KELUARGA ========== -->
     <div id="tab-keluarga" class="panel active">
         <div class="section-title">
-            <span><i class="fas fa-people-arrows" style="color: #1f6b58;"></i> Data Keluarga</span>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn-tambah-anggota" id="btnTambahAnggotaUtama"><i class="fas fa-user-plus"></i> Tambah Anggota</button>
-                <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Tambah Keluarga</button>
+            <span><i class="fas fa-people-arrows" style="color:#1f6b58;"></i> Data Keluarga</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn-tambah-anggota" id="btnTambahAnggotaUtama"><i class="fas fa-user-plus"></i> Anggota</button>
+                <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Keluarga</button>
             </div>
         </div>
         <div class="table-responsive">
@@ -584,19 +761,19 @@
         </div>
     </div>
 
-    <!-- PANEL DOKUMENTASI -->
+    <!-- ========== PANEL DOKUMENTASI ========== -->
     <div id="tab-dokumentasi" class="panel">
         <div class="section-title">
-            <span><i class="fas fa-broom" style="color: #1f6b58;"></i> Dokumentasi Kerja Bakti</span>
+            <span><i class="fas fa-broom" style="color:#1f6b58;"></i> Dokumentasi Kerja Bakti</span>
             <button class="btn-tambah" data-modal="modalDokumentasi"><i class="fas fa-plus"></i> Tambah</button>
         </div>
         <div class="dokumentasi-grid" id="dokumentasiGrid"></div>
     </div>
 
-    <!-- PANEL TAMU -->
+    <!-- ========== PANEL TAMU ========== -->
     <div id="tab-tamu" class="panel">
         <div class="section-title">
-            <span><i class="fas fa-door-open" style="color: #a1581c;"></i> Tamu Wajib Lapor</span>
+            <span><i class="fas fa-door-open" style="color:#a1581c;"></i> Tamu Wajib Lapor</span>
             <button class="btn-tambah" data-modal="modalTamu"><i class="fas fa-plus"></i> Tambah</button>
         </div>
         <div class="table-responsive">
@@ -607,10 +784,10 @@
         </div>
     </div>
 
-    <!-- PANEL IURAN -->
+    <!-- ========== PANEL IURAN ========== -->
     <div id="tab-iuran" class="panel">
         <div class="section-title">
-            <span><i class="fas fa-hand-holding-dollar" style="color: #1f4780;"></i> Data Iuran RT</span>
+            <span><i class="fas fa-hand-holding-dollar" style="color:#1f4780;"></i> Data Iuran RT</span>
             <button class="btn-tambah" data-modal="modalIuran"><i class="fas fa-plus"></i> Tambah</button>
         </div>
         <div class="table-responsive">
@@ -619,13 +796,15 @@
                 <tbody id="tableIuran"></tbody>
             </table>
         </div>
-        <div class="flex-end" style="margin-top:1rem;"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span></div>
+        <div style="margin-top:1rem;text-align:right;">
+            <span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span>
+        </div>
     </div>
+</main>
 
-    <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.7</div>
-</div>
+<!-- ========== MODALS ========== -->
 
-<!-- ========== MODAL KELUARGA (TAMBAH / EDIT KELUARGA) ========== -->
+<!-- MODAL KELUARGA -->
 <div class="modal-overlay" id="modalKeluarga">
     <div class="modal-box">
         <h2 id="modalKeluargaTitle"><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
@@ -640,65 +819,27 @@
         </div>
         <label>Kode Pos</label><input id="inpKodePos" placeholder="98362" />
         <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
-        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota Keluarga</h3>
+        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota</h3>
         <div id="anggotaFields">
             <div class="form-row" style="margin-bottom:0.5rem;">
                 <div><label>Nama</label><input class="anggota-nama" placeholder="Nama anggota" /></div>
                 <div><label>NIK</label><input class="anggota-nik" placeholder="NIK" /></div>
             </div>
             <div class="form-row" style="margin-bottom:0.5rem;">
-                <div><label>Jenis Kelamin</label>
-                    <select class="anggota-jk"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select>
-                </div>
+                <div><label>Jenis Kelamin</label><select class="anggota-jk"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div>
                 <div><label>Tempat Lahir</label><input class="anggota-tmpLahir" placeholder="Tempat lahir" /></div>
             </div>
             <div class="form-row" style="margin-bottom:0.5rem;">
                 <div><label>Tanggal Lahir</label><input class="anggota-tglLahir" type="date" /></div>
-                <div><label>Agama</label>
-                    <select class="anggota-agama">
-                        <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
-                        <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
-                        <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
-                    </select>
-                </div>
+                <div><label>Agama</label><select class="anggota-agama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div>
             </div>
             <div class="form-row" style="margin-bottom:0.5rem;">
-                <div><label>Pendidikan</label>
-                    <select class="anggota-pendidikan">
-                        <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
-                        <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
-                        <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
-                        <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
-                        <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/STRATA 1)</option>
-                        <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/STRATA 1)</option>
-                        <option value="SARJANA (S1)">SARJANA (S1)</option>
-                        <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
-                    </select>
-                </div>
-                <div><label>Pekerjaan</label>
-                    <select class="anggota-pekerjaan">
-                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                        <option value="PEGAWAI NEGERI SIPIL (PNS)">PEGAWAI NEGERI SIPIL (PNS)</option>
-                        <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
-                        <option value="WIRASWASTA">WIRASWASTA</option>
-                        <option value="GURU">GURU</option>
-                        <option value="TANI">TANI</option>
-                        <option value="NELAYAN">NELAYAN</option>
-                        <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
-                    </select>
-                </div>
+                <div><label>Pendidikan</label><select class="anggota-pendidikan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div>
+                <div><label>Pekerjaan</label><select class="anggota-pekerjaan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div>
             </div>
             <div class="form-row">
-                <div><label>Golongan Darah</label>
-                    <select class="anggota-golDarah">
-                        <option value="A">A</option><option value="B">B</option>
-                        <option value="AB">AB</option><option value="O">O</option>
-                        <option value="TIDAK TAHU">TIDAK TAHU</option>
-                    </select>
-                </div>
-                <div style="display:flex;align-items:flex-end;">
-                    <button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.5rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah Anggota</button>
-                </div>
+                <div><label>Golongan Darah</label><select class="anggota-golDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div>
+                <div style="display:flex;align-items:flex-end;"><button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.4rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah</button></div>
             </div>
             <div id="anggotaTambahanContainer"></div>
         </div>
@@ -709,97 +850,34 @@
     </div>
 </div>
 
-<!-- ========== MODAL TAMBAH ANGGOTA KE KELUARGA EXISTING ========== -->
+<!-- MODAL TAMBAH ANGGOTA -->
 <div class="modal-overlay" id="modalTambahAnggota">
     <div class="modal-box">
         <h2><i class="fas fa-user-plus" style="color:#1c5f4e;"></i> Tambah Anggota Keluarga</h2>
         <div class="info-edit" id="infoTambahAnggota">Pilih keluarga tujuan</div>
-        <label>Pilih Keluarga</label>
-        <select id="selectKeluargaTujuan"></select>
+        <label>Pilih Keluarga</label><select id="selectKeluargaTujuan"></select>
         <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
-        <div class="form-row">
-            <div><label>Nama</label><input id="inpAnggotaNama" placeholder="Nama anggota" /></div>
-            <div><label>NIK</label><input id="inpAnggotaNIK" placeholder="NIK" /></div>
-        </div>
-        <div class="form-row">
-            <div><label>Jenis Kelamin</label>
-                <select id="inpAnggotaJK"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select>
-            </div>
-            <div><label>Tempat Lahir</label><input id="inpAnggotaTmpLahir" placeholder="Tempat lahir" /></div>
-        </div>
-        <div class="form-row">
-            <div><label>Tanggal Lahir</label><input id="inpAnggotaTglLahir" type="date" /></div>
-            <div><label>Agama</label>
-                <select id="inpAnggotaAgama">
-                    <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
-                    <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
-                    <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div><label>Pendidikan</label>
-                <select id="inpAnggotaPendidikan">
-                    <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
-                    <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
-                    <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
-                    <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
-                    <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/STRATA 1)</option>
-                    <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/STRATA 1)</option>
-                    <option value="SARJANA (S1)">SARJANA (S1)</option>
-                    <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
-                </select>
-            </div>
-            <div><label>Pekerjaan</label>
-                <select id="inpAnggotaPekerjaan">
-                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                    <option value="PEGAWAI NEGERI SIPIL (PNS)">PEGAWAI NEGERI SIPIL (PNS)</option>
-                    <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
-                    <option value="WIRASWASTA">WIRASWASTA</option>
-                    <option value="GURU">GURU</option>
-                    <option value="TANI">TANI</option>
-                    <option value="NELAYAN">NELAYAN</option>
-                    <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div><label>Golongan Darah</label>
-                <select id="inpAnggotaGolDarah">
-                    <option value="A">A</option><option value="B">B</option>
-                    <option value="AB">AB</option><option value="O">O</option>
-                    <option value="TIDAK TAHU">TIDAK TAHU</option>
-                </select>
-            </div>
-        </div>
+        <div class="form-row"><div><label>Nama</label><input id="inpAnggotaNama" placeholder="Nama anggota" /></div><div><label>NIK</label><input id="inpAnggotaNIK" placeholder="NIK" /></div></div>
+        <div class="form-row"><div><label>Jenis Kelamin</label><select id="inpAnggotaJK"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div><div><label>Tempat Lahir</label><input id="inpAnggotaTmpLahir" placeholder="Tempat lahir" /></div></div>
+        <div class="form-row"><div><label>Tanggal Lahir</label><input id="inpAnggotaTglLahir" type="date" /></div><div><label>Agama</label><select id="inpAnggotaAgama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div></div>
+        <div class="form-row"><div><label>Pendidikan</label><select id="inpAnggotaPendidikan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div><div><label>Pekerjaan</label><select id="inpAnggotaPekerjaan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div></div>
+        <div class="form-row"><div><label>Golongan Darah</label><select id="inpAnggotaGolDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div></div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalTambahAnggota">Batal</button>
-            <button class="btn-simpan" id="simpanTambahAnggota">Tambah Anggota</button>
+            <button class="btn-simpan" id="simpanTambahAnggota">Tambah</button>
         </div>
     </div>
 </div>
 
-<!-- ========== MODAL UPLOAD FILE ========== -->
+<!-- MODAL UPLOAD -->
 <div class="modal-overlay" id="modalUpload">
     <div class="modal-box">
-        <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen Keluarga</h2>
+        <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen</h2>
         <div class="info-edit" id="infoUpload">Upload KTP atau Kartu Keluarga</div>
-        <label>Keluarga</label>
-        <div id="uploadKeluargaInfo" style="font-weight:600;color:#0b2b3d;padding:0.3rem 0;margin-bottom:0.5rem;"></div>
-        <label>Jenis Dokumen</label>
-        <select id="inpJenisDokumen">
-            <option value="KTP">KTP</option>
-            <option value="KARTU KELUARGA">KARTU KELUARGA</option>
-            <option value="AKTA LAHIR">AKTA LAHIR</option>
-            <option value="LAINNYA">LAINNYA</option>
-        </select>
-        <label>Upload File (PDF / JPEG / PNG)</label>
-        <input type="file" id="inpFileUpload" accept=".pdf,.jpeg,.jpg,.png" />
-        <div id="filePreview" class="file-preview" style="display:none;">
-            <i class="fas fa-file"></i>
-            <span id="fileNamePreview"></span>
-            <button class="btn-hapus-file" id="btnHapusFile"><i class="fas fa-times"></i></button>
-        </div>
+        <label>Keluarga</label><div id="uploadKeluargaInfo" style="font-weight:600;color:#0b2b3d;padding:0.3rem 0;margin-bottom:0.5rem;"></div>
+        <label>Jenis Dokumen</label><select id="inpJenisDokumen"><option value="KTP">KTP</option><option value="KARTU KELUARGA">KARTU KELUARGA</option><option value="AKTA LAHIR">AKTA LAHIR</option><option value="LAINNYA">LAINNYA</option></select>
+        <label>Upload File (PDF / JPEG / PNG)</label><input type="file" id="inpFileUpload" accept=".pdf,.jpeg,.jpg,.png" />
+        <div id="filePreview" class="file-preview" style="display:none;"><i class="fas fa-file"></i><span id="fileNamePreview"></span><button class="btn-hapus-file" id="btnHapusFile"><i class="fas fa-times"></i></button></div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalUpload">Batal</button>
             <button class="btn-simpan" id="simpanUpload">Upload</button>
@@ -807,20 +885,15 @@
     </div>
 </div>
 
-<!-- ========== MODAL KARTU KELUARGA ========== -->
+<!-- MODAL KARTU KELUARGA -->
 <div class="modal-overlay" id="modalKartuKeluarga">
     <div class="modal-box modal-kk">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
-            <div>
-                <div class="kk-title">KARTU KELUARGA</div>
-                <div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div>
-            </div>
-            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;">
-                <i class="fas fa-print"></i> Download
-            </div>
+            <div><div class="kk-title">KARTU KELUARGA</div><div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div></div>
+            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;"><i class="fas fa-print"></i> Download</div>
         </div>
         <div id="kkContent"></div>
-        <div class="kk-footer" style="margin-top:0.8rem;display:flex;justify-content:flex-end;gap:1.5rem;font-size:0.8rem;color:#1c5f4e;font-weight:500;border-top:1px solid #dde3ed;padding-top:0.8rem;">
+        <div class="kk-footer">
             <span id="btnDownloadPDF"><i class="fas fa-file-pdf"></i> Download PDF</span>
             <span id="btnCopyText"><i class="fas fa-copy"></i> Copy page text</span>
         </div>
@@ -830,21 +903,13 @@
     </div>
 </div>
 
-<!-- ========== MODAL DOKUMENTASI ========== -->
+<!-- MODAL DOKUMENTASI -->
 <div class="modal-overlay" id="modalDokumentasi">
     <div class="modal-box">
         <h2><i class="fas fa-camera" style="color:#1c5f4e;"></i> Tambah Dokumentasi</h2>
         <label>Judul Kegiatan</label><input id="inpJudul" placeholder="Bersih-bersih sungai" />
         <label>Tanggal</label><input id="inpTglDok" type="date" />
-        <label>Ikon (pilih)</label>
-        <select id="inpIconDok">
-            <option value="fa-people-group">👥 Orang</option>
-            <option value="fa-tree">🌳 Pohon</option>
-            <option value="fa-road">🛣️ Jalan</option>
-            <option value="fa-tent">⛺ Tenda</option>
-            <option value="fa-water">💧 Air</option>
-            <option value="fa-trash">🗑️ Sampah</option>
-        </select>
+        <label>Ikon</label><select id="inpIconDok"><option value="fa-people-group">👥 Orang</option><option value="fa-tree">🌳 Pohon</option><option value="fa-road">🛣️ Jalan</option><option value="fa-tent">⛺ Tenda</option><option value="fa-water">💧 Air</option><option value="fa-trash">🗑️ Sampah</option></select>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalDokumentasi">Batal</button>
             <button class="btn-simpan" id="simpanDokumentasi">Simpan</button>
@@ -852,18 +917,14 @@
     </div>
 </div>
 
-<!-- ========== MODAL TAMU ========== -->
+<!-- MODAL TAMU -->
 <div class="modal-overlay" id="modalTamu">
     <div class="modal-box">
         <h2><i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor</h2>
         <label>Nama Tamu</label><input id="inpNamaTamu" placeholder="Nama lengkap" />
         <label>Keperluan</label><input id="inpKeperluan" placeholder="Survey / kunjungan" />
         <label>Tanggal</label><input id="inpTglTamu" type="date" />
-        <label>Status</label>
-        <select id="inpStatusTamu">
-            <option value="Sudah Lapor">Sudah Lapor</option>
-            <option value="Belum Lapor">Belum Lapor</option>
-        </select>
+        <label>Status</label><select id="inpStatusTamu"><option value="Sudah Lapor">Sudah Lapor</option><option value="Belum Lapor">Belum Lapor</option></select>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalTamu">Batal</button>
             <button class="btn-simpan" id="simpanTamu">Simpan</button>
@@ -871,18 +932,14 @@
     </div>
 </div>
 
-<!-- ========== MODAL IURAN ========== -->
+<!-- MODAL IURAN -->
 <div class="modal-overlay" id="modalIuran">
     <div class="modal-box">
         <h2><i class="fas fa-coins" style="color:#1f4780;"></i> Tambah Iuran</h2>
         <label>Keluarga</label><input id="inpKeluargaIuran" placeholder="Nama kepala keluarga" />
         <label>Bulan</label><input id="inpBulanIuran" placeholder="April 2026" />
         <label>Nominal (Rp)</label><input id="inpNominalIuran" type="number" placeholder="200000" />
-        <label>Status</label>
-        <select id="inpStatusIuran">
-            <option value="Lunas">Lunas</option>
-            <option value="Belum">Belum</option>
-        </select>
+        <label>Status</label><select id="inpStatusIuran"><option value="Lunas">Lunas</option><option value="Belum">Belum</option></select>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalIuran">Batal</button>
             <button class="btn-simpan" id="simpanIuran">Simpan</button>
@@ -891,906 +948,854 @@
 </div>
 
 <script>
-    (function() {
-        // ---------- DATA KELUARGA ----------
-        let dataKeluarga = [
-            {
-                kepala: 'UJANG PRYATNA WAPRAK',
-                anggota: 4,
-                alamat: 'WASIOR II',
-                kontak: '0812-3456',
-                noKK: '9207011408171003',
-                rt: '001',
-                rw: '002',
-                kodePos: '98362',
-                fileUpload: null,
-                anggotaDetail: [
-                    { no:1, nama:'UJANG PRYATNA WAPRAK', nik:'9107011303740001', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'KRISTEN', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'AB' },
-                    { no:2, nama:'JOKO CONDRO KIRONO', nik:'9202040610930002', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
-                    { no:3, nama:'DIAN IRAWATI', nik:'9202040511940001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-1994', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' },
-                    { no:4, nama:'DINDA SIAHAYA', nik:'9202040511020001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-2002', agama:'KRISTEN', pendidikan:'BELUM TAMAT SD/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
-                ]
-            },
-            {
-                kepala: 'H. SURYONO',
-                anggota: 4,
-                alamat: 'JL. MAWAR 12',
-                kontak: '0812-3456',
-                noKK: '9207011408171004',
-                rt: '001',
-                rw: '002',
-                kodePos: '98362',
-                fileUpload: null,
-                anggotaDetail: [
-                    { no:1, nama:'H. SURYONO', nik:'9107011303740002', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'ISLAM', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'A' },
-                    { no:2, nama:'SITI RAHAYU', nik:'9202040610930003', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'B' },
-                    { no:3, nama:'AHMAD FAUZI', nik:'9202040610930004', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
-                    { no:4, nama:'FATIMAH', nik:'9202040610930005', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' }
-                ]
-            },
-            {
-                kepala: 'IBU RATIH',
-                anggota: 3,
-                alamat: 'JL. MELATI 7',
-                kontak: '0856-7890',
-                noKK: '9207011408171005',
-                rt: '002',
-                rw: '003',
-                kodePos: '98363',
-                fileUpload: null,
-                anggotaDetail: [
-                    { no:1, nama:'IBU RATIH', nik:'9107011303740003', jk:'Perempuan', tmpLahir:'JAKARTA', tglLahir:'15-07-1980', agama:'KRISTEN', pendidikan:'SARJANA (S1)', pekerjaan:'GURU', golDarah:'O' },
-                    { no:2, nama:'DEWI', nik:'9202040610930006', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' },
-                    { no:3, nama:'AYU', nik:'9202040610930007', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
-                ]
-            }
-        ];
+    // ======================================================================
+    // DATA
+    // ======================================================================
+    let dataKeluarga = [
+        {
+            kepala: 'UJANG PRYATNA WAPRAK',
+            anggota: 4,
+            alamat: 'WASIOR II',
+            kontak: '0812-3456',
+            noKK: '9207011408171003',
+            rt: '001',
+            rw: '002',
+            kodePos: '98362',
+            fileUpload: null,
+            anggotaDetail: [
+                { no:1, nama:'UJANG PRYATNA WAPRAK', nik:'9107011303740001', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'KRISTEN', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'AB' },
+                { no:2, nama:'JOKO CONDRO KIRONO', nik:'9202040610930002', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
+                { no:3, nama:'DIAN IRAWATI', nik:'9202040511940001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-1994', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' },
+                { no:4, nama:'DINDA SIAHAYA', nik:'9202040511020001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-2002', agama:'KRISTEN', pendidikan:'BELUM TAMAT SD/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
+            ]
+        },
+        {
+            kepala: 'H. SURYONO',
+            anggota: 4,
+            alamat: 'JL. MAWAR 12',
+            kontak: '0812-3456',
+            noKK: '9207011408171004',
+            rt: '001',
+            rw: '002',
+            kodePos: '98362',
+            fileUpload: null,
+            anggotaDetail: [
+                { no:1, nama:'H. SURYONO', nik:'9107011303740002', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'ISLAM', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'A' },
+                { no:2, nama:'SITI RAHAYU', nik:'9202040610930003', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'B' },
+                { no:3, nama:'AHMAD FAUZI', nik:'9202040610930004', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
+                { no:4, nama:'FATIMAH', nik:'9202040610930005', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' }
+            ]
+        },
+        {
+            kepala: 'IBU RATIH',
+            anggota: 3,
+            alamat: 'JL. MELATI 7',
+            kontak: '0856-7890',
+            noKK: '9207011408171005',
+            rt: '002',
+            rw: '003',
+            kodePos: '98363',
+            fileUpload: null,
+            anggotaDetail: [
+                { no:1, nama:'IBU RATIH', nik:'9107011303740003', jk:'Perempuan', tmpLahir:'JAKARTA', tglLahir:'15-07-1980', agama:'KRISTEN', pendidikan:'SARJANA (S1)', pekerjaan:'GURU', golDarah:'O' },
+                { no:2, nama:'DEWI', nik:'9202040610930006', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' },
+                { no:3, nama:'AYU', nik:'9202040610930007', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
+            ]
+        }
+    ];
 
-        let dokumentasi = [
-            { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
-            { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
-            { judul: 'Perbaikan jalan warga', tanggal: '15 Mar 2026', icon: 'fa-road' },
-            { judul: 'Gotong royong pos ronda', tanggal: '2 Apr 2026', icon: 'fa-tent' }
-        ];
+    let dokumentasi = [
+        { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
+        { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
+        { judul: 'Perbaikan jalan warga', tanggal: '15 Mar 2026', icon: 'fa-road' },
+        { judul: 'Gotong royong pos ronda', tanggal: '2 Apr 2026', icon: 'fa-tent' }
+    ];
 
-        let tamuWajibLapor = [
-            { nama: 'Irfan Hakim', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor' },
-            { nama: 'Dewi Sartika', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor' },
-            { nama: 'Budi Santoso', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor' },
-            { nama: 'Rina Anggraeni', keperluan: 'Penelitian skripsi', tanggal: '2026-04-16', status: 'Sudah Lapor' },
-            { nama: 'Teguh Wicaksono', keperluan: 'Pemasangan internet', tanggal: '2026-04-18', status: 'Belum Lapor' },
-            { nama: 'Nadia Putri', keperluan: 'Kunjungan sosial', tanggal: '2026-04-20', status: 'Sudah Lapor' },
-            { nama: 'Rizky Fauzan', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor' }
-        ];
+    let tamuWajibLapor = [
+        { nama: 'Irfan Hakim', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor' },
+        { nama: 'Dewi Sartika', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor' },
+        { nama: 'Budi Santoso', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor' },
+        { nama: 'Rina Anggraeni', keperluan: 'Penelitian skripsi', tanggal: '2026-04-16', status: 'Sudah Lapor' },
+        { nama: 'Teguh Wicaksono', keperluan: 'Pemasangan internet', tanggal: '2026-04-18', status: 'Belum Lapor' },
+        { nama: 'Nadia Putri', keperluan: 'Kunjungan sosial', tanggal: '2026-04-20', status: 'Sudah Lapor' },
+        { nama: 'Rizky Fauzan', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor' }
+    ];
 
-        let iuranRT = [
-            { keluarga: 'UJANG PRYATNA WAPRAK', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-            { keluarga: 'H. SURYONO', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-            { keluarga: 'IBU RATIH', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
-        ];
+    let iuranRT = [
+        { keluarga: 'UJANG PRYATNA WAPRAK', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
+        { keluarga: 'H. SURYONO', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
+        { keluarga: 'IBU RATIH', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
+    ];
 
-        // ---------- RENDER KELUARGA ----------
-        function renderKeluarga() {
-            const tbody = document.getElementById('tableKeluarga');
-            tbody.innerHTML = dataKeluarga.map((k, index) => {
-                const hasFile = k.fileUpload && k.fileUpload.base64;
-                const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
-                const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
-                const uploadText = hasFile ? 'Tersimpan' : 'Upload';
-                return `
-                    <tr>
-                        <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
-                        <td>${k.anggota} jiwa</td>
-                        <td>${k.alamat}</td>
-                        <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
-                        <td>
+    // ======================================================================
+    // RENDER FUNCTIONS
+    // ======================================================================
+    function renderKeluarga() {
+        const tbody = document.getElementById('tableKeluarga');
+        tbody.innerHTML = dataKeluarga.map((k, index) => {
+            const hasFile = k.fileUpload && k.fileUpload.base64;
+            const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
+            const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
+            const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+            return `
+                <tr>
+                    <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
+                    <td>${k.anggota} jiwa</td>
+                    <td>${k.alamat}</td>
+                    <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
+                    <td>
+                        <div class="btn-group">
                             <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
                             <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
-                            <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i> Edit</button>
-                        </td>
+                            <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        document.getElementById('statKeluarga').textContent = dataKeluarga.length;
+
+        document.querySelectorAll('.keluarga-clickable').forEach(el => {
+            el.addEventListener('click', function() {
+                const idx = parseInt(this.dataset.index);
+                showKartuKeluarga(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                editKeluarga(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-tambah-anggota-row').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                openTambahAnggota(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-upload').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                openUploadModal(idx);
+            });
+        });
+    }
+
+    function renderDokumentasi() {
+        const grid = document.getElementById('dokumentasiGrid');
+        grid.innerHTML = dokumentasi.map(d => `
+            <div class="dok-item">
+                <i class="fas ${d.icon}"></i>
+                <div class="dok-title">${d.judul}</div>
+                <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal}</div>
+            </div>
+        `).join('');
+        document.getElementById('statDokumentasi').textContent = dokumentasi.length;
+    }
+
+    function renderTamu() {
+        const tbody = document.getElementById('tableTamu');
+        tbody.innerHTML = tamuWajibLapor.map(t => {
+            const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
+            return `<tr><td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td><td>${t.keperluan}</td><td>${t.tanggal}</td><td><span class="tag ${cls}">${t.status}</span></td></tr>`;
+        }).join('');
+        document.getElementById('statTamu').textContent = tamuWajibLapor.length;
+    }
+
+    function renderIuran() {
+        const tbody = document.getElementById('tableIuran');
+        let total = 0;
+        tbody.innerHTML = iuranRT.map(i => {
+            const lunas = i.status === 'Lunas';
+            if (lunas) total += i.nominal;
+            return `<tr><td><strong>${i.keluarga}</strong></td><td>${i.bulan}</td><td>Rp ${i.nominal.toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status}</span></td></tr>`;
+        }).join('');
+        document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
+        document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
+    }
+
+    function renderAll() {
+        renderKeluarga();
+        renderDokumentasi();
+        renderTamu();
+        renderIuran();
+    }
+
+    // ======================================================================
+    // KARTU KELUARGA
+    // ======================================================================
+    let currentKKIndex = -1;
+
+    function showKartuKeluarga(index) {
+        currentKKIndex = index;
+        const k = dataKeluarga[index];
+        if (!k) return;
+
+        const container = document.getElementById('kkContent');
+        document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
+        
+        let fileHtml = '';
+        if (k.fileUpload && k.fileUpload.base64) {
+            const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
+            if (isImage) {
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                    </div>
+                `;
+            } else {
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;">
+                        <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                        <div style="font-size:0.8rem;color:#4a6a7a;">PDF document</div>
+                    </div>
+                `;
+            }
+        }
+        
+        let headerHtml = `
+            <div class="kk-header-box">
+                <div>
+                    <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
+                    <div class="kk-detail">
+                        <i class="fas fa-map-pin"></i> ${k.alamat} &nbsp;|&nbsp;
+                        RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
+                        <i class="fas fa-code"></i> ${k.kodePos || '98362'}
+                    </div>
+                </div>
+                <div class="kk-detail"><i class="fas fa-phone"></i> ${k.kontak}</div>
+            </div>
+            ${fileHtml}
+        `;
+
+        let rows = '';
+        const anggota = k.anggotaDetail || [];
+        if (anggota.length === 0) {
+            rows = `<tr><td colspan="10" style="text-align:center;padding:1rem;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
+        } else {
+            anggota.forEach(a => {
+                rows += `
+                    <tr>
+                        <td class="no-col">${a.no || '-'}</td>
+                        <td><strong>${a.nama || '-'}</strong></td>
+                        <td>${a.nik || '-'}</td>
+                        <td>${a.jk || '-'}</td>
+                        <td>${a.tmpLahir || '-'}</td>
+                        <td>${a.tglLahir || '-'}</td>
+                        <td>${a.agama || '-'}</td>
+                        <td>${a.pendidikan || '-'}</td>
+                        <td>${a.pekerjaan || '-'}</td>
+                        <td>${a.golDarah || '-'}</td>
                     </tr>
                 `;
-            }).join('');
-            document.getElementById('statKeluarga').textContent = dataKeluarga.length;
-
-            document.querySelectorAll('.keluarga-clickable').forEach(el => {
-                el.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    showKartuKeluarga(idx);
-                });
-            });
-
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const idx = parseInt(this.dataset.index);
-                    editKeluarga(idx);
-                });
-            });
-
-            document.querySelectorAll('.btn-tambah-anggota-row').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const idx = parseInt(this.dataset.index);
-                    openTambahAnggota(idx);
-                });
-            });
-
-            document.querySelectorAll('.btn-upload').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const idx = parseInt(this.dataset.index);
-                    openUploadModal(idx);
-                });
             });
         }
 
-        // ---------- UPLOAD FILE ----------
-        let uploadTargetIndex = -1;
-        let selectedFile = null;
-
-        function openUploadModal(index) {
-            uploadTargetIndex = index;
-            const k = dataKeluarga[index];
-            document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
-            document.getElementById('inpJenisDokumen').value = 'KTP';
-            document.getElementById('inpFileUpload').value = '';
-            document.getElementById('filePreview').style.display = 'none';
-            selectedFile = null;
-            
-            if (k.fileUpload && k.fileUpload.base64) {
-                document.getElementById('filePreview').style.display = 'flex';
-                document.getElementById('fileNamePreview').textContent = k.fileUpload.nama || 'Dokumen';
-                document.getElementById('inpJenisDokumen').value = k.fileUpload.jenis || 'KTP';
-                selectedFile = k.fileUpload;
-            }
-            
-            openModal('modalUpload');
-        }
-
-        document.getElementById('inpFileUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
-                this.value = '';
-                return;
-            }
-            
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Ukuran file maksimal 5MB');
-                this.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedFile = {
-                    nama: file.name,
-                    jenis: document.getElementById('inpJenisDokumen').value,
-                    base64: e.target.result,
-                    tipe: file.type
-                };
-                document.getElementById('filePreview').style.display = 'flex';
-                document.getElementById('fileNamePreview').textContent = file.name;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        document.getElementById('btnHapusFile').addEventListener('click', function() {
-            document.getElementById('inpFileUpload').value = '';
-            document.getElementById('filePreview').style.display = 'none';
-            selectedFile = null;
-        });
-
-        document.getElementById('simpanUpload').addEventListener('click', function() {
-            if (!selectedFile || !selectedFile.base64) {
-                alert('Silakan pilih file terlebih dahulu');
-                return;
-            }
-            
-            const k = dataKeluarga[uploadTargetIndex];
-            if (!k) return;
-            
-            k.fileUpload = {
-                nama: selectedFile.nama,
-                jenis: document.getElementById('inpJenisDokumen').value,
-                base64: selectedFile.base64,
-                tipe: selectedFile.tipe
-            };
-            
-            renderKeluarga();
-            closeModal('modalUpload');
-            alert(`File ${selectedFile.nama} berhasil diupload untuk keluarga ${k.kepala}`);
-        });
-
-        // ---------- KARTU KELUARGA ----------
-        let currentKKIndex = -1;
-
-        function showKartuKeluarga(index) {
-            currentKKIndex = index;
-            const k = dataKeluarga[index];
-            if (!k) return;
-
-            const container = document.getElementById('kkContent');
-            document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
-            
-            let fileHtml = '';
-            if (k.fileUpload && k.fileUpload.base64) {
-                const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
-                if (isImage) {
-                    fileHtml = `
-                        <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8faff; border-radius: 8px; border: 1px solid #dde3ed;">
-                            <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                            <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
-                        </div>
-                    `;
-                } else {
-                    fileHtml = `
-                        <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8faff; border-radius: 8px; border: 1px solid #dde3ed;">
-                            <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                            <div style="font-size:0.8rem;color:#4a6a7a;">PDF document</div>
-                        </div>
-                    `;
-                }
-            }
-            
-            let headerHtml = `
-                <div class="kk-header-box">
-                    <div>
-                        <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
-                        <div class="kk-detail">
-                            <i class="fas fa-map-pin"></i> ${k.alamat} &nbsp;|&nbsp;
-                            RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
-                            <i class="fas fa-code"></i> ${k.kodePos || '98362'}
-                        </div>
-                    </div>
-                    <div class="kk-detail">
-                        <i class="fas fa-phone"></i> ${k.kontak}
-                    </div>
-                </div>
-                ${fileHtml}
-            `;
-
-            let rows = '';
-            const anggota = k.anggotaDetail || [];
-            if (anggota.length === 0) {
-                rows = `<tr><td colspan="10" style="text-align:center;padding:1rem;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
-            } else {
-                anggota.forEach(a => {
-                    rows += `
-                        <tr>
-                            <td class="no-col">${a.no || '-'}</td>
-                            <td><strong>${a.nama || '-'}</strong></td>
-                            <td>${a.nik || '-'}</td>
-                            <td>${a.jk || '-'}</td>
-                            <td>${a.tmpLahir || '-'}</td>
-                            <td>${a.tglLahir || '-'}</td>
-                            <td>${a.agama || '-'}</td>
-                            <td>${a.pendidikan || '-'}</td>
-                            <td>${a.pekerjaan || '-'}</td>
-                            <td>${a.golDarah || '-'}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            container.innerHTML = `
-                ${headerHtml}
-                <div class="kk-table-wrap" id="kkTableWrapper">
-                    <table class="kk-table" id="kkTable">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Lengkap</th>
-                                <th>NIK</th>
-                                <th>Jenis Kelamin</th>
-                                <th>Tempat Lahir</th>
-                                <th>Tanggal Lahir</th>
-                                <th>Agama</th>
-                                <th>Pendidikan</th>
-                                <th>Jenis Pekerjaan</th>
-                                <th>Golongan Darah</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                </div>
-            `;
-
-            openModal('modalKartuKeluarga');
-        }
-
-        // ---------- DOWNLOAD PDF ----------
-        document.getElementById('btnDownloadPDF').addEventListener('click', function() {
-            const k = dataKeluarga[currentKKIndex];
-            if (!k) return;
-            
-            // Buat elemen temporary untuk PDF
-            const pdfContainer = document.createElement('div');
-            pdfContainer.id = 'pdfContainer';
-            pdfContainer.style.cssText = 'padding: 20px; background: white; font-family: "Segoe UI", Arial, sans-serif;';
-            
-            // Header PDF
-            let fileHtmlPdf = '';
-            if (k.fileUpload && k.fileUpload.base64) {
-                const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
-                if (isImage) {
-                    fileHtmlPdf = `
-                        <div style="margin: 10px 0; padding: 10px; background: #f8faff; border: 1px solid #dde3ed; border-radius: 8px;">
-                            <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                            <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
-                        </div>
-                    `;
-                } else {
-                    fileHtmlPdf = `
-                        <div style="margin: 10px 0; padding: 10px; background: #f8faff; border: 1px solid #dde3ed; border-radius: 8px;">
-                            <div style="font-weight:600;color:#0b2b3d;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                            <div style="color:#4a6a7a;">PDF document</div>
-                        </div>
-                    `;
-                }
-            }
-            
-            let rowsPdf = '';
-            const anggota = k.anggotaDetail || [];
-            if (anggota.length === 0) {
-                rowsPdf = `<tr><td colspan="10" style="text-align:center;padding:10px;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
-            } else {
-                anggota.forEach(a => {
-                    rowsPdf += `
-                        <tr>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;text-align:center;">${a.no || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;font-weight:600;">${a.nama || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.nik || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.jk || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tmpLahir || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tglLahir || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.agama || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pendidikan || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pekerjaan || '-'}</td>
-                            <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.golDarah || '-'}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            pdfContainer.innerHTML = `
-                <div style="margin-bottom:15px;">
-                    <div style="font-size:22px;font-weight:700;color:#0b2b3d;">KARTU KELUARGA</div>
-                    <div style="font-size:14px;color:#3d5a73;">No. ${k.noKK || '9207011408171003'}</div>
-                </div>
-                <div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;">
-                    <div>
-                        <div style="font-weight:700;font-size:16px;color:#0b2b3d;">${k.kepala}</div>
-                        <div style="color:#2a5f7a;font-size:13px;">${k.alamat} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div>
-                    </div>
-                    <div style="color:#2a5f7a;font-size:13px;">${k.kontak}</div>
-                </div>
-                ${fileHtmlPdf}
-                <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #dde3ed;border-radius:8px;overflow:hidden;">
+        container.innerHTML = `
+            ${headerHtml}
+            <div class="kk-table-wrap" id="kkTableWrapper">
+                <table class="kk-table" id="kkTable">
                     <thead>
-                        <tr style="background:#e9f0f5;">
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">No</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Nama Lengkap</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">NIK</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Kelamin</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tempat Lahir</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tanggal Lahir</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Agama</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Pendidikan</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Pekerjaan</th>
-                            <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Golongan Darah</th>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Lengkap</th>
+                            <th>NIK</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Tempat Lahir</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Agama</th>
+                            <th>Pendidikan</th>
+                            <th>Jenis Pekerjaan</th>
+                            <th>Golongan Darah</th>
                         </tr>
                     </thead>
-                    <tbody>${rowsPdf}</tbody>
+                    <tbody>${rows}</tbody>
                 </table>
-                <div style="margin-top:12px;font-size:10px;color:#6a7e94;text-align:right;">Dicetak dari RT Kita v2.7</div>
-            `;
+            </div>
+        `;
 
-            document.body.appendChild(pdfContainer);
-            
-            html2pdf()
-                .set({
-                    margin: 10,
-                    filename: `Kartu_Keluarga_${k.kepala.replace(/\s/g, '_')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-                })
-                .from(pdfContainer)
-                .save()
-                .then(() => {
-                    document.body.removeChild(pdfContainer);
-                })
-                .catch((err) => {
-                    console.error('PDF generation error:', err);
-                    document.body.removeChild(pdfContainer);
-                    alert('Gagal generate PDF. Silakan coba lagi.');
-                });
-        });
+        openModal('modalKartuKeluarga');
+    }
 
-        // ---------- COPY PAGE TEXT ----------
-        document.getElementById('btnCopyText').addEventListener('click', function() {
-            const k = dataKeluarga[currentKKIndex];
-            if (!k) return;
-            
-            let text = `KARTU KELUARGA\n`;
-            text += `No. ${k.noKK || '9207011408171003'}\n\n`;
-            text += `Nama Kepala Keluarga: ${k.kepala}\n`;
-            text += `Alamat: ${k.alamat}\n`;
-            text += `RT/RW: ${k.rt || '001'}/${k.rw || '002'}\n`;
-            text += `Kode Pos: ${k.kodePos || '98362'}\n`;
-            text += `Kontak: ${k.kontak}\n\n`;
-            
-            if (k.fileUpload && k.fileUpload.base64) {
-                text += `Dokumen: ${k.fileUpload.jenis || 'Dokumen'} - ${k.fileUpload.nama}\n\n`;
-            }
-            
-            text += `DAFTAR ANGGOTA KELUARGA:\n`;
-            text += `No\tNama Lengkap\tNIK\tJenis Kelamin\tTempat Lahir\tTanggal Lahir\tAgama\tPendidikan\tPekerjaan\tGolongan Darah\n`;
-            
-            const anggota = k.anggotaDetail || [];
-            if (anggota.length === 0) {
-                text += `(Tidak ada data anggota)\n`;
+    // ======================================================================
+    // DOWNLOAD PDF
+    // ======================================================================
+    document.getElementById('btnDownloadPDF').addEventListener('click', function() {
+        const k = dataKeluarga[currentKKIndex];
+        if (!k) return;
+        
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.cssText = 'padding:20px;background:white;font-family:"Segoe UI",Arial,sans-serif;';
+        
+        let fileHtmlPdf = '';
+        if (k.fileUpload && k.fileUpload.base64) {
+            const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
+            if (isImage) {
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                    </div>
+                `;
             } else {
-                anggota.forEach(a => {
-                    text += `${a.no || '-'}\t${a.nama || '-'}\t${a.nik || '-'}\t${a.jk || '-'}\t${a.tmpLahir || '-'}\t${a.tglLahir || '-'}\t${a.agama || '-'}\t${a.pendidikan || '-'}\t${a.pekerjaan || '-'}\t${a.golDarah || '-'}\n`;
-                });
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                        <div style="color:#4a6a7a;">PDF document</div>
+                    </div>
+                `;
             }
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Teks halaman berhasil disalin ke clipboard!');
-            }).catch(() => {
-                // Fallback
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('Teks halaman berhasil disalin ke clipboard!');
+        }
+        
+        let rowsPdf = '';
+        const anggota = k.anggotaDetail || [];
+        if (anggota.length === 0) {
+            rowsPdf = `<tr><td colspan="10" style="text-align:center;padding:10px;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
+        } else {
+            anggota.forEach(a => {
+                rowsPdf += `
+                    <tr>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;text-align:center;">${a.no || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;font-weight:600;">${a.nama || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.nik || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.jk || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tmpLahir || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tglLahir || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.agama || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pendidikan || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pekerjaan || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.golDarah || '-'}</td>
+                    </tr>
+                `;
             });
+        }
+
+        pdfContainer.innerHTML = `
+            <div style="margin-bottom:15px;">
+                <div style="font-size:22px;font-weight:700;color:#0b2b3d;">KARTU KELUARGA</div>
+                <div style="font-size:14px;color:#3d5a73;">No. ${k.noKK || '9207011408171003'}</div>
+            </div>
+            <div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;">
+                <div>
+                    <div style="font-weight:700;font-size:16px;color:#0b2b3d;">${k.kepala}</div>
+                    <div style="color:#2a5f7a;font-size:13px;">${k.alamat} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div>
+                </div>
+                <div style="color:#2a5f7a;font-size:13px;">${k.kontak}</div>
+            </div>
+            ${fileHtmlPdf}
+            <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #dde3ed;border-radius:8px;overflow:hidden;">
+                <thead>
+                    <tr style="background:#e9f0f5;">
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">No</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Nama Lengkap</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">NIK</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Kelamin</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tempat Lahir</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tanggal Lahir</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Agama</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Pendidikan</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Pekerjaan</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Golongan Darah</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsPdf}</tbody>
+            </table>
+            <div style="margin-top:12px;font-size:10px;color:#6a7e94;text-align:right;">Dicetak dari RT Kita</div>
+        `;
+
+        document.body.appendChild(pdfContainer);
+        html2pdf().set({
+            margin: 10,
+            filename: `Kartu_Keluarga_${k.kepala.replace(/\s/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        }).from(pdfContainer).save().then(() => {
+            document.body.removeChild(pdfContainer);
+        }).catch(() => {
+            document.body.removeChild(pdfContainer);
+            alert('Gagal generate PDF. Silakan coba lagi.');
         });
+    });
 
-        // ---------- RENDER LAIN ----------
-        function renderDokumentasi() {
-            const grid = document.getElementById('dokumentasiGrid');
-            grid.innerHTML = dokumentasi.map(d => `
-                <div class="dok-item">
-                    <i class="fas ${d.icon}"></i>
-                    <div class="dok-title">${d.judul}</div>
-                    <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal}</div>
-                </div>
-            `).join('');
-            document.getElementById('statDokumentasi').textContent = dokumentasi.length;
+    // ======================================================================
+    // COPY TEXT
+    // ======================================================================
+    document.getElementById('btnCopyText').addEventListener('click', function() {
+        const k = dataKeluarga[currentKKIndex];
+        if (!k) return;
+        
+        let text = `KARTU KELUARGA\n`;
+        text += `No. ${k.noKK || '9207011408171003'}\n\n`;
+        text += `Nama Kepala Keluarga: ${k.kepala}\n`;
+        text += `Alamat: ${k.alamat}\n`;
+        text += `RT/RW: ${k.rt || '001'}/${k.rw || '002'}\n`;
+        text += `Kode Pos: ${k.kodePos || '98362'}\n`;
+        text += `Kontak: ${k.kontak}\n\n`;
+        
+        if (k.fileUpload && k.fileUpload.base64) {
+            text += `Dokumen: ${k.fileUpload.jenis || 'Dokumen'} - ${k.fileUpload.nama}\n\n`;
         }
-
-        function renderTamu() {
-            const tbody = document.getElementById('tableTamu');
-            tbody.innerHTML = tamuWajibLapor.map(t => {
-                const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
-                return `<tr><td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td><td>${t.keperluan}</td><td>${t.tanggal}</td><td><span class="tag ${cls}">${t.status}</span></td></tr>`;
-            }).join('');
-            document.getElementById('statTamu').textContent = tamuWajibLapor.length;
-        }
-
-        function renderIuran() {
-            const tbody = document.getElementById('tableIuran');
-            let total = 0;
-            tbody.innerHTML = iuranRT.map(i => {
-                const lunas = i.status === 'Lunas';
-                if (lunas) total += i.nominal;
-                return `<tr><td><strong>${i.keluarga}</strong></td><td>${i.bulan}</td><td>Rp ${i.nominal.toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status}</span></td></tr>`;
-            }).join('');
-            document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
-            document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
-        }
-
-        function renderAll() {
-            renderKeluarga();
-            renderDokumentasi();
-            renderTamu();
-            renderIuran();
-        }
-
-        // ---------- EDIT KELUARGA ----------
-        let editIndex = -1;
-        function editKeluarga(index) {
-            editIndex = index;
-            const k = dataKeluarga[index];
-            document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-pen" style="color:#1c5f4e;"></i> Edit Keluarga';
-            document.getElementById('infoEditKeluarga').style.display = 'block';
-            document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Sedang mengedit: <strong>${k.kepala}</strong>`;
-            document.getElementById('inpKepala').value = k.kepala;
-            document.getElementById('inpAlamat').value = k.alamat;
-            document.getElementById('inpKontak').value = k.kontak;
-            document.getElementById('inpNoKK').value = k.noKK || '';
-            document.getElementById('inpRT').value = k.rt || '';
-            document.getElementById('inpRW').value = k.rw || '';
-            document.getElementById('inpKodePos').value = k.kodePos || '';
-            
-            document.getElementById('anggotaTambahanContainer').innerHTML = '';
-            const firstNama = document.querySelector('.anggota-nama');
-            const firstNik = document.querySelector('.anggota-nik');
-            const firstJk = document.querySelector('.anggota-jk');
-            const firstTmp = document.querySelector('.anggota-tmpLahir');
-            const firstTgl = document.querySelector('.anggota-tglLahir');
-            const firstAgama = document.querySelector('.anggota-agama');
-            const firstPend = document.querySelector('.anggota-pendidikan');
-            const firstPek = document.querySelector('.anggota-pekerjaan');
-            const firstGol = document.querySelector('.anggota-golDarah');
-            
-            if (k.anggotaDetail && k.anggotaDetail.length > 0) {
-                const kepala = k.anggotaDetail[0];
-                firstNama.value = kepala.nama || '';
-                firstNik.value = kepala.nik || '';
-                firstJk.value = kepala.jk || 'Laki-Laki';
-                firstTmp.value = kepala.tmpLahir || '';
-                firstTgl.value = kepala.tglLahir || '';
-                firstAgama.value = kepala.agama || 'ISLAM';
-                firstPend.value = kepala.pendidikan || 'SLTA/SEDERAJAT';
-                firstPek.value = kepala.pekerjaan || 'PELAJAR/MAHASISWA';
-                firstGol.value = kepala.golDarah || 'TIDAK TAHU';
-            }
-            
-            document.getElementById('simpanKeluarga').textContent = 'Update';
-            openModal('modalKeluarga');
-        }
-
-        function resetModalKeluarga() {
-            editIndex = -1;
-            document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga';
-            document.getElementById('infoEditKeluarga').style.display = 'none';
-            document.getElementById('simpanKeluarga').textContent = 'Simpan';
-            document.getElementById('inpKepala').value = '';
-            document.getElementById('inpAlamat').value = '';
-            document.getElementById('inpKontak').value = '';
-            document.getElementById('inpNoKK').value = '';
-            document.getElementById('inpRT').value = '';
-            document.getElementById('inpRW').value = '';
-            document.getElementById('inpKodePos').value = '';
-            document.getElementById('anggotaTambahanContainer').innerHTML = '';
-            document.querySelectorAll('.anggota-nama, .anggota-nik, .anggota-tmpLahir, .anggota-tglLahir').forEach(el => el.value = '');
-            document.querySelector('.anggota-jk').value = 'Laki-Laki';
-            document.querySelector('.anggota-agama').value = 'ISLAM';
-            document.querySelector('.anggota-pendidikan').value = 'SLTA/SEDERAJAT';
-            document.querySelector('.anggota-pekerjaan').value = 'PELAJAR/MAHASISWA';
-            document.querySelector('.anggota-golDarah').value = 'TIDAK TAHU';
-        }
-
-        // ---------- TAMBAH ANGGOTA FIELD ----------
-        document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
-            const container = document.getElementById('anggotaTambahanContainer');
-            const div = document.createElement('div');
-            div.className = 'form-row';
-            div.style.marginBottom = '0.5rem';
-            div.style.border = '1px solid #e5ecf5';
-            div.style.padding = '0.5rem';
-            div.style.borderRadius = '12px';
-            div.innerHTML = `
-                <div><label>Nama</label><input class="anggota-nama-tambahan" placeholder="Nama anggota" /></div>
-                <div><label>NIK</label><input class="anggota-nik-tambahan" placeholder="NIK" /></div>
-                <div><label>JK</label>
-                    <select class="anggota-jk-tambahan">
-                        <option value="Laki-Laki">Laki-Laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
-                </div>
-                <div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" placeholder="Tempat lahir" /></div>
-                <div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" type="date" /></div>
-                <div><label>Agama</label>
-                    <select class="anggota-agama-tambahan">
-                        <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
-                        <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
-                        <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
-                    </select>
-                </div>
-                <div><label>Pendidikan</label>
-                    <select class="anggota-pendidikan-tambahan">
-                        <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD</option>
-                        <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
-                        <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
-                        <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
-                        <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option>
-                        <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option>
-                        <option value="SARJANA (S1)">SARJANA (S1)</option>
-                        <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
-                    </select>
-                </div>
-                <div><label>Pekerjaan</label>
-                    <select class="anggota-pekerjaan-tambahan">
-                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                        <option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option>
-                        <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
-                        <option value="WIRASWASTA">WIRASWASTA</option>
-                        <option value="GURU">GURU</option>
-                        <option value="TANI">TANI</option>
-                        <option value="NELAYAN">NELAYAN</option>
-                        <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
-                    </select>
-                </div>
-                <div><label>Gol Darah</label>
-                    <select class="anggota-golDarah-tambahan">
-                        <option value="A">A</option><option value="B">B</option>
-                        <option value="AB">AB</option><option value="O">O</option>
-                        <option value="TIDAK TAHU">TIDAK TAHU</option>
-                    </select>
-                </div>
-                <div style="display:flex;align-items:flex-end;">
-                    <button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.3rem 0.8rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i> Hapus</button>
-                </div>
-            `;
-            container.appendChild(div);
-            
-            div.querySelector('.btn-hapus-anggota').addEventListener('click', function() {
-                div.remove();
+        
+        text += `DAFTAR ANGGOTA KELUARGA:\n`;
+        text += `No\tNama Lengkap\tNIK\tJenis Kelamin\tTempat Lahir\tTanggal Lahir\tAgama\tPendidikan\tPekerjaan\tGolongan Darah\n`;
+        
+        const anggota = k.anggotaDetail || [];
+        if (anggota.length === 0) {
+            text += `(Tidak ada data anggota)\n`;
+        } else {
+            anggota.forEach(a => {
+                text += `${a.no || '-'}\t${a.nama || '-'}\t${a.nik || '-'}\t${a.jk || '-'}\t${a.tmpLahir || '-'}\t${a.tglLahir || '-'}\t${a.agama || '-'}\t${a.pendidikan || '-'}\t${a.pekerjaan || '-'}\t${a.golDarah || '-'}\n`;
             });
-        });
-
-        // ---------- TAMBAH ANGGOTA KE KELUARGA EXISTING ----------
-        let targetKeluargaIndex = -1;
-        function openTambahAnggota(index) {
-            targetKeluargaIndex = index;
-            const select = document.getElementById('selectKeluargaTujuan');
-            select.innerHTML = dataKeluarga.map((k, i) => 
-                `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`
-            ).join('');
-            document.getElementById('infoTambahAnggota').innerHTML = `<i class="fas fa-edit"></i> Menambah anggota ke keluarga: <strong>${dataKeluarga[index].kepala}</strong>`;
-            
-            document.getElementById('inpAnggotaNama').value = '';
-            document.getElementById('inpAnggotaNIK').value = '';
-            document.getElementById('inpAnggotaTmpLahir').value = '';
-            document.getElementById('inpAnggotaTglLahir').value = '';
-            document.getElementById('inpAnggotaJK').value = 'Laki-Laki';
-            document.getElementById('inpAnggotaAgama').value = 'ISLAM';
-            document.getElementById('inpAnggotaPendidikan').value = 'SLTA/SEDERAJAT';
-            document.getElementById('inpAnggotaPekerjaan').value = 'PELAJAR/MAHASISWA';
-            document.getElementById('inpAnggotaGolDarah').value = 'TIDAK TAHU';
-            
-            openModal('modalTambahAnggota');
         }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Teks halaman berhasil disalin ke clipboard!');
+        }).catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Teks halaman berhasil disalin ke clipboard!');
+        });
+    });
 
-        document.getElementById('simpanTambahAnggota').addEventListener('click', function() {
-            const idx = parseInt(document.getElementById('selectKeluargaTujuan').value);
-            const k = dataKeluarga[idx];
-            if (!k) { alert('Keluarga tidak ditemukan'); return; }
-            
-            const nama = document.getElementById('inpAnggotaNama').value.trim().toUpperCase();
-            const nik = document.getElementById('inpAnggotaNIK').value.trim();
-            const jk = document.getElementById('inpAnggotaJK').value;
-            const tmpLahir = document.getElementById('inpAnggotaTmpLahir').value.trim().toUpperCase();
-            const tglLahir = document.getElementById('inpAnggotaTglLahir').value;
-            const agama = document.getElementById('inpAnggotaAgama').value;
-            const pendidikan = document.getElementById('inpAnggotaPendidikan').value;
-            const pekerjaan = document.getElementById('inpAnggotaPekerjaan').value;
-            const golDarah = document.getElementById('inpAnggotaGolDarah').value;
-            
-            if (!nama) { alert('Nama anggota harus diisi'); return; }
-            
-            const newAnggota = {
-                no: (k.anggotaDetail || []).length + 1,
-                nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan, golDarah
+    // ======================================================================
+    // UPLOAD
+    // ======================================================================
+    let uploadTargetIndex = -1;
+    let selectedFile = null;
+
+    function openUploadModal(index) {
+        uploadTargetIndex = index;
+        const k = dataKeluarga[index];
+        document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
+        document.getElementById('inpJenisDokumen').value = 'KTP';
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+        
+        if (k.fileUpload && k.fileUpload.base64) {
+            document.getElementById('filePreview').style.display = 'flex';
+            document.getElementById('fileNamePreview').textContent = k.fileUpload.nama || 'Dokumen';
+            document.getElementById('inpJenisDokumen').value = k.fileUpload.jenis || 'KTP';
+            selectedFile = k.fileUpload;
+        }
+        openModal('modalUpload');
+    }
+
+    document.getElementById('inpFileUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedFile = {
+                nama: file.name,
+                jenis: document.getElementById('inpJenisDokumen').value,
+                base64: e.target.result,
+                tipe: file.type
             };
-            
-            if (!k.anggotaDetail) k.anggotaDetail = [];
-            k.anggotaDetail.push(newAnggota);
-            k.anggota = k.anggotaDetail.length;
-            
-            renderKeluarga();
-            closeModal('modalTambahAnggota');
-            alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
-        });
-
-        // ---------- MODAL UTILITY ----------
-        function openModal(id) {
-            document.getElementById(id).classList.add('show');
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-            if (id === 'modalKeluarga') resetModalKeluarga();
-            if (id === 'modalUpload') {
-                document.getElementById('inpFileUpload').value = '';
-                document.getElementById('filePreview').style.display = 'none';
-                selectedFile = null;
-            }
-        }
-
-        document.querySelectorAll('.modal-overlay').forEach(el => {
-            el.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('show');
-                    if (this.id === 'modalKeluarga') resetModalKeluarga();
-                    if (this.id === 'modalUpload') {
-                        document.getElementById('inpFileUpload').value = '';
-                        document.getElementById('filePreview').style.display = 'none';
-                        selectedFile = null;
-                    }
-                }
-            });
-        });
-
-        document.querySelectorAll('[data-close]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                closeModal(this.dataset.close);
-            });
-        });
-
-        document.querySelectorAll('.btn-tambah').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
-                openModal(this.dataset.modal);
-            });
-        });
-
-        document.getElementById('btnTambahAnggotaUtama').addEventListener('click', function() {
-            if (dataKeluarga.length === 0) {
-                alert('Belum ada data keluarga. Tambahkan keluarga terlebih dahulu.');
-                return;
-            }
-            openTambahAnggota(0);
-        });
-
-        // ---------- SIMPAN KELUARGA ----------
-        document.getElementById('simpanKeluarga').addEventListener('click', function() {
-            const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
-            const alamat = document.getElementById('inpAlamat').value.trim().toUpperCase();
-            const kontak = document.getElementById('inpKontak').value.trim();
-            const noKK = document.getElementById('inpNoKK').value.trim() || '920701140817' + (1000 + dataKeluarga.length);
-            const rt = document.getElementById('inpRT').value.trim() || '001';
-            const rw = document.getElementById('inpRW').value.trim() || '002';
-            const kodePos = document.getElementById('inpKodePos').value.trim() || '98362';
-
-            if (!kepala || !alamat || !kontak) { alert('Isi semua field'); return; }
-
-            const anggotaList = [];
-            
-            const nama1 = document.querySelector('.anggota-nama').value.trim().toUpperCase() || kepala;
-            const nik1 = document.querySelector('.anggota-nik').value.trim();
-            const jk1 = document.querySelector('.anggota-jk').value;
-            const tmp1 = document.querySelector('.anggota-tmpLahir').value.trim().toUpperCase();
-            const tgl1 = document.querySelector('.anggota-tglLahir').value;
-            const agama1 = document.querySelector('.anggota-agama').value;
-            const pend1 = document.querySelector('.anggota-pendidikan').value;
-            const pek1 = document.querySelector('.anggota-pekerjaan').value;
-            const gol1 = document.querySelector('.anggota-golDarah').value;
-            
-            anggotaList.push({
-                no: 1,
-                nama: nama1,
-                nik: nik1 || '-',
-                jk: jk1,
-                tmpLahir: tmp1 || '-',
-                tglLahir: tgl1 || '-',
-                agama: agama1,
-                pendidikan: pend1,
-                pekerjaan: pek1,
-                golDarah: gol1
-            });
-
-            document.querySelectorAll('.anggota-nama-tambahan').forEach((el, i) => {
-                const nama = el.value.trim().toUpperCase();
-                if (!nama) return;
-                const container = el.closest('.form-row');
-                const nik = container.querySelector('.anggota-nik-tambahan').value.trim();
-                const jk = container.querySelector('.anggota-jk-tambahan').value;
-                const tmp = container.querySelector('.anggota-tmpLahir-tambahan').value.trim().toUpperCase();
-                const tgl = container.querySelector('.anggota-tglLahir-tambahan').value;
-                const agama = container.querySelector('.anggota-agama-tambahan').value;
-                const pend = container.querySelector('.anggota-pendidikan-tambahan').value;
-                const pek = container.querySelector('.anggota-pekerjaan-tambahan').value;
-                const gol = container.querySelector('.anggota-golDarah-tambahan').value;
-                
-                anggotaList.push({
-                    no: anggotaList.length + 1,
-                    nama: nama,
-                    nik: nik || '-',
-                    jk: jk,
-                    tmpLahir: tmp || '-',
-                    tglLahir: tgl || '-',
-                    agama: agama,
-                    pendidikan: pend,
-                    pekerjaan: pek,
-                    golDarah: gol
-                });
-            });
-
-            if (editIndex === -1) {
-                dataKeluarga.push({
-                    kepala, anggota: anggotaList.length, alamat, kontak,
-                    noKK, rt, rw, kodePos,
-                    fileUpload: null,
-                    anggotaDetail: anggotaList
-                });
-            } else {
-                dataKeluarga[editIndex].kepala = kepala;
-                dataKeluarga[editIndex].anggota = anggotaList.length;
-                dataKeluarga[editIndex].alamat = alamat;
-                dataKeluarga[editIndex].kontak = kontak;
-                dataKeluarga[editIndex].noKK = noKK;
-                dataKeluarga[editIndex].rt = rt;
-                dataKeluarga[editIndex].rw = rw;
-                dataKeluarga[editIndex].kodePos = kodePos;
-                dataKeluarga[editIndex].anggotaDetail = anggotaList;
-                editIndex = -1;
-            }
-            renderKeluarga();
-            closeModal('modalKeluarga');
-            alert('Data keluarga berhasil disimpan!');
-        });
-
-        // ---------- SIMPAN DOKUMENTASI ----------
-        document.getElementById('simpanDokumentasi').addEventListener('click', function() {
-            const judul = document.getElementById('inpJudul').value.trim();
-            const tanggal = document.getElementById('inpTglDok').value;
-            const icon = document.getElementById('inpIconDok').value;
-            if (!judul || !tanggal) { alert('Judul dan tanggal harus diisi'); return; }
-            const d = new Date(tanggal + 'T00:00:00');
-            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-            const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            dokumentasi.push({ judul, tanggal: tglStr, icon });
-            renderDokumentasi();
-            closeModal('modalDokumentasi');
-            document.getElementById('inpJudul').value = '';
-            document.getElementById('inpTglDok').value = '';
-        });
-
-        // ---------- SIMPAN TAMU ----------
-        document.getElementById('simpanTamu').addEventListener('click', function() {
-            const nama = document.getElementById('inpNamaTamu').value.trim().toUpperCase();
-            const keperluan = document.getElementById('inpKeperluan').value.trim();
-            const tanggal = document.getElementById('inpTglTamu').value;
-            const status = document.getElementById('inpStatusTamu').value;
-            if (!nama || !keperluan || !tanggal) { alert('Semua field harus diisi'); return; }
-            tamuWajibLapor.push({ nama, keperluan, tanggal, status });
-            renderTamu();
-            closeModal('modalTamu');
-            document.getElementById('inpNamaTamu').value = '';
-            document.getElementById('inpKeperluan').value = '';
-            document.getElementById('inpTglTamu').value = '';
-        });
-
-        // ---------- SIMPAN IURAN ----------
-        document.getElementById('simpanIuran').addEventListener('click', function() {
-            const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
-            const bulan = document.getElementById('inpBulanIuran').value.trim();
-            const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
-            const status = document.getElementById('inpStatusIuran').value;
-            if (!keluarga || !bulan || nominal <= 0) { alert('Isi semua field dengan benar (nominal > 0)'); return; }
-            iuranRT.push({ keluarga, bulan, nominal, status });
-            renderIuran();
-            closeModal('modalIuran');
-            document.getElementById('inpKeluargaIuran').value = '';
-            document.getElementById('inpBulanIuran').value = '';
-            document.getElementById('inpNominalIuran').value = '';
-        });
-
-        // ---------- TAB SWITCH ----------
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const panels = {
-            keluarga: document.getElementById('tab-keluarga'),
-            dokumentasi: document.getElementById('tab-dokumentasi'),
-            tamu: document.getElementById('tab-tamu'),
-            iuran: document.getElementById('tab-iuran')
+            document.getElementById('filePreview').style.display = 'flex';
+            document.getElementById('fileNamePreview').textContent = file.name;
         };
-        tabButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                tabButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                Object.values(panels).forEach(p => p.classList.remove('active'));
-                const tabId = this.dataset.tab;
-                if (tabId === 'tab-keluarga') panels.keluarga.classList.add('active');
-                else if (tabId === 'tab-dokumentasi') panels.dokumentasi.classList.add('active');
-                else if (tabId === 'tab-tamu') panels.tamu.classList.add('active');
-                else if (tabId === 'tab-iuran') panels.iuran.classList.add('active');
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btnHapusFile').addEventListener('click', function() {
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+    });
+
+    document.getElementById('simpanUpload').addEventListener('click', function() {
+        if (!selectedFile || !selectedFile.base64) {
+            alert('Silakan pilih file terlebih dahulu');
+            return;
+        }
+        const k = dataKeluarga[uploadTargetIndex];
+        if (!k) return;
+        k.fileUpload = {
+            nama: selectedFile.nama,
+            jenis: document.getElementById('inpJenisDokumen').value,
+            base64: selectedFile.base64,
+            tipe: selectedFile.tipe
+        };
+        renderKeluarga();
+        closeModal('modalUpload');
+        alert(`File ${selectedFile.nama} berhasil diupload untuk keluarga ${k.kepala}`);
+    });
+
+    // ======================================================================
+    // EDIT KELUARGA
+    // ======================================================================
+    let editIndex = -1;
+
+    function editKeluarga(index) {
+        editIndex = index;
+        const k = dataKeluarga[index];
+        document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-pen" style="color:#1c5f4e;"></i> Edit Keluarga';
+        document.getElementById('infoEditKeluarga').style.display = 'block';
+        document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Mengedit: <strong>${k.kepala}</strong>`;
+        document.getElementById('inpKepala').value = k.kepala;
+        document.getElementById('inpAlamat').value = k.alamat;
+        document.getElementById('inpKontak').value = k.kontak;
+        document.getElementById('inpNoKK').value = k.noKK || '';
+        document.getElementById('inpRT').value = k.rt || '';
+        document.getElementById('inpRW').value = k.rw || '';
+        document.getElementById('inpKodePos').value = k.kodePos || '';
+        document.getElementById('anggotaTambahanContainer').innerHTML = '';
+        
+        const firstNama = document.querySelector('.anggota-nama');
+        const firstNik = document.querySelector('.anggota-nik');
+        const firstJk = document.querySelector('.anggota-jk');
+        const firstTmp = document.querySelector('.anggota-tmpLahir');
+        const firstTgl = document.querySelector('.anggota-tglLahir');
+        const firstAgama = document.querySelector('.anggota-agama');
+        const firstPend = document.querySelector('.anggota-pendidikan');
+        const firstPek = document.querySelector('.anggota-pekerjaan');
+        const firstGol = document.querySelector('.anggota-golDarah');
+        
+        if (k.anggotaDetail && k.anggotaDetail.length > 0) {
+            const kepala = k.anggotaDetail[0];
+            firstNama.value = kepala.nama || '';
+            firstNik.value = kepala.nik || '';
+            firstJk.value = kepala.jk || 'Laki-Laki';
+            firstTmp.value = kepala.tmpLahir || '';
+            firstTgl.value = kepala.tglLahir || '';
+            firstAgama.value = kepala.agama || 'ISLAM';
+            firstPend.value = kepala.pendidikan || 'SLTA/SEDERAJAT';
+            firstPek.value = kepala.pekerjaan || 'PELAJAR/MAHASISWA';
+            firstGol.value = kepala.golDarah || 'TIDAK TAHU';
+        }
+        
+        document.getElementById('simpanKeluarga').textContent = 'Update';
+        openModal('modalKeluarga');
+    }
+
+    function resetModalKeluarga() {
+        editIndex = -1;
+        document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga';
+        document.getElementById('infoEditKeluarga').style.display = 'none';
+        document.getElementById('simpanKeluarga').textContent = 'Simpan';
+        document.getElementById('inpKepala').value = '';
+        document.getElementById('inpAlamat').value = '';
+        document.getElementById('inpKontak').value = '';
+        document.getElementById('inpNoKK').value = '';
+        document.getElementById('inpRT').value = '';
+        document.getElementById('inpRW').value = '';
+        document.getElementById('inpKodePos').value = '';
+        document.getElementById('anggotaTambahanContainer').innerHTML = '';
+        document.querySelectorAll('.anggota-nama, .anggota-nik, .anggota-tmpLahir, .anggota-tglLahir').forEach(el => el.value = '');
+        document.querySelector('.anggota-jk').value = 'Laki-Laki';
+        document.querySelector('.anggota-agama').value = 'ISLAM';
+        document.querySelector('.anggota-pendidikan').value = 'SLTA/SEDERAJAT';
+        document.querySelector('.anggota-pekerjaan').value = 'PELAJAR/MAHASISWA';
+        document.querySelector('.anggota-golDarah').value = 'TIDAK TAHU';
+    }
+
+    // ======================================================================
+    // TAMBAH ANGGOTA FIELD
+    // ======================================================================
+    document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
+        const container = document.getElementById('anggotaTambahanContainer');
+        const div = document.createElement('div');
+        div.className = 'form-row';
+        div.style.marginBottom = '0.5rem';
+        div.style.border = '1px solid #e5ecf5';
+        div.style.padding = '0.5rem';
+        div.style.borderRadius = '12px';
+        div.innerHTML = `
+            <div><label>Nama</label><input class="anggota-nama-tambahan" placeholder="Nama" /></div>
+            <div><label>NIK</label><input class="anggota-nik-tambahan" placeholder="NIK" /></div>
+            <div><label>JK</label><select class="anggota-jk-tambahan"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div>
+            <div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" placeholder="Tempat lahir" /></div>
+            <div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" type="date" /></div>
+            <div><label>Agama</label><select class="anggota-agama-tambahan"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div>
+            <div><label>Pendidikan</label><select class="anggota-pendidikan-tambahan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div>
+            <div><label>Pekerjaan</label><select class="anggota-pekerjaan-tambahan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div>
+            <div><label>Gol Darah</label><select class="anggota-golDarah-tambahan"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div>
+            <div style="display:flex;align-items:flex-end;"><button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.2rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i></button></div>
+        `;
+        container.appendChild(div);
+        div.querySelector('.btn-hapus-anggota').addEventListener('click', function() { div.remove(); });
+    });
+
+    // ======================================================================
+    // TAMBAH ANGGOTA KE KELUARGA EXISTING
+    // ======================================================================
+    let targetKeluargaIndex = -1;
+
+    function openTambahAnggota(index) {
+        targetKeluargaIndex = index;
+        const select = document.getElementById('selectKeluargaTujuan');
+        select.innerHTML = dataKeluarga.map((k, i) => 
+            `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`
+        ).join('');
+        document.getElementById('infoTambahAnggota').innerHTML = `<i class="fas fa-edit"></i> Menambah anggota ke: <strong>${dataKeluarga[index].kepala}</strong>`;
+        document.getElementById('inpAnggotaNama').value = '';
+        document.getElementById('inpAnggotaNIK').value = '';
+        document.getElementById('inpAnggotaTmpLahir').value = '';
+        document.getElementById('inpAnggotaTglLahir').value = '';
+        document.getElementById('inpAnggotaJK').value = 'Laki-Laki';
+        document.getElementById('inpAnggotaAgama').value = 'ISLAM';
+        document.getElementById('inpAnggotaPendidikan').value = 'SLTA/SEDERAJAT';
+        document.getElementById('inpAnggotaPekerjaan').value = 'PELAJAR/MAHASISWA';
+        document.getElementById('inpAnggotaGolDarah').value = 'TIDAK TAHU';
+        openModal('modalTambahAnggota');
+    }
+
+    document.getElementById('simpanTambahAnggota').addEventListener('click', function() {
+        const idx = parseInt(document.getElementById('selectKeluargaTujuan').value);
+        const k = dataKeluarga[idx];
+        if (!k) { alert('Keluarga tidak ditemukan'); return; }
+        const nama = document.getElementById('inpAnggotaNama').value.trim().toUpperCase();
+        if (!nama) { alert('Nama anggota harus diisi'); return; }
+        const newAnggota = {
+            no: (k.anggotaDetail || []).length + 1,
+            nama: nama,
+            nik: document.getElementById('inpAnggotaNIK').value.trim() || '-',
+            jk: document.getElementById('inpAnggotaJK').value,
+            tmpLahir: document.getElementById('inpAnggotaTmpLahir').value.trim().toUpperCase() || '-',
+            tglLahir: document.getElementById('inpAnggotaTglLahir').value || '-',
+            agama: document.getElementById('inpAnggotaAgama').value,
+            pendidikan: document.getElementById('inpAnggotaPendidikan').value,
+            pekerjaan: document.getElementById('inpAnggotaPekerjaan').value,
+            golDarah: document.getElementById('inpAnggotaGolDarah').value
+        };
+        if (!k.anggotaDetail) k.anggotaDetail = [];
+        k.anggotaDetail.push(newAnggota);
+        k.anggota = k.anggotaDetail.length;
+        renderKeluarga();
+        closeModal('modalTambahAnggota');
+        alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
+    });
+
+    // ======================================================================
+    // SIMPAN KELUARGA
+    // ======================================================================
+    document.getElementById('simpanKeluarga').addEventListener('click', function() {
+        const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
+        const alamat = document.getElementById('inpAlamat').value.trim().toUpperCase();
+        const kontak = document.getElementById('inpKontak').value.trim();
+        const noKK = document.getElementById('inpNoKK').value.trim() || '920701140817' + (1000 + dataKeluarga.length);
+        const rt = document.getElementById('inpRT').value.trim() || '001';
+        const rw = document.getElementById('inpRW').value.trim() || '002';
+        const kodePos = document.getElementById('inpKodePos').value.trim() || '98362';
+        if (!kepala || !alamat || !kontak) { alert('Isi semua field'); return; }
+
+        const anggotaList = [];
+        const nama1 = document.querySelector('.anggota-nama').value.trim().toUpperCase() || kepala;
+        anggotaList.push({
+            no: 1,
+            nama: nama1,
+            nik: document.querySelector('.anggota-nik').value.trim() || '-',
+            jk: document.querySelector('.anggota-jk').value,
+            tmpLahir: document.querySelector('.anggota-tmpLahir').value.trim().toUpperCase() || '-',
+            tglLahir: document.querySelector('.anggota-tglLahir').value || '-',
+            agama: document.querySelector('.anggota-agama').value,
+            pendidikan: document.querySelector('.anggota-pendidikan').value,
+            pekerjaan: document.querySelector('.anggota-pekerjaan').value,
+            golDarah: document.querySelector('.anggota-golDarah').value
+        });
+
+        document.querySelectorAll('.anggota-nama-tambahan').forEach(el => {
+            const nama = el.value.trim().toUpperCase();
+            if (!nama) return;
+            const container = el.closest('.form-row');
+            anggotaList.push({
+                no: anggotaList.length + 1,
+                nama: nama,
+                nik: container.querySelector('.anggota-nik-tambahan').value.trim() || '-',
+                jk: container.querySelector('.anggota-jk-tambahan').value,
+                tmpLahir: container.querySelector('.anggota-tmpLahir-tambahan').value.trim().toUpperCase() || '-',
+                tglLahir: container.querySelector('.anggota-tglLahir-tambahan').value || '-',
+                agama: container.querySelector('.anggota-agama-tambahan').value,
+                pendidikan: container.querySelector('.anggota-pendidikan-tambahan').value,
+                pekerjaan: container.querySelector('.anggota-pekerjaan-tambahan').value,
+                golDarah: container.querySelector('.anggota-golDarah-tambahan').value
             });
         });
 
-        // init
-        renderAll();
-    })();
+        if (editIndex === -1) {
+            dataKeluarga.push({ kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos, fileUpload: null, anggotaDetail: anggotaList });
+        } else {
+            dataKeluarga[editIndex].kepala = kepala;
+            dataKeluarga[editIndex].anggota = anggotaList.length;
+            dataKeluarga[editIndex].alamat = alamat;
+            dataKeluarga[editIndex].kontak = kontak;
+            dataKeluarga[editIndex].noKK = noKK;
+            dataKeluarga[editIndex].rt = rt;
+            dataKeluarga[editIndex].rw = rw;
+            dataKeluarga[editIndex].kodePos = kodePos;
+            dataKeluarga[editIndex].anggotaDetail = anggotaList;
+            editIndex = -1;
+        }
+        renderKeluarga();
+        closeModal('modalKeluarga');
+        alert('Data keluarga berhasil disimpan!');
+    });
+
+    // ======================================================================
+    // SIMPAN DOKUMENTASI
+    // ======================================================================
+    document.getElementById('simpanDokumentasi').addEventListener('click', function() {
+        const judul = document.getElementById('inpJudul').value.trim();
+        const tanggal = document.getElementById('inpTglDok').value;
+        const icon = document.getElementById('inpIconDok').value;
+        if (!judul || !tanggal) { alert('Judul dan tanggal harus diisi'); return; }
+        const d = new Date(tanggal + 'T00:00:00');
+        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        dokumentasi.push({ judul, tanggal: tglStr, icon });
+        renderDokumentasi();
+        closeModal('modalDokumentasi');
+        document.getElementById('inpJudul').value = '';
+        document.getElementById('inpTglDok').value = '';
+    });
+
+    // ======================================================================
+    // SIMPAN TAMU
+    // ======================================================================
+    document.getElementById('simpanTamu').addEventListener('click', function() {
+        const nama = document.getElementById('inpNamaTamu').value.trim().toUpperCase();
+        const keperluan = document.getElementById('inpKeperluan').value.trim();
+        const tanggal = document.getElementById('inpTglTamu').value;
+        const status = document.getElementById('inpStatusTamu').value;
+        if (!nama || !keperluan || !tanggal) { alert('Semua field harus diisi'); return; }
+        tamuWajibLapor.push({ nama, keperluan, tanggal, status });
+        renderTamu();
+        closeModal('modalTamu');
+        document.getElementById('inpNamaTamu').value = '';
+        document.getElementById('inpKeperluan').value = '';
+        document.getElementById('inpTglTamu').value = '';
+    });
+
+    // ======================================================================
+    // SIMPAN IURAN
+    // ======================================================================
+    document.getElementById('simpanIuran').addEventListener('click', function() {
+        const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
+        const bulan = document.getElementById('inpBulanIuran').value.trim();
+        const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
+        const status = document.getElementById('inpStatusIuran').value;
+        if (!keluarga || !bulan || nominal <= 0) { alert('Isi semua field dengan benar (nominal > 0)'); return; }
+        iuranRT.push({ keluarga, bulan, nominal, status });
+        renderIuran();
+        closeModal('modalIuran');
+        document.getElementById('inpKeluargaIuran').value = '';
+        document.getElementById('inpBulanIuran').value = '';
+        document.getElementById('inpNominalIuran').value = '';
+    });
+
+    // ======================================================================
+    // MODAL UTILITY
+    // ======================================================================
+    function openModal(id) {
+        document.getElementById(id).classList.add('show');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+        if (id === 'modalKeluarga') resetModalKeluarga();
+        if (id === 'modalUpload') {
+            document.getElementById('inpFileUpload').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            selectedFile = null;
+        }
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+        el.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+                if (this.id === 'modalKeluarga') resetModalKeluarga();
+                if (this.id === 'modalUpload') {
+                    document.getElementById('inpFileUpload').value = '';
+                    document.getElementById('filePreview').style.display = 'none';
+                    selectedFile = null;
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', function() { closeModal(this.dataset.close); });
+    });
+
+    document.querySelectorAll('.btn-tambah').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
+            openModal(this.dataset.modal);
+        });
+    });
+
+    document.getElementById('btnTambahAnggotaUtama').addEventListener('click', function() {
+        if (dataKeluarga.length === 0) {
+            alert('Belum ada data keluarga. Tambahkan keluarga terlebih dahulu.');
+            return;
+        }
+        openTambahAnggota(0);
+    });
+
+    // ======================================================================
+    // SIDEBAR NAVIGATION
+    // ======================================================================
+    const pageTitles = {
+        'tab-keluarga': 'Data Keluarga',
+        'tab-dokumentasi': 'Kerja Bakti',
+        'tab-tamu': 'Tamu Wajib Lapor',
+        'tab-iuran': 'Iuran RT'
+    };
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('pageTitle').innerHTML = `<i class="fas ${this.querySelector('i').className}"></i> ${pageTitles[tabId] || tabId}`;
+            // close sidebar on mobile
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        });
+    });
+
+    // ======================================================================
+    // HAMBURGER (MOBILE)
+    // ======================================================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    });
+    document.getElementById('sidebarOverlay').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('open');
+        this.classList.remove('show');
+    });
+
+    // ======================================================================
+    // INIT
+    // ======================================================================
+    renderAll();
 </script>
 </body>
 </html>
