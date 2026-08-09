@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RT Kita · Manajemen Rukun Tetangga</title>
-  <!-- Font Awesome 6 (gratis) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
     * {
@@ -13,25 +12,21 @@
       box-sizing: border-box;
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
     }
-
     body {
       background: #f4f7fc;
       display: flex;
       justify-content: center;
       padding: 2rem 1rem;
     }
-
     .app-wrapper {
       max-width: 1300px;
       width: 100%;
       background: white;
       border-radius: 32px;
-      box-shadow: 0 20px 40px -12px rgba(0, 20, 30, 0.25);
+      box-shadow: 0 20px 40px -12px rgba(0,20,30,0.25);
       padding: 2rem 1.8rem;
       transition: 0.2s;
     }
-
-    /* header */
     .header {
       display: flex;
       flex-wrap: wrap;
@@ -41,7 +36,6 @@
       border-bottom: 2px solid #e9edf4;
       padding-bottom: 1.2rem;
     }
-
     .header h1 {
       font-size: 1.9rem;
       font-weight: 600;
@@ -59,10 +53,7 @@
       border-radius: 60px;
       font-weight: 500;
       font-size: 0.95rem;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
     }
-
-    /* navigasi tab */
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -85,38 +76,18 @@
       align-items: center;
       gap: 8px;
     }
-    .tab-btn i {
-      font-size: 1rem;
-      color: #5b6f84;
-    }
-    .tab-btn:hover {
-      background: #e9eef6;
-      color: #0f2b3b;
-    }
+    .tab-btn i { color: #5b6f84; }
+    .tab-btn:hover { background: #e9eef6; color: #0f2b3b; }
     .tab-btn.active {
       background: #1c5f4e;
       color: white;
-      box-shadow: 0 6px 12px rgba(28, 95, 78, 0.25);
+      box-shadow: 0 6px 12px rgba(28,95,78,0.25);
     }
-    .tab-btn.active i {
-      color: white;
-    }
+    .tab-btn.active i { color: white; }
+    .panel { display: none; animation: fade 0.2s ease; }
+    .panel.active { display: block; }
+    @keyframes fade { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
-    /* panel konten */
-    .panel {
-      display: none;
-      animation: fade 0.2s ease;
-    }
-    .panel.active {
-      display: block;
-    }
-
-    @keyframes fade {
-      0% { opacity: 0.4; }
-      100% { opacity: 1; }
-    }
-
-    /* kartu statistik ringkas */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -129,7 +100,6 @@
       padding: 1.2rem 0.8rem;
       text-align: center;
       border: 1px solid #e3eaf2;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .stat-card i {
       font-size: 1.8rem;
@@ -139,18 +109,9 @@
       border-radius: 60px;
       margin-bottom: 6px;
     }
-    .stat-card .angka {
-      font-size: 1.9rem;
-      font-weight: 700;
-      color: #0b2b3d;
-    }
-    .stat-card .label {
-      color: #4d6279;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
+    .stat-card .angka { font-size: 1.9rem; font-weight: 700; color: #0b2b3d; }
+    .stat-card .label { color: #4d6279; font-weight: 500; font-size: 0.9rem; }
 
-    /* tabel & card data */
     .section-title {
       font-size: 1.3rem;
       font-weight: 600;
@@ -159,6 +120,27 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .section-title .btn-tambah {
+      background: #1c5f4e;
+      border: none;
+      color: white;
+      padding: 0.5rem 1.4rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 4px 8px rgba(28,95,78,0.2);
+    }
+    .section-title .btn-tambah:hover {
+      background: #134a3b;
+      transform: scale(1.02);
     }
 
     .table-responsive {
@@ -185,10 +167,7 @@
       border-bottom: 1px solid #e5ecf5;
       color: #1a3145;
     }
-    tr:last-child td {
-      border-bottom: none;
-    }
-
+    tr:last-child td { border-bottom: none; }
     .tag {
       background: #e3f0f5;
       padding: 0.2rem 0.9rem;
@@ -202,28 +181,6 @@
     .tag-tamu { background: #fff1e0; color: #a1581c; }
     .tag-iuran { background: #e3eaf9; color: #1f4780; }
 
-    .btn-sm {
-      background: none;
-      border: 1px solid #cbd7e6;
-      padding: 0.2rem 0.9rem;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #2d4b66;
-      cursor: default;
-      transition: 0.1s;
-    }
-    .btn-sm i {
-      margin-right: 4px;
-    }
-
-    .flex-end {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.6rem;
-    }
-
-    /* galeri dokumentasi */
     .dokumentasi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -236,7 +193,6 @@
       padding: 1rem 0.8rem 0.8rem;
       border: 1px solid #e3ebf5;
       text-align: center;
-      transition: 0.1s;
     }
     .dok-item i {
       font-size: 2.6rem;
@@ -246,23 +202,9 @@
       border-radius: 60px;
       margin-bottom: 6px;
     }
-    .dok-item .dok-title {
-      font-weight: 600;
-      color: #103f31;
-    }
-    .dok-item .dok-date {
-      font-size: 0.8rem;
-      color: #4a6a7a;
-    }
+    .dok-item .dok-title { font-weight: 600; color: #103f31; }
+    .dok-item .dok-date { font-size: 0.8rem; color: #4a6a7a; }
 
-    .empty-state {
-      color: #6a7e94;
-      padding: 1.5rem 0.5rem;
-      text-align: center;
-      font-style: italic;
-    }
-
-    /* footer */
     .footer-note {
       margin-top: 2.8rem;
       font-size: 0.8rem;
@@ -271,6 +213,85 @@
       padding-top: 1.4rem;
       text-align: right;
     }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: white;
+      max-width: 460px;
+      width: 90%;
+      border-radius: 32px;
+      padding: 2rem 1.8rem;
+      box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      0% { transform: translateY(30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .modal-box h2 {
+      margin-bottom: 1.4rem;
+      font-weight: 600;
+      color: #0b2b3d;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .modal-box label {
+      font-weight: 500;
+      color: #1d3b4f;
+      display: block;
+      margin: 0.8rem 0 0.2rem;
+    }
+    .modal-box input, .modal-box select {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #d0dbe9;
+      font-size: 0.95rem;
+      background: #fafcff;
+      transition: 0.1s;
+    }
+    .modal-box input:focus, .modal-box select:focus {
+      outline: none;
+      border-color: #1c5f4e;
+      box-shadow: 0 0 0 3px rgba(28,95,78,0.15);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 1.8rem;
+      justify-content: flex-end;
+    }
+    .modal-actions button {
+      padding: 0.6rem 1.8rem;
+      border-radius: 60px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .modal-actions .btn-batal {
+      background: #e9eef6;
+      color: #2a445a;
+    }
+    .modal-actions .btn-batal:hover { background: #d5deea; }
+    .modal-actions .btn-simpan {
+      background: #1c5f4e;
+      color: white;
+      box-shadow: 0 4px 8px rgba(28,95,78,0.2);
+    }
+    .modal-actions .btn-simpan:hover { background: #134a3b; }
 
     @media (max-width: 600px) {
       .app-wrapper { padding: 1.2rem; }
@@ -281,13 +302,11 @@
 </head>
 <body>
 <div class="app-wrapper">
-  <!-- Header -->
   <div class="header">
     <h1><i class="fas fa-people-roof"></i> RT 08 · Kelurahan Makmur</h1>
     <span class="badge-rt"><i class="fas fa-circle-check" style="margin-right: 6px;"></i> data terbaru</span>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-keluarga"><i class="fas fa-people-group"></i> Keluarga</button>
     <button class="tab-btn" data-tab="tab-dokumentasi"><i class="fas fa-camera"></i> Kerja Bakti</button>
@@ -295,7 +314,6 @@
     <button class="tab-btn" data-tab="tab-iuran"><i class="fas fa-coins"></i> Iuran RT</button>
   </div>
 
-  <!-- Stat ringkas -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card"><i class="fas fa-people-group"></i><div class="angka" id="statKeluarga">12</div><div class="label">Keluarga</div></div>
     <div class="stat-card"><i class="fas fa-camera"></i><div class="angka" id="statDokumentasi">4</div><div class="label">Dokumentasi</div></div>
@@ -303,63 +321,140 @@
     <div class="stat-card"><i class="fas fa-coins"></i><div class="angka" id="statIuran">Rp 2.4Jt</div><div class="label">Terkumpul</div></div>
   </div>
 
-  <!-- ======================= PANEL 1: KELUARGA ======================= -->
+  <!-- PANEL KELUARGA -->
   <div id="tab-keluarga" class="panel active">
-    <div class="section-title"><i class="fas fa-people-arrows" style="color: #1f6b58;"></i> Data Keluarga</div>
+    <div class="section-title">
+      <span><i class="fas fa-people-arrows" style="color: #1f6b58;"></i> Data Keluarga</span>
+      <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Tambah</button>
+    </div>
     <div class="table-responsive">
       <table>
         <thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th></tr></thead>
-        <tbody id="tableKeluarga">
-          <!-- data dari JS -->
-        </tbody>
+        <tbody id="tableKeluarga"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ======================= PANEL 2: DOKUMENTASI KERJA BAKTI ======================= -->
+  <!-- PANEL DOKUMENTASI -->
   <div id="tab-dokumentasi" class="panel">
-    <div class="section-title"><i class="fas fa-broom" style="color: #1f6b58;"></i> Dokumentasi Kerja Bakti</div>
-    <div class="dokumentasi-grid" id="dokumentasiGrid">
-      <!-- data dari JS -->
+    <div class="section-title">
+      <span><i class="fas fa-broom" style="color: #1f6b58;"></i> Dokumentasi Kerja Bakti</span>
+      <button class="btn-tambah" data-modal="modalDokumentasi"><i class="fas fa-plus"></i> Tambah</button>
     </div>
+    <div class="dokumentasi-grid" id="dokumentasiGrid"></div>
   </div>
 
-  <!-- ======================= PANEL 3: TAMU WAJIB LAPOR ======================= -->
+  <!-- PANEL TAMU -->
   <div id="tab-tamu" class="panel">
-    <div class="section-title"><i class="fas fa-door-open" style="color: #a1581c;"></i> Tamu Wajib Lapor</div>
+    <div class="section-title">
+      <span><i class="fas fa-door-open" style="color: #a1581c;"></i> Tamu Wajib Lapor</span>
+      <button class="btn-tambah" data-modal="modalTamu"><i class="fas fa-plus"></i> Tambah</button>
+    </div>
     <div class="table-responsive">
       <table>
         <thead><tr><th>Nama Tamu</th><th>Keperluan</th><th>Tanggal</th><th>Status</th></tr></thead>
-        <tbody id="tableTamu">
-          <!-- data dari JS -->
-        </tbody>
+        <tbody id="tableTamu"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ======================= PANEL 4: IURAN RT ======================= -->
+  <!-- PANEL IURAN -->
   <div id="tab-iuran" class="panel">
-    <div class="section-title"><i class="fas fa-hand-holding-dollar" style="color: #1f4780;"></i> Data Iuran RT</div>
+    <div class="section-title">
+      <span><i class="fas fa-hand-holding-dollar" style="color: #1f4780;"></i> Data Iuran RT</span>
+      <button class="btn-tambah" data-modal="modalIuran"><i class="fas fa-plus"></i> Tambah</button>
+    </div>
     <div class="table-responsive">
       <table>
         <thead><tr><th>Keluarga</th><th>Bulan</th><th>Nominal</th><th>Status</th></tr></thead>
-        <tbody id="tableIuran">
-          <!-- data dari JS -->
-        </tbody>
+        <tbody id="tableIuran"></tbody>
       </table>
     </div>
-    <div class="flex-end"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp 2.400.000</span></div>
+    <div class="flex-end" style="margin-top:1rem;"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span></div>
   </div>
 
-  <div class="footer-note">
-    <i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v1.0
+  <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.0</div>
+</div>
+
+<!-- ========== MODAL KELUARGA ========== -->
+<div class="modal-overlay" id="modalKeluarga">
+  <div class="modal-box">
+    <h2><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
+    <label>Kepala Keluarga</label><input id="inpKepala" placeholder="Nama lengkap" />
+    <label>Jumlah Anggota</label><input id="inpAnggota" type="number" placeholder="Contoh: 4" />
+    <label>Alamat</label><input id="inpAlamat" placeholder="Jl. Contoh 12" />
+    <label>Kontak</label><input id="inpKontak" placeholder="0812-3456" />
+    <div class="modal-actions">
+      <button class="btn-batal" data-close="modalKeluarga">Batal</button>
+      <button class="btn-simpan" id="simpanKeluarga">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL DOKUMENTASI ========== -->
+<div class="modal-overlay" id="modalDokumentasi">
+  <div class="modal-box">
+    <h2><i class="fas fa-camera" style="color:#1c5f4e;"></i> Tambah Dokumentasi</h2>
+    <label>Judul Kegiatan</label><input id="inpJudul" placeholder="Bersih-bersih sungai" />
+    <label>Tanggal</label><input id="inpTglDok" type="date" />
+    <label>Ikon (pilih)</label>
+    <select id="inpIconDok">
+      <option value="fa-people-group">👥 Orang</option>
+      <option value="fa-tree">🌳 Pohon</option>
+      <option value="fa-road">🛣️ Jalan</option>
+      <option value="fa-tent">⛺ Tenda</option>
+      <option value="fa-water">💧 Air</option>
+      <option value="fa-trash">🗑️ Sampah</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-batal" data-close="modalDokumentasi">Batal</button>
+      <button class="btn-simpan" id="simpanDokumentasi">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL TAMU ========== -->
+<div class="modal-overlay" id="modalTamu">
+  <div class="modal-box">
+    <h2><i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor</h2>
+    <label>Nama Tamu</label><input id="inpNamaTamu" placeholder="Nama lengkap" />
+    <label>Keperluan</label><input id="inpKeperluan" placeholder="Survey / kunjungan" />
+    <label>Tanggal</label><input id="inpTglTamu" type="date" />
+    <label>Status</label>
+    <select id="inpStatusTamu">
+      <option value="Sudah Lapor">Sudah Lapor</option>
+      <option value="Belum Lapor">Belum Lapor</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-batal" data-close="modalTamu">Batal</button>
+      <button class="btn-simpan" id="simpanTamu">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL IURAN ========== -->
+<div class="modal-overlay" id="modalIuran">
+  <div class="modal-box">
+    <h2><i class="fas fa-coins" style="color:#1f4780;"></i> Tambah Iuran</h2>
+    <label>Keluarga</label><input id="inpKeluargaIuran" placeholder="Nama kepala keluarga" />
+    <label>Bulan</label><input id="inpBulanIuran" placeholder="April 2026" />
+    <label>Nominal (Rp)</label><input id="inpNominalIuran" type="number" placeholder="200000" />
+    <label>Status</label>
+    <select id="inpStatusIuran">
+      <option value="Lunas">Lunas</option>
+      <option value="Belum">Belum</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-batal" data-close="modalIuran">Batal</button>
+      <button class="btn-simpan" id="simpanIuran">Simpan</button>
+    </div>
   </div>
 </div>
 
 <script>
   (function() {
-    // ---------- DATA STATIS (contoh) ----------
-    const dataKeluarga = [
+    // ---------- DATA AWAL ----------
+    let dataKeluarga = [
       { kepala: 'H. Suryono', anggota: 4, alamat: 'Jl. Mawar 12', kontak: '0812-3456' },
       { kepala: 'Ibu Ratih', anggota: 3, alamat: 'Jl. Melati 7', kontak: '0856-7890' },
       { kepala: 'Bapak Dede', anggota: 5, alamat: 'Jl. Kenanga 21', kontak: '0878-1234' },
@@ -374,14 +469,14 @@
       { kepala: 'Bapak Joko', anggota: 4, alamat: 'Jl. Mahoni 11', kontak: '0812-3344' }
     ];
 
-    const dokumentasi = [
+    let dokumentasi = [
       { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
       { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
       { judul: 'Perbaikan jalan warga', tanggal: '15 Mar 2026', icon: 'fa-road' },
       { judul: 'Gotong royong pos ronda', tanggal: '2 Apr 2026', icon: 'fa-tent' }
     ];
 
-    const tamuWajibLapor = [
+    let tamuWajibLapor = [
       { nama: 'Irfan Hakim', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor' },
       { nama: 'Dewi Sartika', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor' },
       { nama: 'Budi Santoso', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor' },
@@ -391,7 +486,7 @@
       { nama: 'Rizky Fauzan', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor' }
     ];
 
-    const iuranRT = [
+    let iuranRT = [
       { keluarga: 'H. Suryono', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
       { keluarga: 'Ibu Ratih', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
       { keluarga: 'Bapak Dede', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
@@ -406,24 +501,17 @@
       { keluarga: 'Bapak Joko', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
     ];
 
-    // ---- Render fungsi ----
+    // ---------- RENDER ----------
     function renderKeluarga() {
       const tbody = document.getElementById('tableKeluarga');
-      if (!tbody) return;
       tbody.innerHTML = dataKeluarga.map(k => `
-        <tr>
-          <td><strong>${k.kepala}</strong></td>
-          <td>${k.anggota} jiwa</td>
-          <td>${k.alamat}</td>
-          <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
-        </tr>
+        <tr><td><strong>${k.kepala}</strong></td><td>${k.anggota} jiwa</td><td>${k.alamat}</td><td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td></tr>
       `).join('');
       document.getElementById('statKeluarga').textContent = dataKeluarga.length;
     }
 
     function renderDokumentasi() {
       const grid = document.getElementById('dokumentasiGrid');
-      if (!grid) return;
       grid.innerHTML = dokumentasi.map(d => `
         <div class="dok-item">
           <i class="fas ${d.icon}"></i>
@@ -436,41 +524,124 @@
 
     function renderTamu() {
       const tbody = document.getElementById('tableTamu');
-      if (!tbody) return;
       tbody.innerHTML = tamuWajibLapor.map(t => {
-        const statusClass = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
-        return `
-          <tr>
-            <td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td>
-            <td>${t.keperluan}</td>
-            <td>${t.tanggal}</td>
-            <td><span class="tag ${statusClass}">${t.status}</span></td>
-          </tr>
-        `;
+        const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
+        return `<tr><td><i class="fas fa-user" style="margin-right:6px;color:#2a5f7a;"></i> ${t.nama}</td><td>${t.keperluan}</td><td>${t.tanggal}</td><td><span class="tag ${cls}">${t.status}</span></td></tr>`;
       }).join('');
       document.getElementById('statTamu').textContent = tamuWajibLapor.length;
     }
 
     function renderIuran() {
       const tbody = document.getElementById('tableIuran');
-      if (!tbody) return;
       let total = 0;
       tbody.innerHTML = iuranRT.map(i => {
         const lunas = i.status === 'Lunas';
         if (lunas) total += i.nominal;
-        return `
-          <tr>
-            <td><strong>${i.keluarga}</strong></td>
-            <td>${i.bulan}</td>
-            <td>Rp ${i.nominal.toLocaleString('id-ID')}</td>
-            <td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status}</span></td>
-          </tr>
-        `;
+        return `<tr><td><strong>${i.keluarga}</strong></td><td>${i.bulan}</td><td>Rp ${i.nominal.toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status}</span></td></tr>`;
       }).join('');
       document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
+      document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
     }
 
-    // ---- TAB SWITCH ----
+    function renderAll() {
+      renderKeluarga();
+      renderDokumentasi();
+      renderTamu();
+      renderIuran();
+    }
+
+    // ---------- MODAL UTILITY ----------
+    function openModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+    // tutup modal dengan klik overlay
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.remove('show');
+        }
+      });
+    });
+    // tombol batal
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        closeModal(this.dataset.close);
+      });
+    });
+    // tombol tambah di section
+    document.querySelectorAll('.btn-tambah').forEach(btn => {
+      btn.addEventListener('click', function() {
+        openModal(this.dataset.modal);
+      });
+    });
+
+    // ---------- SIMPAN KELUARGA ----------
+    document.getElementById('simpanKeluarga').addEventListener('click', function() {
+      const kepala = document.getElementById('inpKepala').value.trim();
+      const anggota = parseInt(document.getElementById('inpAnggota').value) || 0;
+      const alamat = document.getElementById('inpAlamat').value.trim();
+      const kontak = document.getElementById('inpKontak').value.trim();
+      if (!kepala || !alamat || !kontak) { alert('Isi semua field (kecuali anggota boleh 0)'); return; }
+      dataKeluarga.push({ kepala, anggota, alamat, kontak });
+      renderKeluarga();
+      closeModal('modalKeluarga');
+      document.getElementById('inpKepala').value = '';
+      document.getElementById('inpAnggota').value = '';
+      document.getElementById('inpAlamat').value = '';
+      document.getElementById('inpKontak').value = '';
+    });
+
+    // ---------- SIMPAN DOKUMENTASI ----------
+    document.getElementById('simpanDokumentasi').addEventListener('click', function() {
+      const judul = document.getElementById('inpJudul').value.trim();
+      const tanggal = document.getElementById('inpTglDok').value;
+      const icon = document.getElementById('inpIconDok').value;
+      if (!judul || !tanggal) { alert('Judul dan tanggal harus diisi'); return; }
+      // format tanggal ke "dd Mmm yyyy"
+      const d = new Date(tanggal + 'T00:00:00');
+      const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+      const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      dokumentasi.push({ judul, tanggal: tglStr, icon });
+      renderDokumentasi();
+      closeModal('modalDokumentasi');
+      document.getElementById('inpJudul').value = '';
+      document.getElementById('inpTglDok').value = '';
+    });
+
+    // ---------- SIMPAN TAMU ----------
+    document.getElementById('simpanTamu').addEventListener('click', function() {
+      const nama = document.getElementById('inpNamaTamu').value.trim();
+      const keperluan = document.getElementById('inpKeperluan').value.trim();
+      const tanggal = document.getElementById('inpTglTamu').value;
+      const status = document.getElementById('inpStatusTamu').value;
+      if (!nama || !keperluan || !tanggal) { alert('Semua field harus diisi'); return; }
+      tamuWajibLapor.push({ nama, keperluan, tanggal, status });
+      renderTamu();
+      closeModal('modalTamu');
+      document.getElementById('inpNamaTamu').value = '';
+      document.getElementById('inpKeperluan').value = '';
+      document.getElementById('inpTglTamu').value = '';
+    });
+
+    // ---------- SIMPAN IURAN ----------
+    document.getElementById('simpanIuran').addEventListener('click', function() {
+      const keluarga = document.getElementById('inpKeluargaIuran').value.trim();
+      const bulan = document.getElementById('inpBulanIuran').value.trim();
+      const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
+      const status = document.getElementById('inpStatusIuran').value;
+      if (!keluarga || !bulan || nominal <= 0) { alert('Isi semua field dengan benar (nominal > 0)'); return; }
+      iuranRT.push({ keluarga, bulan, nominal, status });
+      renderIuran();
+      closeModal('modalIuran');
+      document.getElementById('inpKeluargaIuran').value = '';
+      document.getElementById('inpBulanIuran').value = '';
+      document.getElementById('inpNominalIuran').value = '';
+    });
+
+    // ---------- TAB SWITCH ----------
     const tabButtons = document.querySelectorAll('.tab-btn');
     const panels = {
       keluarga: document.getElementById('tab-keluarga'),
@@ -478,17 +649,11 @@
       tamu: document.getElementById('tab-tamu'),
       iuran: document.getElementById('tab-iuran')
     };
-
     tabButtons.forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        // aktifkan tombol
+      btn.addEventListener('click', function() {
         tabButtons.forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-
-        // sembunyikan semua panel
         Object.values(panels).forEach(p => p.classList.remove('active'));
-
-        // tampilkan panel sesuai data-tab
         const tabId = this.dataset.tab;
         if (tabId === 'tab-keluarga') panels.keluarga.classList.add('active');
         else if (tabId === 'tab-dokumentasi') panels.dokumentasi.classList.add('active');
@@ -497,15 +662,8 @@
       });
     });
 
-    // ---- inisialisasi ----
-    renderKeluarga();
-    renderDokumentasi();
-    renderTamu();
-    renderIuran();
-
-    // ---- opsional: update stat iuran (total) saat render ----
-    // sudah di dalam renderIuran
-
+    // init
+    renderAll();
   })();
 </script>
 </body>
