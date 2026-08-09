@@ -281,6 +281,23 @@
             background: #134a3b;
             transform: scale(1.02);
         }
+        .section-title .btn-tambah-anggota {
+            background: #2a7f6e;
+            border: none;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .section-title .btn-tambah-anggota:hover {
+            background: #1c5f4e;
+        }
 
         .table-responsive {
             overflow-x: auto;
@@ -361,6 +378,22 @@
         .btn-upload.uploaded {
             background: #27ae60;
         }
+
+        .btn-file-view {
+            background: #2980b9;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-file-view:hover { background: #1a6a9a; }
 
         .btn-download-foto {
             background: #2980b9;
@@ -708,6 +741,44 @@
             cursor: pointer;
         }
 
+        /* MODAL VIEW FILE */
+        .modal-file-view {
+            max-width: 800px !important;
+            width: 95% !important;
+        }
+        .modal-file-view .file-display {
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+        .modal-file-view .file-display img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 12px;
+            border: 1px solid #dde3ed;
+        }
+        .modal-file-view .file-display .pdf-view {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #dde3ed;
+            border-radius: 12px;
+        }
+        .modal-file-view .file-info {
+            background: #f8faff;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #dde3ed;
+            margin-bottom: 1rem;
+        }
+        .modal-file-view .file-info .file-name {
+            font-weight: 600;
+            color: #0b2b3d;
+            font-size: 1rem;
+        }
+        .modal-file-view .file-info .file-detail {
+            font-size: 0.8rem;
+            color: #4a6a7a;
+        }
+
         .modal-kk {
             max-width: 1200px !important;
             width: 97% !important;
@@ -826,6 +897,9 @@
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .settings-grid { grid-template-columns: 1fr; }
             .dokumentasi-grid { grid-template-columns: 1fr; }
+            .modal-file-view { max-width: 100% !important; }
+            .modal-file-view .file-display img { max-height: 300px; }
+            .modal-file-view .file-display .pdf-view { height: 300px; }
             .hamburger {
                 display: flex !important;
             }
@@ -886,7 +960,7 @@
         </button>
     </nav>
     <div class="sidebar-footer">
-        <i class="fas fa-database"></i> Data simulasi v3.3
+        <i class="fas fa-database"></i> Data simulasi v3.4
     </div>
 </aside>
 
@@ -1040,6 +1114,24 @@
 </main>
 
 <!-- ========== MODALS ========== -->
+
+<!-- MODAL VIEW FILE -->
+<div class="modal-overlay" id="modalViewFile">
+    <div class="modal-box modal-file-view">
+        <h2><i class="fas fa-file" style="color:#2980b9;"></i> <span id="viewFileTitle">Lihat Dokumen</span></h2>
+        <div class="file-info">
+            <div class="file-name" id="viewFileName">Nama File</div>
+            <div class="file-detail" id="viewFileDetail">Jenis: - | Ukuran: -</div>
+        </div>
+        <div class="file-display" id="viewFileContent">
+            <p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-simpan" id="viewFileDownload"><i class="fas fa-download"></i> Download</button>
+            <button class="btn-batal" data-close="modalViewFile">Tutup</button>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL KELUARGA -->
 <div class="modal-overlay" id="modalKeluarga">
@@ -1401,6 +1493,45 @@
     };
 
     // ======================================================================
+    // FUNGSI VIEW & DOWNLOAD FILE
+    // ======================================================================
+    function openFileView(fileData, title, jenis, owner) {
+        if (!fileData || !fileData.base64) {
+            alert('File tidak ditemukan');
+            return;
+        }
+        
+        document.getElementById('viewFileTitle').textContent = `Lihat ${jenis || 'Dokumen'} - ${owner || ''}`;
+        document.getElementById('viewFileName').textContent = fileData.nama || 'Dokumen';
+        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileData.jenis || 'Dokumen'} | Ukuran: ${fileData.size || '-'}`;
+        
+        const contentDiv = document.getElementById('viewFileContent');
+        const isImage = fileData.tipe && fileData.tipe.startsWith('image/');
+        
+        if (isImage) {
+            contentDiv.innerHTML = `<img src="${fileData.base64}" alt="${fileData.nama}" />`;
+        } else if (fileData.tipe && fileData.tipe === 'application/pdf') {
+            contentDiv.innerHTML = `<embed src="${fileData.base64}" type="application/pdf" class="pdf-view" />`;
+        } else {
+            // Coba tampilkan sebagai gambar
+            contentDiv.innerHTML = `<img src="${fileData.base64}" alt="${fileData.nama}" style="max-height:300px;" />`;
+        }
+        
+        // Set download button
+        const downloadBtn = document.getElementById('viewFileDownload');
+        downloadBtn.onclick = function() {
+            const link = document.createElement('a');
+            link.href = fileData.base64;
+            link.download = fileData.nama || 'dokumen';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        
+        openModal('modalViewFile');
+    }
+
+    // ======================================================================
     // RENDER FUNCTIONS
     // ======================================================================
     function renderKeluarga() {
@@ -1410,6 +1541,12 @@
             const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
             const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
             const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+            
+            let viewBtn = '';
+            if (hasFile) {
+                viewBtn = `<button class="btn-file-view" data-file-index="${index}" data-file-type="keluarga"><i class="fas fa-eye"></i></button>`;
+            }
+            
             return `
                 <tr>
                     <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
@@ -1418,6 +1555,7 @@
                     <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
                     <td>
                         <div class="btn-group">
+                            ${viewBtn}
                             <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
                             <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
                             <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
@@ -1458,6 +1596,17 @@
                 openUploadModal(idx);
             });
         });
+
+        document.querySelectorAll('.btn-file-view[data-file-type="keluarga"]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.fileIndex);
+                const k = dataKeluarga[idx];
+                if (k && k.fileUpload) {
+                    openFileView(k.fileUpload, 'Dokumen Keluarga', k.fileUpload.jenis || 'Dokumen', k.kepala);
+                }
+            });
+        });
     }
 
     function renderDokumentasi() {
@@ -1476,7 +1625,6 @@
                 fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
             }
             
-            // Tombol download hanya jika ada foto
             let downloadBtn = '';
             if (hasFoto && d.foto.base64) {
                 downloadBtn = `<button class="btn-download-foto" data-dok-index="${index}"><i class="fas fa-download"></i> Download</button>`;
@@ -1500,7 +1648,6 @@
         }).join('');
         document.getElementById('statDokumentasi').textContent = dokumentasi.length;
 
-        // Event upload foto
         document.querySelectorAll('.btn-upload[data-dok-index]').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -1509,7 +1656,6 @@
             });
         });
 
-        // Event download foto
         document.querySelectorAll('.btn-download-foto').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -1521,7 +1667,6 @@
             });
         });
 
-        // Event hapus
         document.querySelectorAll('.btn-hapus-dok').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -1534,9 +1679,7 @@
         });
     }
 
-    // Fungsi download image
     function downloadImage(base64Data, filename) {
-        // Buat link download
         const link = document.createElement('a');
         link.href = base64Data;
         link.download = `${filename}_${new Date().getTime()}.jpg`;
@@ -1553,6 +1696,12 @@
             const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
             const uploadText = hasFile ? 'Tersimpan' : 'Upload';
             const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
+            
+            let viewBtn = '';
+            if (hasFile) {
+                viewBtn = `<button class="btn-file-view" data-tamu-index="${index}" data-file-type="tamu"><i class="fas fa-eye"></i></button>`;
+            }
+            
             return `
                 <tr>
                     <td>${t.no || '-'}</td>
@@ -1568,7 +1717,10 @@
                     <td>${t.tanggal || '-'}</td>
                     <td><span class="tag ${cls}">${t.status}</span></td>
                     <td>
-                        <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                        <div class="btn-group">
+                            ${viewBtn}
+                            <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -1580,6 +1732,17 @@
                 e.stopPropagation();
                 const idx = parseInt(this.dataset.tamuIndex);
                 openUploadTamuModal(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-file-view[data-file-type="tamu"]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.tamuIndex);
+                const t = tamuWajibLapor[idx];
+                if (t && t.fileUpload) {
+                    openFileView(t.fileUpload, 'Dokumen Tamu', t.fileUpload.jenis || 'Dokumen', t.nama);
+                }
             });
         });
     }
@@ -1688,7 +1851,8 @@
             selectedFileDok = {
                 nama: file.name,
                 base64: e.target.result,
-                tipe: file.type
+                tipe: file.type,
+                size: (file.size / 1024).toFixed(1) + ' KB'
             };
             document.getElementById('filePreviewDok').style.display = 'flex';
             document.getElementById('fileNamePreviewDok').textContent = file.name;
@@ -1841,7 +2005,8 @@
                 nama: file.name,
                 jenis: document.getElementById('inpJenisDokumenTamu').value,
                 base64: e.target.result,
-                tipe: file.type
+                tipe: file.type,
+                size: (file.size / 1024).toFixed(1) + ' KB'
             };
             document.getElementById('filePreviewTamu').style.display = 'flex';
             document.getElementById('fileNamePreviewTamu').textContent = file.name;
@@ -1866,7 +2031,8 @@
             nama: selectedFileTamu.nama,
             jenis: document.getElementById('inpJenisDokumenTamu').value,
             base64: selectedFileTamu.base64,
-            tipe: selectedFileTamu.tipe
+            tipe: selectedFileTamu.tipe,
+            size: selectedFileTamu.size
         };
         renderTamu();
         closeModal('modalUploadTamu');
@@ -1917,7 +2083,8 @@
                 nama: file.name,
                 jenis: document.getElementById('inpJenisDokumen').value,
                 base64: e.target.result,
-                tipe: file.type
+                tipe: file.type,
+                size: (file.size / 1024).toFixed(1) + ' KB'
             };
             document.getElementById('filePreview').style.display = 'flex';
             document.getElementById('fileNamePreview').textContent = file.name;
@@ -1942,7 +2109,8 @@
             nama: selectedFile.nama,
             jenis: document.getElementById('inpJenisDokumen').value,
             base64: selectedFile.base64,
-            tipe: selectedFile.tipe
+            tipe: selectedFile.tipe,
+            size: selectedFile.size
         };
         renderKeluarga();
         closeModal('modalUpload');
@@ -1969,18 +2137,22 @@
                 fileHtml = `
                     <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;">
                         <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromKK()" />
                     </div>
                 `;
             } else {
                 fileHtml = `
-                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;">
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromKK()">
                         <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                        <div style="font-size:0.8rem;color:#4a6a7a;">PDF document</div>
+                        <div style="font-size:0.8rem;color:#4a6a7a;">Klik untuk lihat</div>
                     </div>
                 `;
             }
         }
+        
+        // Simpan reference untuk file view dari KK
+        window._kkFileData = k.fileUpload;
+        window._kkFileName = k.kepala;
         
         let headerHtml = `
             <div class="kk-header-box">
@@ -2045,6 +2217,13 @@
 
         openModal('modalKartuKeluarga');
     }
+
+    // Fungsi untuk open file view dari KK
+    window.openFileViewFromKK = function() {
+        if (window._kkFileData && window._kkFileData.base64) {
+            openFileView(window._kkFileData, 'Dokumen Keluarga', window._kkFileData.jenis || 'Dokumen', window._kkFileName || 'Keluarga');
+        }
+    };
 
     // ======================================================================
     // DOWNLOAD PDF
@@ -2477,6 +2656,10 @@
             selectedFileDok = null;
             uploadDokIndex = -1;
         }
+        if (id === 'modalViewFile') {
+            // reset content
+            document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
+        }
     }
 
     document.querySelector('.btn-tambah[data-modal="modalDokumentasi"]').addEventListener('click', function() {
@@ -2509,6 +2692,9 @@
                     document.getElementById('filePreviewDok').style.display = 'none';
                     selectedFileDok = null;
                     uploadDokIndex = -1;
+                }
+                if (this.id === 'modalViewFile') {
+                    document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
                 }
             }
         });
