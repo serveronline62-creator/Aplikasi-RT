@@ -984,6 +984,18 @@
             color: #721c24;
         }
 
+        .tamu-kontak-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: #2a445a;
+        }
+        .tamu-kontak-info i {
+            color: #a1581c;
+            font-size: 0.7rem;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 220px;
@@ -1087,6 +1099,40 @@
             color: #1c5f4e;
             font-size: 0.6rem;
         }
+
+        .btn-hapus-tamu {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-hapus-tamu:hover {
+            background: #c0392b;
+        }
+
+        .btn-edit-tamu {
+            background: #e9eef6;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #1f3d58;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-edit-tamu:hover { background: #d5deea; }
     </style>
 </head>
 <body>
@@ -1198,7 +1244,7 @@
         <div class="dokumentasi-grid" id="dokumentasiGrid"></div>
     </div>
 
-    <!-- PANEL TAMU -->
+    <!-- PANEL TAMU WAJIB LAPOR - DIPERBAIKI -->
     <div id="tab-tamu" class="panel">
         <div class="section-title">
             <span><span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor</span>
@@ -1211,19 +1257,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Nama Lengkap</th>
-                        <th>NIK</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Tempat Lahir</th>
-                        <th>Tanggal Lahir</th>
-                        <th>Agama</th>
-                        <th>Pendidikan</th>
-                        <th>Pekerjaan</th>
-                        <th>Keperluan</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th>Dokumen</th>
+                        <th style="width:50px;">No</th>
+                        <th style="min-width:150px;">Nama Tamu</th>
+                        <th style="min-width:140px;">Kontak</th>
+                        <th style="min-width:120px;">Keperluan</th>
+                        <th style="min-width:100px;">Tanggal</th>
+                        <th style="min-width:100px;">Status</th>
+                        <th style="min-width:100px;">Dokumen</th>
                     </tr>
                 </thead>
                 <tbody id="tableTamu"></tbody>
@@ -1478,6 +1518,8 @@
         <div id="tamuDetailContent"></div>
         <div class="tamu-detail-footer">
             <span id="btnTamuCopyText"><i class="fas fa-copy"></i> Copy data tamu</span>
+            <span id="btnTamuEdit"><i class="fas fa-edit"></i> Edit</span>
+            <span id="btnTamuHapus" style="color:#e74c3c;"><i class="fas fa-trash"></i> Hapus</span>
         </div>
         <div class="modal-actions" style="margin-top:0.8rem;">
             <button class="btn-batal" data-close="modalDetailTamu">Tutup</button>
@@ -1514,58 +1556,14 @@
 <!-- MODAL TAMU -->
 <div class="modal-overlay" id="modalTamu">
     <div class="modal-box">
-        <h2><i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor</h2>
+        <h2 id="modalTamuTitle"><i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor</h2>
+        <div id="infoEditTamu" class="info-edit" style="display:none;"></div>
         <div class="form-row">
             <div><label>No</label><input id="inpNoTamu" type="number" placeholder="1" /></div>
             <div><label>Nama Lengkap</label><input id="inpNamaTamu" placeholder="Nama lengkap" /></div>
         </div>
         <div class="form-row">
-            <div><label>NIK</label><input id="inpNikTamu" placeholder="NIK" /></div>
-            <div><label>Jenis Kelamin</label>
-                <select id="inpJkTamu">
-                    <option value="Laki-Laki">Laki-Laki</option>
-                    <option value="Perempuan">Perempuan</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div><label>Tempat Lahir</label><input id="inpTmpLahirTamu" placeholder="Tempat lahir" /></div>
-            <div><label>Tanggal Lahir</label><input id="inpTglLahirTamu" type="date" /></div>
-        </div>
-        <div class="form-row">
-            <div><label>Agama</label>
-                <select id="inpAgamaTamu">
-                    <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
-                    <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
-                    <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
-                </select>
-            </div>
-            <div><label>Pendidikan</label>
-                <select id="inpPendidikanTamu">
-                    <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
-                    <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
-                    <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
-                    <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
-                    <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option>
-                    <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option>
-                    <option value="SARJANA (S1)">SARJANA (S1)</option>
-                    <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div><label>Pekerjaan</label>
-                <select id="inpPekerjaanTamu">
-                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                    <option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option>
-                    <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
-                    <option value="WIRASWASTA">WIRASWASTA</option>
-                    <option value="GURU">GURU</option>
-                    <option value="TANI">TANI</option>
-                    <option value="NELAYAN">NELAYAN</option>
-                    <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
-                </select>
-            </div>
+            <div><label>Kontak</label><input id="inpKontakTamu" placeholder="0812-3456-7890" /></div>
             <div><label>Keperluan</label><input id="inpKeperluanTamu" placeholder="Survey / kunjungan" /></div>
         </div>
         <div class="form-row">
@@ -1577,6 +1575,60 @@
                 </select>
             </div>
         </div>
+        <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
+        <details style="margin-top:0.5rem;">
+            <summary style="cursor:pointer;font-weight:600;color:#1c5f4e;"><i class="fas fa-chevron-down"></i> Detail Lengkap (opsional)</summary>
+            <div style="padding:0.5rem 0;">
+                <div class="form-row">
+                    <div><label>NIK</label><input id="inpNikTamu" placeholder="NIK" /></div>
+                    <div><label>Jenis Kelamin</label>
+                        <select id="inpJkTamu">
+                            <option value="Laki-Laki">Laki-Laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div><label>Tempat Lahir</label><input id="inpTmpLahirTamu" placeholder="Tempat lahir" /></div>
+                    <div><label>Tanggal Lahir</label><input id="inpTglLahirTamu" type="date" /></div>
+                </div>
+                <div class="form-row">
+                    <div><label>Agama</label>
+                        <select id="inpAgamaTamu">
+                            <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
+                            <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
+                            <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
+                        </select>
+                    </div>
+                    <div><label>Pendidikan</label>
+                        <select id="inpPendidikanTamu">
+                            <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
+                            <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
+                            <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
+                            <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
+                            <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option>
+                            <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option>
+                            <option value="SARJANA (S1)">SARJANA (S1)</option>
+                            <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div><label>Pekerjaan</label>
+                        <select id="inpPekerjaanTamu">
+                            <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                            <option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option>
+                            <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
+                            <option value="WIRASWASTA">WIRASWASTA</option>
+                            <option value="GURU">GURU</option>
+                            <option value="TANI">TANI</option>
+                            <option value="NELAYAN">NELAYAN</option>
+                            <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </details>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalTamu">Batal</button>
             <button class="btn-simpan" id="simpanTamu">Simpan</button>
@@ -1697,6 +1749,7 @@
         logoProvinsi: '',
         logoKabupaten: ''
     };
+    let editTamuIndex = -1;
 
     // ======================================================================
     // LOADING INDICATORS
@@ -1930,7 +1983,7 @@
     function renderTamu() {
         const tbody = document.getElementById('tableTamu');
         if (tamuWajibLapor.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data tamu. Klik "Tambah" untuk menambahkan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data tamu. Klik "Tambah" untuk menambahkan.</td></tr>`;
         } else {
             tbody.innerHTML = tamuWajibLapor.map((t, index) => {
                 const hasFile = t.fileUrl;
@@ -1944,21 +1997,19 @@
                     viewBtn = `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-file-size="${t.fileSize || 0}" data-file-time="${t.fileTime || ''}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>`;
                 }
                 
+                const kontak = t.kontak || t.noTelp || '-';
+                
                 return `
                     <tr>
-                        <td>${t.no || '-'}</td>
+                        <td style="text-align:center;">${t.no || '-'}</td>
                         <td>
                             <span class="icon-tamu"><i class="fas fa-user"></i></span>
                             <span class="tamu-clickable" data-index="${index}"><strong>${t.nama || '-'}</strong></span>
                         </td>
-                        <td>${t.nik || '-'}</td>
-                        <td>${t.jk || '-'}</td>
-                        <td>${t.tmpLahir || '-'}</td>
-                        <td>${t.tglLahir || '-'}</td>
-                        <td>${t.agama || '-'}</td>
-                        <td>${t.pendidikan || '-'}</td>
-                        <td>${t.pekerjaan || '-'}</td>
-                        <td>${t.keperluan || '-'}</td>
+                        <td>
+                            ${kontak !== '-' ? `<span class="tamu-kontak-info"><i class="fas fa-phone"></i> ${kontak}</span>` : '-'}
+                        </td>
+                        <td><span class="tag tag-tamu">${t.keperluan || '-'}</span></td>
                         <td>${t.tanggal || '-'}</td>
                         <td><span class="${cls}">${t.status}</span></td>
                         <td>
@@ -2154,13 +2205,11 @@
         document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
         document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
         
-        // File meta information
         const ext = getFileExtension(fileName);
         const icon = getFileIcon(ext);
         document.getElementById('viewFileType').innerHTML = `<i class="fas ${icon}"></i> ${ext || fileType || 'Dokumen'}`;
         document.getElementById('viewFileSize').textContent = fileSize ? formatFileSize(fileSize) : '-';
         
-        // Format date and time
         if (fileTime) {
             const formatted = formatDateTime(fileTime);
             document.getElementById('viewFileDate').textContent = formatted;
@@ -2331,6 +2380,8 @@
             }
         }
         
+        const kontak = t.kontak || t.noTelp || '-';
+        
         let headerHtml = `
             <div class="tamu-detail-header-box">
                 <div>
@@ -2341,45 +2392,61 @@
                         ${t.nama || '-'}
                     </div>
                     <div class="tamu-detail">
-                        <i class="fas fa-id-card"></i> NIK: ${t.nik || '-'} &nbsp;|&nbsp;
-                        <i class="fas fa-venus-mars"></i> ${t.jk || '-'} &nbsp;|&nbsp;
-                        <i class="fas fa-calendar-alt"></i> ${t.tglLahir || '-'}
+                        <i class="fas fa-phone"></i> ${kontak} &nbsp;|&nbsp;
+                        <i class="fas fa-door-open"></i> ${t.keperluan || '-'}
                     </div>
                 </div>
                 <div class="tamu-detail">
                     <i class="fas fa-calendar-check"></i> ${t.tanggal || '-'} &nbsp;|&nbsp;
-                    <i class="fas fa-door-open"></i> ${t.keperluan || '-'}
+                    ${statusBadge}
                 </div>
             </div>
             ${fileHtml}
         `;
 
+        // Detail lengkap tamu
+        let detailRows = `
+            <tr>
+                <td><strong>NIK</strong></td>
+                <td>${t.nik || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Jenis Kelamin</strong></td>
+                <td>${t.jk || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Tempat Lahir</strong></td>
+                <td>${t.tmpLahir || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Tanggal Lahir</strong></td>
+                <td>${t.tglLahir || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Agama</strong></td>
+                <td>${t.agama || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Pendidikan</strong></td>
+                <td>${t.pendidikan || '-'}</td>
+            </tr>
+            <tr>
+                <td><strong>Pekerjaan</strong></td>
+                <td>${t.pekerjaan || '-'}</td>
+            </tr>
+        `;
+
         container.innerHTML = `
             ${headerHtml}
             <div class="tamu-detail-table-wrap">
-                <table class="tamu-detail-table">
+                <table class="tamu-detail-table" style="min-width:500px;">
                     <thead>
                         <tr>
-                            <th>Tempat Lahir</th>
-                            <th>Agama</th>
-                            <th>Pendidikan</th>
-                            <th>Pekerjaan</th>
-                            <th>Keperluan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
+                            <th style="width:150px;">Field</th>
+                            <th>Informasi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>${t.tmpLahir || '-'}</td>
-                            <td>${t.agama || '-'}</td>
-                            <td>${t.pendidikan || '-'}</td>
-                            <td>${t.pekerjaan || '-'}</td>
-                            <td><strong>${t.keperluan || '-'}</strong></td>
-                            <td>${t.tanggal || '-'}</td>
-                            <td>${t.status === 'Sudah Lapor' ? '✅ Sudah Lapor' : '⏳ Belum Lapor'}</td>
-                        </tr>
-                    </tbody>
+                    <tbody>${detailRows}</tbody>
                 </table>
             </div>
         `;
@@ -2387,6 +2454,9 @@
         openModal('modalDetailTamu');
     }
 
+    // ======================================================================
+    // TAMU DETAIL ACTIONS
+    // ======================================================================
     // Copy text for tamu detail
     document.getElementById('btnTamuCopyText').addEventListener('click', function() {
         const t = tamuWajibLapor[currentTamuIndex];
@@ -2395,6 +2465,11 @@
         let text = `DETAIL TAMU\n`;
         text += `ID: ${t.no || '-'}\n\n`;
         text += `Nama Lengkap: ${t.nama || '-'}\n`;
+        text += `Kontak: ${t.kontak || t.noTelp || '-'}\n`;
+        text += `Keperluan: ${t.keperluan || '-'}\n`;
+        text += `Tanggal: ${t.tanggal || '-'}\n`;
+        text += `Status: ${t.status || '-'}\n`;
+        text += `\n--- Detail Lengkap ---\n`;
         text += `NIK: ${t.nik || '-'}\n`;
         text += `Jenis Kelamin: ${t.jk || '-'}\n`;
         text += `Tempat Lahir: ${t.tmpLahir || '-'}\n`;
@@ -2402,11 +2477,8 @@
         text += `Agama: ${t.agama || '-'}\n`;
         text += `Pendidikan: ${t.pendidikan || '-'}\n`;
         text += `Pekerjaan: ${t.pekerjaan || '-'}\n`;
-        text += `Keperluan: ${t.keperluan || '-'}\n`;
-        text += `Tanggal: ${t.tanggal || '-'}\n`;
-        text += `Status: ${t.status || '-'}\n`;
         if (t.fileUrl) {
-            text += `Dokumen: ${t.fileType || 'Dokumen'} - ${t.fileName || 'Dokumen'}\n`;
+            text += `\nDokumen: ${t.fileType || 'Dokumen'} - ${t.fileName || 'Dokumen'}\n`;
             text += `Ukuran: ${t.fileSize ? formatFileSize(t.fileSize) : '-'}\n`;
             text += `Upload: ${t.fileTime ? formatDateTime(t.fileTime) : '-'}\n`;
         }
@@ -2423,6 +2495,78 @@
             alert('Data tamu berhasil disalin ke clipboard!');
         });
     });
+
+    // Edit tamu from detail
+    document.getElementById('btnTamuEdit').addEventListener('click', function() {
+        if (currentTamuIndex !== -1) {
+            closeModal('modalDetailTamu');
+            editTamu(currentTamuIndex);
+        }
+    });
+
+    // Hapus tamu from detail
+    document.getElementById('btnTamuHapus').addEventListener('click', function() {
+        if (currentTamuIndex !== -1) {
+            const t = tamuWajibLapor[currentTamuIndex];
+            if (confirm(`Hapus data tamu "${t.nama}"?`)) {
+                tamuRef.doc(t.id).delete().then(() => {
+                    loadAllData();
+                    closeModal('modalDetailTamu');
+                    alert('Data tamu berhasil dihapus!');
+                }).catch(err => {
+                    alert('Gagal menghapus: ' + err.message);
+                });
+            }
+        }
+    });
+
+    // ======================================================================
+    // EDIT TAMU
+    // ======================================================================
+    function editTamu(index) {
+        editTamuIndex = index;
+        const t = tamuWajibLapor[index];
+        document.getElementById('modalTamuTitle').innerHTML = '<i class="fas fa-edit" style="color:#a1581c;"></i> Edit Tamu';
+        document.getElementById('infoEditTamu').style.display = 'block';
+        document.getElementById('infoEditTamu').innerHTML = `<i class="fas fa-edit"></i> Mengedit: <strong>${t.nama}</strong>`;
+        
+        document.getElementById('inpNoTamu').value = t.no || '';
+        document.getElementById('inpNamaTamu').value = t.nama || '';
+        document.getElementById('inpKontakTamu').value = t.kontak || t.noTelp || '';
+        document.getElementById('inpKeperluanTamu').value = t.keperluan || '';
+        document.getElementById('inpTglTamu').value = t.tanggal || '';
+        document.getElementById('inpStatusTamu').value = t.status || 'Belum Lapor';
+        document.getElementById('inpNikTamu').value = t.nik || '';
+        document.getElementById('inpJkTamu').value = t.jk || 'Laki-Laki';
+        document.getElementById('inpTmpLahirTamu').value = t.tmpLahir || '';
+        document.getElementById('inpTglLahirTamu').value = t.tglLahir || '';
+        document.getElementById('inpAgamaTamu').value = t.agama || 'ISLAM';
+        document.getElementById('inpPendidikanTamu').value = t.pendidikan || 'SLTA/SEDERAJAT';
+        document.getElementById('inpPekerjaanTamu').value = t.pekerjaan || 'TIDAK BEKERJA';
+        
+        document.getElementById('simpanTamu').textContent = 'Update';
+        openModal('modalTamu');
+    }
+
+    function resetModalTamu() {
+        editTamuIndex = -1;
+        document.getElementById('modalTamuTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor';
+        document.getElementById('infoEditTamu').style.display = 'none';
+        document.getElementById('simpanTamu').textContent = 'Simpan';
+        document.getElementById('inpNoTamu').value = '';
+        document.getElementById('inpNamaTamu').value = '';
+        document.getElementById('inpKontakTamu').value = '';
+        document.getElementById('inpKeperluanTamu').value = '';
+        document.getElementById('inpTglTamu').value = '';
+        document.getElementById('inpStatusTamu').value = 'Belum Lapor';
+        document.getElementById('inpNikTamu').value = '';
+        document.getElementById('inpJkTamu').value = 'Laki-Laki';
+        document.getElementById('inpTmpLahirTamu').value = '';
+        document.getElementById('inpTglLahirTamu').value = '';
+        document.getElementById('inpAgamaTamu').value = 'ISLAM';
+        document.getElementById('inpPendidikanTamu').value = 'SLTA/SEDERAJAT';
+        document.getElementById('inpPekerjaanTamu').value = 'TIDAK BEKERJA';
+    }
 
     // ======================================================================
     // DOWNLOAD PDF
@@ -2535,7 +2679,7 @@
     });
 
     // ======================================================================
-    // COPY TEXT
+    // COPY TEXT KELUARGA
     // ======================================================================
     document.getElementById('btnCopyText').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2805,6 +2949,69 @@
                 closeModal('modalKeluarga');
                 alert('Data keluarga berhasil diupdate!');
                 editIndex = -1;
+            }).catch(err => {
+                alert('Gagal mengupdate: ' + err.message);
+            });
+        }
+    });
+
+    // ======================================================================
+    // SIMPAN TAMU
+    // ======================================================================
+    document.getElementById('simpanTamu').addEventListener('click', function() {
+        const no = parseInt(document.getElementById('inpNoTamu').value) || tamuWajibLapor.length + 1;
+        const nama = document.getElementById('inpNamaTamu').value.trim().toUpperCase();
+        const kontak = document.getElementById('inpKontakTamu').value.trim();
+        const keperluan = document.getElementById('inpKeperluanTamu').value.trim();
+        const tanggal = document.getElementById('inpTglTamu').value;
+        const status = document.getElementById('inpStatusTamu').value;
+        
+        // Field opsional
+        const nik = document.getElementById('inpNikTamu').value.trim();
+        const jk = document.getElementById('inpJkTamu').value;
+        const tmpLahir = document.getElementById('inpTmpLahirTamu').value.trim().toUpperCase();
+        const tglLahir = document.getElementById('inpTglLahirTamu').value;
+        const agama = document.getElementById('inpAgamaTamu').value;
+        const pendidikan = document.getElementById('inpPendidikanTamu').value;
+        const pekerjaan = document.getElementById('inpPekerjaanTamu').value;
+        
+        if (!nama || !keperluan || !tanggal) { 
+            alert('Isi field yang wajib (Nama, Keperluan, Tanggal)'); 
+            return; 
+        }
+        
+        const data = {
+            no, nama, kontak, keperluan, tanggal, status,
+            nik: nik || '-',
+            jk: jk || '-',
+            tmpLahir: tmpLahir || '-',
+            tglLahir: tglLahir || '-',
+            agama: agama || '-',
+            pendidikan: pendidikan || '-',
+            pekerjaan: pekerjaan || '-',
+            fileUrl: null,
+            fileName: null,
+            fileType: null,
+            fileSize: 0,
+            fileTime: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        if (editTamuIndex === -1) {
+            tamuRef.add(data).then(() => {
+                loadAllData();
+                closeModal('modalTamu');
+                alert('Data tamu berhasil ditambahkan!');
+            }).catch(err => {
+                alert('Gagal menambahkan: ' + err.message);
+            });
+        } else {
+            const docId = tamuWajibLapor[editTamuIndex].id;
+            tamuRef.doc(docId).update(data).then(() => {
+                loadAllData();
+                closeModal('modalTamu');
+                alert('Data tamu berhasil diupdate!');
+                editTamuIndex = -1;
             }).catch(err => {
                 alert('Gagal mengupdate: ' + err.message);
             });
@@ -3225,45 +3432,6 @@
     });
 
     // ======================================================================
-    // SIMPAN TAMU
-    // ======================================================================
-    document.getElementById('simpanTamu').addEventListener('click', function() {
-        const no = parseInt(document.getElementById('inpNoTamu').value) || tamuWajibLapor.length + 1;
-        const nama = document.getElementById('inpNamaTamu').value.trim().toUpperCase();
-        const nik = document.getElementById('inpNikTamu').value.trim();
-        const jk = document.getElementById('inpJkTamu').value;
-        const tmpLahir = document.getElementById('inpTmpLahirTamu').value.trim().toUpperCase();
-        const tglLahir = document.getElementById('inpTglLahirTamu').value;
-        const agama = document.getElementById('inpAgamaTamu').value;
-        const pendidikan = document.getElementById('inpPendidikanTamu').value;
-        const pekerjaan = document.getElementById('inpPekerjaanTamu').value;
-        const keperluan = document.getElementById('inpKeperluanTamu').value.trim();
-        const tanggal = document.getElementById('inpTglTamu').value;
-        const status = document.getElementById('inpStatusTamu').value;
-        
-        if (!nama || !nik || !keperluan || !tanggal) { 
-            alert('Isi field yang wajib (Nama, NIK, Keperluan, Tanggal)'); 
-            return; 
-        }
-        
-        const data = {
-            no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan,
-            keperluan, tanggal, status,
-            fileUrl: null, fileName: null, fileType: null,
-            fileSize: 0, fileTime: null,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        tamuRef.add(data).then(() => {
-            loadAllData();
-            closeModal('modalTamu');
-            alert('Data tamu berhasil ditambahkan!');
-        }).catch(err => {
-            alert('Gagal menambahkan: ' + err.message);
-        });
-    });
-
-    // ======================================================================
     // SIMPAN IURAN
     // ======================================================================
     document.getElementById('simpanIuran').addEventListener('click', function() {
@@ -3296,6 +3464,7 @@
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
         if (id === 'modalKeluarga') resetModalKeluarga();
+        if (id === 'modalTamu') resetModalTamu();
         if (id === 'modalDokumentasi') {
             document.getElementById('inpDokFoto').value = '';
             document.getElementById('filePreviewDok').style.display = 'none';
@@ -3325,6 +3494,7 @@
             if (e.target === this) {
                 this.classList.remove('show');
                 if (this.id === 'modalKeluarga') resetModalKeluarga();
+                if (this.id === 'modalTamu') resetModalTamu();
                 if (this.id === 'modalDokumentasi') {
                     document.getElementById('inpDokFoto').value = '';
                     document.getElementById('filePreviewDok').style.display = 'none';
@@ -3358,6 +3528,7 @@
     document.querySelectorAll('.btn-tambah').forEach(btn => {
         btn.addEventListener('click', function() {
             if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
+            if (this.dataset.modal === 'modalTamu') resetModalTamu();
             openModal(this.dataset.modal);
         });
     });
