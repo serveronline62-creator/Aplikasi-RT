@@ -959,7 +959,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Upload progress bar */
         .upload-progress {
             margin-top: 0.5rem;
             display: none;
@@ -983,6 +982,48 @@
             color: #4a6a7a;
             margin-top: 0.2rem;
         }
+
+        /* Icon keluarga style */
+        .icon-keluarga {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #e8f4f0;
+            border-radius: 50%;
+            color: #1c5f4e;
+            font-size: 0.9rem;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .icon-keluarga-lg {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+        .kk-nama .icon-keluarga {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+            background: #1c5f4e;
+            color: white;
+        }
+        .sidebar-menu .menu-item .icon-keluarga {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+        .sidebar-menu .menu-item.active .icon-keluarga {
+            background: rgba(91, 192, 168, 0.2);
+            color: #5bc0a8;
+        }
+        .sidebar-menu .menu-item:hover .icon-keluarga {
+            background: rgba(91, 192, 168, 0.15);
+            color: #5bc0a8;
+        }
     </style>
 </head>
 <body>
@@ -1001,7 +1042,7 @@
     <nav class="sidebar-menu">
         <div class="menu-label">Menu Utama</div>
         <button class="menu-item active" data-tab="tab-keluarga">
-            <i class="fas fa-people-group"></i> Data Keluarga
+            <span class="icon-keluarga"><i class="fas fa-users"></i></span> Data Keluarga
         </button>
         <button class="menu-item" data-tab="tab-dokumentasi">
             <i class="fas fa-camera"></i> Kerja Bakti
@@ -1035,7 +1076,9 @@
                     <span class="no-logo-small">Logo Kabupaten</span>
                 </div>
             </div>
-            <div class="page-title" id="pageTitle"><i class="fas fa-people-group"></i> Data Keluarga</div>
+            <div class="page-title" id="pageTitle">
+                <span class="icon-keluarga icon-keluarga-lg"><i class="fas fa-users"></i></span> Data Keluarga
+            </div>
         </div>
         <div class="user-info">
             <i class="fas fa-user-circle"></i>
@@ -1045,7 +1088,7 @@
 
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-people-group"></i></div>
+            <div class="stat-icon"><span class="icon-keluarga"><i class="fas fa-users"></i></span></div>
             <div class="stat-info"><div class="angka" id="statKeluarga">0</div><div class="label">Keluarga</div></div>
         </div>
         <div class="stat-card">
@@ -1065,7 +1108,7 @@
     <!-- PANEL KELUARGA -->
     <div id="tab-keluarga" class="panel active">
         <div class="section-title">
-            <span><i class="fas fa-people-arrows" style="color:#1f6b58;"></i> Data Keluarga</span>
+            <span><span class="icon-keluarga"><i class="fas fa-users"></i></span> Data Keluarga</span>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 <span class="loading-text" id="loadingKeluarga"></span>
                 <button class="btn-tambah-anggota" id="btnTambahAnggotaUtama"><i class="fas fa-user-plus"></i> Anggota</button>
@@ -1205,7 +1248,7 @@
 <!-- MODAL KELUARGA -->
 <div class="modal-overlay" id="modalKeluarga">
     <div class="modal-box">
-        <h2 id="modalKeluargaTitle"><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
+        <h2 id="modalKeluargaTitle"><span class="icon-keluarga"><i class="fas fa-users"></i></span> Tambah Keluarga</h2>
         <div id="infoEditKeluarga" class="info-edit" style="display:none;"></div>
         <label>Kepala Keluarga</label><input id="inpKepala" placeholder="Nama lengkap" />
         <label>Alamat</label><input id="inpAlamat" placeholder="Jl. Contoh 12" />
@@ -1323,7 +1366,15 @@
 <div class="modal-overlay" id="modalKartuKeluarga">
     <div class="modal-box modal-kk">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
-            <div><div class="kk-title">KARTU KELUARGA</div><div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div></div>
+            <div>
+                <div class="kk-title">
+                    <span class="icon-keluarga" style="width:36px;height:36px;font-size:1.1rem;background:#1c5f4e;color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;">
+                        <i class="fas fa-users"></i>
+                    </span>
+                    KARTU KELUARGA
+                </div>
+                <div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div>
+            </div>
             <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;"><i class="fas fa-print"></i> Download</div>
         </div>
         <div id="kkContent"></div>
@@ -1517,7 +1568,6 @@
             
             xhr.open('POST', GOFILE_UPLOAD_URL, true);
             
-            // Add authorization header if token is set
             if (GOFILE_API_TOKEN && GOFILE_API_TOKEN !== 'YOUR_API_TOKEN_HERE') {
                 xhr.setRequestHeader('Authorization', `Bearer ${GOFILE_API_TOKEN}`);
             }
@@ -1527,7 +1577,7 @@
     }
 
     // ======================================================================
-    // DATA REFERENCES (Firebase only for metadata)
+    // DATA REFERENCES
     // ======================================================================
     const keluargaRef = db.collection('keluarga');
     const dokumentasiRef = db.collection('dokumentasi');
@@ -1564,7 +1614,6 @@
     // ======================================================================
     async function loadAllData() {
         try {
-            // Load Keluarga
             setLoading('loadingKeluarga', '<span class="loading-spinner"></span> Memuat...');
             const keluargaSnapshot = await keluargaRef.orderBy('kepala').get();
             dataKeluarga = [];
@@ -1575,7 +1624,6 @@
             });
             setLoading('loadingKeluarga', '');
 
-            // Load Dokumentasi
             setLoading('loadingDokumentasi', '<span class="loading-spinner"></span> Memuat...');
             const dokSnapshot = await dokumentasiRef.orderBy('tanggal', 'desc').get();
             dokumentasi = [];
@@ -1586,7 +1634,6 @@
             });
             setLoading('loadingDokumentasi', '');
 
-            // Load Tamu
             setLoading('loadingTamu', '<span class="loading-spinner"></span> Memuat...');
             const tamuSnapshot = await tamuRef.orderBy('no').get();
             tamuWajibLapor = [];
@@ -1597,7 +1644,6 @@
             });
             setLoading('loadingTamu', '');
 
-            // Load Iuran
             setLoading('loadingIuran', '<span class="loading-spinner"></span> Memuat...');
             const iuranSnapshot = await iuranRef.orderBy('bulan', 'desc').get();
             iuranRT = [];
@@ -1608,7 +1654,6 @@
             });
             setLoading('loadingIuran', '');
 
-            // Load Settings
             setLoading('loadingSettings', '<span class="loading-spinner"></span> Memuat...');
             const settingsDoc = await settingsRef.get();
             if (settingsDoc.exists) {
@@ -1643,7 +1688,7 @@
     }
 
     // ======================================================================
-    // RENDER FUNCTIONS (Same as before)
+    // RENDER FUNCTIONS
     // ======================================================================
     function renderKeluarga() {
         const tbody = document.getElementById('tableKeluarga');
@@ -1663,7 +1708,10 @@
                 
                 return `
                     <tr>
-                        <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
+                        <td>
+                            <span class="icon-keluarga"><i class="fas fa-users"></i></span>
+                            <span class="keluarga-clickable" data-index="${index}">${k.kepala}</span>
+                        </td>
                         <td>${k.anggota || 0} jiwa</td>
                         <td>${k.alamat || '-'}</td>
                         <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak || '-'}</span></td>
@@ -1681,7 +1729,6 @@
         }
         document.getElementById('statKeluarga').textContent = dataKeluarga.length;
 
-        // Event listeners
         document.querySelectorAll('.keluarga-clickable').forEach(el => {
             el.addEventListener('click', function() {
                 const idx = parseInt(this.dataset.index);
@@ -1928,7 +1975,7 @@
     }
 
     // ======================================================================
-    // KARTU KELUARGA (Same as before)
+    // KARTU KELUARGA
     // ======================================================================
     let currentKKIndex = -1;
 
@@ -1963,7 +2010,12 @@
         let headerHtml = `
             <div class="kk-header-box">
                 <div>
-                    <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
+                    <div class="kk-nama">
+                        <span class="icon-keluarga" style="width:28px;height:28px;font-size:0.8rem;background:#1c5f4e;color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;">
+                            <i class="fas fa-users"></i>
+                        </span>
+                        ${k.kepala}
+                    </div>
                     <div class="kk-detail">
                         <i class="fas fa-map-pin"></i> ${k.alamat || '-'} &nbsp;|&nbsp;
                         RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
@@ -2025,7 +2077,7 @@
     }
 
     // ======================================================================
-    // DOWNLOAD PDF (Same as before)
+    // DOWNLOAD PDF
     // ======================================================================
     document.getElementById('btnDownloadPDF').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2079,7 +2131,12 @@
 
         pdfContainer.innerHTML = `
             <div style="margin-bottom:15px;">
-                <div style="font-size:22px;font-weight:700;color:#0b2b3d;">KARTU KELUARGA</div>
+                <div style="font-size:22px;font-weight:700;color:#0b2b3d;">
+                    <span style="display:inline-block;width:32px;height:32px;background:#1c5f4e;color:white;border-radius:50%;text-align:center;line-height:32px;font-size:14px;margin-right:8px;">
+                        <i class="fas fa-users"></i>
+                    </span>
+                    KARTU KELUARGA
+                </div>
                 <div style="font-size:14px;color:#3d5a73;">No. ${k.noKK || '9207011408171003'}</div>
             </div>
             <div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;">
@@ -2126,7 +2183,7 @@
     });
 
     // ======================================================================
-    // COPY TEXT (Same as before)
+    // COPY TEXT
     // ======================================================================
     document.getElementById('btnCopyText').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2170,14 +2227,14 @@
     });
 
     // ======================================================================
-    // EDIT KELUARGA (Same as before)
+    // EDIT KELUARGA
     // ======================================================================
     let editIndex = -1;
 
     function editKeluarga(index) {
         editIndex = index;
         const k = dataKeluarga[index];
-        document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-pen" style="color:#1c5f4e;"></i> Edit Keluarga';
+        document.getElementById('modalKeluargaTitle').innerHTML = '<span class="icon-keluarga"><i class="fas fa-pen" style="color:#1c5f4e;"></i></span> Edit Keluarga';
         document.getElementById('infoEditKeluarga').style.display = 'block';
         document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Mengedit: <strong>${k.kepala}</strong>`;
         document.getElementById('inpKepala').value = k.kepala || '';
@@ -2218,7 +2275,7 @@
 
     function resetModalKeluarga() {
         editIndex = -1;
-        document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga';
+        document.getElementById('modalKeluargaTitle').innerHTML = '<span class="icon-keluarga"><i class="fas fa-users"></i></span> Tambah Keluarga';
         document.getElementById('infoEditKeluarga').style.display = 'none';
         document.getElementById('simpanKeluarga').textContent = 'Simpan';
         document.getElementById('inpKepala').value = '';
@@ -2238,7 +2295,7 @@
     }
 
     // ======================================================================
-    // TAMBAH ANGGOTA FIELD (Same as before)
+    // TAMBAH ANGGOTA FIELD
     // ======================================================================
     document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
         const container = document.getElementById('anggotaTambahanContainer');
@@ -2265,7 +2322,7 @@
     });
 
     // ======================================================================
-    // TAMBAH ANGGOTA KE KELUARGA EXISTING (Same as before)
+    // TAMBAH ANGGOTA KE KELUARGA EXISTING
     // ======================================================================
     let targetKeluargaIndex = -1;
 
@@ -2323,7 +2380,7 @@
     });
 
     // ======================================================================
-    // SIMPAN KELUARGA KE FIREBASE (Same as before)
+    // SIMPAN KELUARGA KE FIREBASE
     // ======================================================================
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
         const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
@@ -2466,7 +2523,6 @@
         let fotoUrl = null;
         let fileName = null;
         
-        // Upload foto ke GoFile jika ada file baru
         if (selectedFileDok && selectedFileDok instanceof File) {
             try {
                 const progressDiv = document.getElementById('uploadProgressDok');
@@ -2488,7 +2544,6 @@
                 return;
             }
         } else if (selectedFileDok && selectedFileDok.url) {
-            // Jika sudah ada file sebelumnya (edit)
             fotoUrl = selectedFileDok.url;
             fileName = selectedFileDok.name;
         }
@@ -2534,7 +2589,7 @@
     });
 
     // ======================================================================
-    // SETTINGS SAVE (Same as before)
+    // SETTINGS SAVE
     // ======================================================================
     document.getElementById('simpanPengurus').addEventListener('click', function() {
         const data = {
@@ -2562,7 +2617,6 @@
         };
         reader.readAsDataURL(file);
         
-        // Upload to GoFile
         uploadToGoFile(file, null).then(result => {
             settingsData.logoProvinsi = result.url;
             localStorage.setItem('rt_logoProvinsi', result.url);
@@ -2582,7 +2636,6 @@
         };
         reader.readAsDataURL(file);
         
-        // Upload to GoFile
         uploadToGoFile(file, null).then(result => {
             settingsData.logoKabupaten = result.url;
             localStorage.setItem('rt_logoKabupaten', result.url);
@@ -2835,7 +2888,7 @@
     }
 
     // ======================================================================
-    // SIMPAN TAMU (Same as before)
+    // SIMPAN TAMU
     // ======================================================================
     document.getElementById('simpanTamu').addEventListener('click', function() {
         const no = parseInt(document.getElementById('inpNoTamu').value) || tamuWajibLapor.length + 1;
@@ -2873,7 +2926,7 @@
     });
 
     // ======================================================================
-    // SIMPAN IURAN (Same as before)
+    // SIMPAN IURAN
     // ======================================================================
     document.getElementById('simpanIuran').addEventListener('click', function() {
         const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
@@ -2897,7 +2950,7 @@
     });
 
     // ======================================================================
-    // MODAL UTILITY (Same as before)
+    // MODAL UTILITY
     // ======================================================================
     function openModal(id) {
         document.getElementById(id).classList.add('show');
@@ -2997,8 +3050,10 @@
             const tabId = this.dataset.tab;
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            const iconClass = this.querySelector('i').className;
-            document.getElementById('pageTitle').innerHTML = `<i class="${iconClass}"></i> ${pageTitles[tabId] || tabId}`;
+            const iconHtml = this.querySelector('.icon-keluarga') ? 
+                `<span class="icon-keluarga icon-keluarga-lg"><i class="fas fa-users"></i></span>` :
+                `<i class="${this.querySelector('i').className}"></i>`;
+            document.getElementById('pageTitle').innerHTML = `${iconHtml} ${pageTitles[tabId] || tabId}`;
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('show');
         });
@@ -3019,15 +3074,12 @@
     // ======================================================================
     // INIT
     // ======================================================================
-    // Check if GoFile token is set
     if (GOFILE_API_TOKEN === 'YOUR_API_TOKEN_HERE') {
         console.warn('⚠️ GoFile API token belum diatur. Silakan ganti GOFILE_API_TOKEN dengan token Anda.');
     }
 
-    // Load data dari Firestore
     loadAllData();
 
-    // Listen to realtime updates
     keluargaRef.onSnapshot(() => { loadAllData(); });
     dokumentasiRef.onSnapshot(() => { loadAllData(); });
     tamuRef.onSnapshot(() => { loadAllData(); });
