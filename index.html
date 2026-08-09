@@ -11,191 +11,954 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* ====== STYLES (sama seperti sebelumnya) ====== */
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,system-ui,sans-serif; }
-        body { background:#f0f2f5; display:flex; min-height:100vh; }
-
-        .sidebar { width:260px; background:#0b2b3d; color:#fff; padding:1.8rem 1.2rem; display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; box-shadow:4px 0 20px rgba(0,0,0,0.15); transition:transform .3s; }
-        .sidebar-brand { display:flex; align-items:center; gap:12px; padding-bottom:1.8rem; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:1.8rem; }
-        .sidebar-brand i { font-size:2.2rem; color:#5bc0a8; }
-        .sidebar-brand h2 { font-size:1.3rem; font-weight:600; letter-spacing:.5px; }
-        .sidebar-brand .rt-badge { font-size:.7rem; background:rgba(91,192,168,0.25); padding:.15rem .7rem; border-radius:40px; color:#5bc0a8; margin-top:2px; }
-        .sidebar-brand .sync-status { font-size:.6rem; color:#5bc0a8; margin-top:2px; }
-        .sidebar-brand .deploy-info { font-size:.55rem; color:rgba(255,255,255,0.3); margin-top:2px; }
-
-        .sidebar-menu { flex:1; display:flex; flex-direction:column; gap:4px; }
-        .sidebar-menu .menu-label { font-size:.7rem; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:1px; padding:.8rem .6rem .3rem; font-weight:600; }
-        .sidebar-menu .menu-item { display:flex; align-items:center; gap:14px; padding:.7rem 1rem; border-radius:12px; color:rgba(255,255,255,0.7); cursor:pointer; transition:.2s; font-weight:500; font-size:.9rem; border:none; background:transparent; width:100%; text-align:left; }
-        .sidebar-menu .menu-item i { width:22px; font-size:1.1rem; color:rgba(255,255,255,0.5); transition:.2s; }
-        .sidebar-menu .menu-item:hover { background:rgba(255,255,255,0.08); color:#fff; }
-        .sidebar-menu .menu-item:hover i { color:#5bc0a8; }
-        .sidebar-menu .menu-item.active { background:rgba(91,192,168,0.2); color:#fff; box-shadow:inset 3px 0 0 #5bc0a8; }
-        .sidebar-menu .menu-item.active i { color:#5bc0a8; }
-
-        .sidebar-footer { border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem; margin-top:.5rem; font-size:.65rem; color:rgba(255,255,255,0.3); text-align:center; }
-        .sidebar-footer .sync-indicator { color:#5bc0a8; font-size:.65rem; }
-        .sidebar-footer .github-link { color:rgba(255,255,255,0.4); text-decoration:none; font-size:.6rem; }
-        .sidebar-footer .github-link:hover { color:#5bc0a8; }
-
-        .main-content { margin-left:260px; flex:1; padding:2rem 2rem 2rem 2.5rem; min-height:100vh; }
-
-        .top-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom:1.2rem; border-bottom:2px solid #e9edf4; flex-wrap:wrap; gap:.8rem; }
-        .top-header-left { display:flex; align-items:center; gap:16px; }
-        .top-header-left .logo-container { display:flex; align-items:center; gap:12px; }
-        .top-header-left .logo-container img { max-height:50px; max-width:50px; object-fit:contain; border-radius:6px; border:1px solid #e9edf4; padding:3px; background:#fff; }
-        .top-header-left .logo-container .logo-divider { width:2px; height:40px; background:#e9edf4; }
-        .top-header-left .logo-container .no-logo-small { font-size:.7rem; color:#6a7e94; font-style:italic; }
-        .top-header .page-title { font-size:1.4rem; font-weight:600; color:#0b2b3d; }
-        .top-header .page-title i { color:#2a7f6e; margin-right:8px; }
-        .top-header .user-info { display:flex; align-items:center; gap:12px; background:#fff; padding:.3rem 1.2rem .3rem .8rem; border-radius:60px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-        .top-header .user-info i { font-size:1.3rem; color:#2a7f6e; background:#e2f0ee; padding:6px; border-radius:50%; }
-        .top-header .user-info span { font-weight:500; color:#1a3b4f; font-size:.85rem; }
-
-        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.2rem; margin-bottom:2rem; }
-        .stat-card { background:#fff; border-radius:20px; padding:1.2rem; border:1px solid #e9edf4; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; align-items:center; gap:14px; }
-        .stat-card .stat-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:#e8f4f0; color:#1c5f4e; }
-        .stat-card .stat-info .angka { font-size:1.6rem; font-weight:700; color:#0b2b3d; line-height:1.2; }
-        .stat-card .stat-info .label { font-size:.8rem; color:#6a7e94; font-weight:500; }
-
-        .panel { display:none; animation:fade .25s; }
-        .panel.active { display:block; }
-        @keyframes fade { 0%{opacity:.3;transform:translateY(6px)} 100%{opacity:1;transform:translateY(0)} }
-
-        .section-title { font-size:1.2rem; font-weight:600; color:#0b2b3d; margin:1.5rem 0 1.2rem; display:flex; align-items:center; gap:8px; justify-content:space-between; flex-wrap:wrap; }
-        .section-title .btn-tambah { background:#1c5f4e; border:none; color:#fff; padding:.4rem 1.2rem; border-radius:60px; font-weight:600; font-size:.85rem; display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:.15s; box-shadow:0 4px 8px rgba(28,95,78,0.2); }
-        .section-title .btn-tambah:hover { background:#134a3b; transform:scale(1.02); }
-        .section-title .btn-tambah-anggota { background:#2a7f6e; border:none; color:#fff; padding:.4rem 1.2rem; border-radius:60px; font-weight:500; font-size:.8rem; display:inline-flex; align-items:center; gap:6px; cursor:pointer; transition:.15s; }
-        .section-title .btn-tambah-anggota:hover { background:#1c5f4e; }
-        .section-title .loading-text { font-size:.8rem; color:#6a7e94; }
-
-        .table-responsive { overflow-x:auto; background:#fff; border-radius:20px; border:1px solid #e9edf4; padding:.2rem 0; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-        table { width:100%; border-collapse:collapse; font-size:.85rem; }
-        th { text-align:left; padding:.8rem .6rem .6rem .6rem; color:#2b445a; font-weight:600; border-bottom:2px solid #e9edf4; font-size:.7rem; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; }
-        td { padding:.5rem .6rem; border-bottom:1px solid #f0f2f5; color:#1a3145; vertical-align:middle; font-size:.8rem; }
-        tr:last-child td { border-bottom:none; }
-        .tag { background:#e3f0f5; padding:.15rem .7rem; border-radius:40px; font-size:.7rem; font-weight:500; color:#12507a; display:inline-block; }
-        .tag-warga { background:#e1f0ea; color:#14634b; }
-        .tag-tamu { background:#fff1e0; color:#a1581c; }
-        .tag-iuran { background:#e3eaf9; color:#1f4780; }
-
-        .btn-edit { background:#e9eef6; border:none; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; color:#1f3d58; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-edit:hover { background:#d5deea; }
-        .btn-upload { background:#2a7f6e; border:none; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; color:#fff; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-upload:hover { background:#1c5f4e; }
-        .btn-upload.uploaded { background:#27ae60; }
-        .btn-file-view { background:#2980b9; border:none; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; color:#fff; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-file-view:hover { background:#1a6a9a; }
-        .btn-download-foto { background:#2980b9; border:none; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; color:#fff; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-download-foto:hover { background:#1a6a9a; }
-        .btn-tambah-anggota-row { background:#2a7f6e; border:none; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; color:#fff; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-tambah-anggota-row:hover { background:#1c5f4e; }
-        .keluarga-clickable { cursor:pointer; color:#1c5f4e; font-weight:600; transition:.1s; }
-        .keluarga-clickable:hover { color:#0d3d31; text-decoration:underline; }
-
-        .dokumentasi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; margin-top:.5rem; }
-        .dok-item { background:#fff; border-radius:20px; border:1px solid #e9edf4; box-shadow:0 2px 8px rgba(0,0,0,0.04); overflow:hidden; transition:.2s; }
-        .dok-item:hover { box-shadow:0 8px 25px rgba(0,0,0,0.1); transform:translateY(-3px); }
-        .dok-item .dok-image { width:100%; height:200px; object-fit:cover; background:#f0f2f5; }
-        .dok-item .dok-image-placeholder { width:100%; height:200px; display:flex; align-items:center; justify-content:center; background:#e8f4f0; color:#2a7f6e; font-size:3rem; }
-        .dok-item .dok-body { padding:1rem 1.2rem 1.2rem; }
-        .dok-item .dok-title { font-weight:600; color:#0b2b3d; font-size:1rem; margin-bottom:.3rem; }
-        .dok-item .dok-date { font-size:.8rem; color:#4a6a7a; display:flex; align-items:center; gap:6px; }
-        .dok-item .dok-date i { color:#2a7f6e; }
-        .dok-item .dok-description { font-size:.85rem; color:#2a445a; margin-top:.5rem; line-height:1.5; }
-        .dok-item .dok-actions { margin-top:.8rem; padding-top:.8rem; border-top:1px solid #e9edf4; display:flex; gap:6px; flex-wrap:wrap; }
-        .btn-hapus-dok { background:#e74c3c; border:none; color:#fff; padding:.15rem .7rem; border-radius:40px; font-size:.65rem; font-weight:500; cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .btn-hapus-dok:hover { background:#c0392b; }
-        .btn-group { display:flex; gap:4px; flex-wrap:wrap; }
-
-        .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-        .settings-card { background:#fff; border-radius:20px; padding:1.5rem; border:1px solid #e9edf4; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-        .settings-card h3 { font-size:1rem; color:#0b2b3d; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid #e9edf4; }
-        .settings-card label { font-weight:500; color:#1d3b4f; display:block; margin:.6rem 0 .2rem; font-size:.85rem; }
-        .settings-card input[type="text"] { width:100%; padding:.6rem 1rem; border-radius:40px; border:1px solid #d0dbe9; font-size:.9rem; background:#fafcff; transition:.1s; }
-        .settings-card input[type="text"]:focus { outline:none; border-color:#1c5f4e; box-shadow:0 0 0 3px rgba(28,95,78,0.15); }
-        .settings-card input[type="file"] { width:100%; padding:.4rem .8rem; border-radius:40px; border:1px solid #d0dbe9; font-size:.85rem; background:#fafcff; }
-        .settings-card .logo-preview { margin-top:.5rem; display:flex; align-items:center; gap:12px; }
-        .settings-card .logo-preview img { max-width:80px; max-height:80px; border-radius:8px; border:1px solid #dde3ed; padding:4px; background:#fff; }
-        .settings-card .logo-preview .no-logo { color:#6a7e94; font-size:.8rem; font-style:italic; }
-        .btn-simpan-setting { background:#1c5f4e; border:none; color:#fff; padding:.5rem 1.5rem; border-radius:60px; font-weight:600; font-size:.85rem; cursor:pointer; transition:.15s; margin-top:1rem; box-shadow:0 4px 8px rgba(28,95,78,0.2); }
-        .btn-simpan-setting:hover { background:#134a3b; transform:scale(1.02); }
-
-        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:999; }
-        .modal-overlay.show { display:flex; }
-        .modal-box { background:#fff; max-width:560px; width:94%; border-radius:28px; padding:2rem 1.8rem; box-shadow:0 30px 50px rgba(0,0,0,0.3); animation:slideUp .25s; max-height:92vh; overflow-y:auto; }
-        @keyframes slideUp { 0%{transform:translateY(30px);opacity:0} 100%{transform:translateY(0);opacity:1} }
-        .modal-box h2 { margin-bottom:1.2rem; font-weight:600; color:#0b2b3d; display:flex; gap:10px; align-items:center; font-size:1.2rem; }
-        .modal-box label { font-weight:500; color:#1d3b4f; display:block; margin:.5rem 0 .2rem; font-size:.8rem; }
-        .modal-box input,.modal-box select,.modal-box textarea { width:100%; padding:.5rem 1rem; border-radius:40px; border:1px solid #d0dbe9; font-size:.85rem; background:#fafcff; transition:.1s; }
-        .modal-box textarea { border-radius:16px; min-height:80px; resize:vertical; }
-        .modal-box input:focus,.modal-box select:focus,.modal-box textarea:focus { outline:none; border-color:#1c5f4e; box-shadow:0 0 0 3px rgba(28,95,78,0.15); }
-        .modal-box input[type="file"] { padding:.3rem .8rem; }
-        .modal-actions { display:flex; gap:12px; margin-top:1.2rem; justify-content:flex-end; }
-        .modal-actions button { padding:.4rem 1.4rem; border-radius:60px; border:none; font-weight:600; cursor:pointer; transition:.1s; font-size:.8rem; }
-        .modal-actions .btn-batal { background:#e9eef6; color:#2a445a; }
-        .modal-actions .btn-batal:hover { background:#d5deea; }
-        .modal-actions .btn-simpan { background:#1c5f4e; color:#fff; box-shadow:0 4px 8px rgba(28,95,78,0.2); }
-        .modal-actions .btn-simpan:hover { background:#134a3b; }
-
-        .info-edit { background:#f0f7f5; border-radius:12px; padding:.5rem 1rem; margin-bottom:.8rem; font-size:.85rem; color:#1a4d3e; }
-        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
-        @media(max-width:600px){ .form-row { grid-template-columns:1fr; } }
-        .file-preview { margin-top:.5rem; display:flex; align-items:center; gap:8px; background:#f0f7f5; padding:.3rem .8rem; border-radius:40px; font-size:.8rem; color:#1a4d3e; }
-        .file-preview .btn-hapus-file { background:none; border:none; color:#e74c3c; cursor:pointer; }
-
-        .modal-file-view { max-width:800px !important; width:95% !important; }
-        .modal-file-view .file-display { text-align:center; margin:.5rem 0; }
-        .modal-file-view .file-display img { max-width:100%; max-height:500px; border-radius:12px; border:1px solid #dde3ed; }
-        .modal-file-view .file-display .pdf-view { width:100%; height:500px; border:1px solid #dde3ed; border-radius:12px; }
-        .modal-file-view .file-info { background:#f8faff; padding:.8rem 1rem; border-radius:12px; border:1px solid #dde3ed; margin-bottom:1rem; }
-        .modal-file-view .file-info .file-name { font-weight:600; color:#0b2b3d; font-size:1rem; }
-        .modal-file-view .file-info .file-detail { font-size:.8rem; color:#4a6a7a; }
-
-        .modal-kk { max-width:1200px !important; width:97% !important; padding:1.8rem 2rem !important; }
-        .kk-title { font-size:1.5rem; font-weight:700; color:#0b2b3d; }
-        .kk-subtitle { font-size:.9rem; color:#3d5a73; font-weight:500; }
-        .kk-header-box { background:#f8faff; border:1px solid #dde3ed; border-radius:10px; padding:.8rem 1.2rem; margin:.8rem 0 1.2rem; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; }
-        .kk-header-box .kk-nama { font-weight:700; font-size:1.05rem; color:#0b2b3d; }
-        .kk-header-box .kk-detail { color:#2a5f7a; font-size:.85rem; }
-        .kk-header-box .kk-detail i { margin-right:4px; color:#1c5f4e; }
-        .kk-table-wrap { overflow-x:auto; border:1px solid #dde3ed; border-radius:10px; background:#fff; margin-top:.5rem; }
-        .kk-table { width:100%; border-collapse:collapse; font-size:.75rem; min-width:1000px; }
-        .kk-table th { background:#e9f0f5; padding:.5rem .6rem; text-align:left; font-weight:600; color:#1d3b4f; border-bottom:2px solid #c8d4e3; font-size:.7rem; white-space:nowrap; }
-        .kk-table td { padding:.4rem .6rem; border-bottom:1px solid #e5ecf5; color:#1a3145; font-size:.73rem; }
-        .kk-table tr:last-child td { border-bottom:none; }
-        .kk-table .no-col { text-align:center; font-weight:500; color:#4a6a7a; width:35px; }
-        .kk-footer { margin-top:.8rem; display:flex; justify-content:flex-end; gap:1.5rem; font-size:.8rem; color:#1c5f4e; font-weight:500; border-top:1px solid #dde3ed; padding-top:.8rem; }
-        .kk-footer span { cursor:pointer; transition:.1s; display:inline-flex; align-items:center; gap:4px; }
-        .kk-footer span:hover { color:#0d3d31; text-decoration:underline; }
-
-        @media(max-width:768px){
-            .sidebar { width:220px; padding:1.2rem .8rem; transform:translateX(-100%); }
-            .sidebar.open { transform:translateX(0); }
-            .main-content { margin-left:0; padding:1.2rem; }
-            .top-header .page-title { font-size:1.1rem; }
-            .top-header-left .logo-container img { max-height:35px; max-width:35px; }
-            .modal-kk { padding:1.2rem !important; }
-            .kk-table { font-size:.65rem; min-width:700px; }
-            .stats-grid { grid-template-columns:1fr 1fr; }
-            .settings-grid { grid-template-columns:1fr; }
-            .dokumentasi-grid { grid-template-columns:1fr; }
-            .modal-file-view { max-width:100% !important; }
-            .modal-file-view .file-display img { max-height:300px; }
-            .modal-file-view .file-display .pdf-view { height:300px; }
-            .hamburger { display:flex !important; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
         }
-        .hamburger { display:none; background:none; border:none; font-size:1.6rem; color:#0b2b3d; cursor:pointer; padding:.3rem; }
-        .sidebar-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:99; }
-        .sidebar-overlay.show { display:block; }
-        @media(max-width:768px){ .sidebar-overlay.show { display:block; } }
+        body {
+            background: #f0f2f5;
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .loading-spinner { display:inline-block; width:16px; height:16px; border:2px solid #e9edf4; border-top:2px solid #1c5f4e; border-radius:50%; animation:spin .8s linear infinite; margin-right:8px; }
-        @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360)} }
+        .sidebar {
+            width: 260px;
+            background: #0b2b3d;
+            color: white;
+            padding: 1.8rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.8rem;
+        }
+        .sidebar-brand i {
+            font-size: 2.2rem;
+            color: #5bc0a8;
+        }
+        .sidebar-brand h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-brand .rt-badge {
+            font-size: 0.7rem;
+            background: rgba(91, 192, 168, 0.25);
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            color: #5bc0a8;
+            margin-top: 2px;
+        }
+        .sidebar-brand .sync-status {
+            font-size: 0.6rem;
+            color: #5bc0a8;
+            margin-top: 2px;
+        }
+        .sidebar-brand .sync-status i {
+            font-size: 0.6rem;
+        }
 
-        .gofile-badge { font-size:.55rem; background:rgba(91,192,168,0.15); padding:.1rem .6rem; border-radius:40px; color:#5bc0a8; }
-        .upload-progress { font-size:.7rem; color:#6a7e94; margin-left:8px; display:inline-block; }
-        .upload-error { color:#e74c3c; font-size:.7rem; margin-top:.3rem; display:block; }
-        .upload-success { color:#27ae60; font-size:.7rem; margin-top:.3rem; display:block; }
+        .sidebar-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .sidebar-menu .menu-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 1px;
+            padding: 0.8rem 0.6rem 0.3rem;
+            font-weight: 600;
+        }
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar-menu .menu-item i {
+            width: 22px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.5);
+            transition: 0.2s;
+        }
+        .sidebar-menu .menu-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+        .sidebar-menu .menu-item:hover i {
+            color: #5bc0a8;
+        }
+        .sidebar-menu .menu-item.active {
+            background: rgba(91, 192, 168, 0.2);
+            color: white;
+            box-shadow: inset 3px 0 0 #5bc0a8;
+        }
+        .sidebar-menu .menu-item.active i {
+            color: #5bc0a8;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+        }
+        .sidebar-footer .sync-indicator {
+            color: #5bc0a8;
+            font-size: 0.65rem;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 2rem 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 2px solid #e9edf4;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .top-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .top-header-left .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .top-header-left .logo-container img {
+            max-height: 50px;
+            max-width: 50px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e9edf4;
+            padding: 3px;
+            background: white;
+        }
+        .top-header-left .logo-container .logo-divider {
+            width: 2px;
+            height: 40px;
+            background: #e9edf4;
+        }
+        .top-header-left .logo-container .no-logo-small {
+            font-size: 0.7rem;
+            color: #6a7e94;
+            font-style: italic;
+        }
+        .top-header .page-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0b2b3d;
+        }
+        .top-header .page-title i {
+            color: #2a7f6e;
+            margin-right: 8px;
+        }
+        .top-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 0.3rem 1.2rem 0.3rem 0.8rem;
+            border-radius: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .top-header .user-info i {
+            font-size: 1.3rem;
+            color: #2a7f6e;
+            background: #e2f0ee;
+            padding: 6px;
+            border-radius: 50%;
+        }
+        .top-header .user-info span {
+            font-weight: 500;
+            color: #1a3b4f;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem 1.2rem;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: #e8f4f0;
+            color: #1c5f4e;
+        }
+        .stat-card .stat-info .angka {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0b2b3d;
+            line-height: 1.2;
+        }
+        .stat-card .stat-info .label {
+            font-size: 0.8rem;
+            color: #6a7e94;
+            font-weight: 500;
+        }
+
+        .panel {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .panel.active {
+            display: block;
+        }
+        @keyframes fade {
+            0% { opacity: 0.3; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0b2b3d;
+            margin: 1.5rem 0 1.2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .section-title .btn-tambah {
+            background: #1c5f4e;
+            border: none;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 4px 8px rgba(28,95,78,0.2);
+        }
+        .section-title .btn-tambah:hover {
+            background: #134a3b;
+            transform: scale(1.02);
+        }
+        .section-title .btn-tambah-anggota {
+            background: #2a7f6e;
+            border: none;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .section-title .btn-tambah-anggota:hover {
+            background: #1c5f4e;
+        }
+        .section-title .loading-text {
+            font-size: 0.8rem;
+            color: #6a7e94;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf4;
+            padding: 0.2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th {
+            text-align: left;
+            padding: 0.8rem 0.6rem 0.6rem 0.6rem;
+            color: #2b445a;
+            font-weight: 600;
+            border-bottom: 2px solid #e9edf4;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid #f0f2f5;
+            color: #1a3145;
+            vertical-align: middle;
+            font-size: 0.8rem;
+        }
+        tr:last-child td { border-bottom: none; }
+        .tag {
+            background: #e3f0f5;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #12507a;
+            display: inline-block;
+        }
+        .tag-warga { background: #e1f0ea; color: #14634b; }
+        .tag-tamu { background: #fff1e0; color: #a1581c; }
+        .tag-iuran { background: #e3eaf9; color: #1f4780; }
+
+        .btn-edit {
+            background: #e9eef6;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #1f3d58;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-edit:hover { background: #d5deea; }
+        
+        .btn-upload {
+            background: #2a7f6e;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-upload:hover { background: #1c5f4e; }
+        .btn-upload.uploaded {
+            background: #27ae60;
+        }
+
+        .btn-file-view {
+            background: #2980b9;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-file-view:hover { background: #1a6a9a; }
+
+        .btn-download-foto {
+            background: #2980b9;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-download-foto:hover { background: #1a6a9a; }
+        
+        .btn-tambah-anggota-row {
+            background: #2a7f6e;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-tambah-anggota-row:hover { background: #1c5f4e; }
+
+        .keluarga-clickable {
+            cursor: pointer;
+            color: #1c5f4e;
+            font-weight: 600;
+            transition: 0.1s;
+        }
+        .keluarga-clickable:hover {
+            color: #0d3d31;
+            text-decoration: underline;
+        }
+
+        .dokumentasi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        .dok-item {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: 0.2s;
+        }
+        .dok-item:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        .dok-item .dok-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f2f5;
+        }
+        .dok-item .dok-image-placeholder {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f4f0;
+            color: #2a7f6e;
+            font-size: 3rem;
+        }
+        .dok-item .dok-body {
+            padding: 1rem 1.2rem 1.2rem;
+        }
+        .dok-item .dok-title {
+            font-weight: 600;
+            color: #0b2b3d;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .dok-item .dok-date {
+            font-size: 0.8rem;
+            color: #4a6a7a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dok-item .dok-date i {
+            color: #2a7f6e;
+        }
+        .dok-item .dok-description {
+            font-size: 0.85rem;
+            color: #2a445a;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+        .dok-item .dok-actions {
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .btn-hapus-dok {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-hapus-dok:hover {
+            background: #c0392b;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .settings-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .settings-card h3 {
+            font-size: 1rem;
+            color: #0b2b3d;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9edf4;
+        }
+        .settings-card label {
+            font-weight: 500;
+            color: #1d3b4f;
+            display: block;
+            margin: 0.6rem 0 0.2rem;
+            font-size: 0.85rem;
+        }
+        .settings-card input[type="text"] {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border-radius: 40px;
+            border: 1px solid #d0dbe9;
+            font-size: 0.9rem;
+            background: #fafcff;
+            transition: 0.1s;
+        }
+        .settings-card input[type="text"]:focus {
+            outline: none;
+            border-color: #1c5f4e;
+            box-shadow: 0 0 0 3px rgba(28,95,78,0.15);
+        }
+        .settings-card input[type="file"] {
+            width: 100%;
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid #d0dbe9;
+            font-size: 0.85rem;
+            background: #fafcff;
+        }
+        .settings-card .logo-preview {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .settings-card .logo-preview img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 8px;
+            border: 1px solid #dde3ed;
+            padding: 4px;
+            background: white;
+        }
+        .settings-card .logo-preview .no-logo {
+            color: #6a7e94;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+        .btn-simpan-setting {
+            background: #1c5f4e;
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(28,95,78,0.2);
+        }
+        .btn-simpan-setting:hover {
+            background: #134a3b;
+            transform: scale(1.02);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(3px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white;
+            max-width: 560px;
+            width: 94%;
+            border-radius: 28px;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+            animation: slideUp 0.25s ease;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp {
+            0% { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .modal-box h2 {
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            color: #0b2b3d;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        .modal-box label {
+            font-weight: 500;
+            color: #1d3b4f;
+            display: block;
+            margin: 0.5rem 0 0.2rem;
+            font-size: 0.8rem;
+        }
+        .modal-box input, .modal-box select, .modal-box textarea {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            border: 1px solid #d0dbe9;
+            font-size: 0.85rem;
+            background: #fafcff;
+            transition: 0.1s;
+        }
+        .modal-box textarea {
+            border-radius: 16px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
+            outline: none;
+            border-color: #1c5f4e;
+            box-shadow: 0 0 0 3px rgba(28,95,78,0.15);
+        }
+        .modal-box input[type="file"] {
+            padding: 0.3rem 0.8rem;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 1.2rem;
+            justify-content: flex-end;
+        }
+        .modal-actions button {
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.8rem;
+        }
+        .modal-actions .btn-batal {
+            background: #e9eef6;
+            color: #2a445a;
+        }
+        .modal-actions .btn-batal:hover { background: #d5deea; }
+        .modal-actions .btn-simpan {
+            background: #1c5f4e;
+            color: white;
+            box-shadow: 0 4px 8px rgba(28,95,78,0.2);
+        }
+        .modal-actions .btn-simpan:hover { background: #134a3b; }
+
+        .info-edit {
+            background: #f0f7f5;
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            color: #1a4d3e;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .file-preview {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f7f5;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #1a4d3e;
+        }
+        .file-preview .btn-hapus-file {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+        }
+
+        .modal-file-view {
+            max-width: 800px !important;
+            width: 95% !important;
+        }
+        .modal-file-view .file-display {
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+        .modal-file-view .file-display img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 12px;
+            border: 1px solid #dde3ed;
+        }
+        .modal-file-view .file-display .pdf-view {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #dde3ed;
+            border-radius: 12px;
+        }
+        .modal-file-view .file-info {
+            background: #f8faff;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #dde3ed;
+            margin-bottom: 1rem;
+        }
+        .modal-file-view .file-info .file-name {
+            font-weight: 600;
+            color: #0b2b3d;
+            font-size: 1rem;
+        }
+        .modal-file-view .file-info .file-detail {
+            font-size: 0.8rem;
+            color: #4a6a7a;
+        }
+
+        .modal-kk {
+            max-width: 1200px !important;
+            width: 97% !important;
+            padding: 1.8rem 2rem !important;
+        }
+        .kk-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0b2b3d;
+        }
+        .kk-subtitle {
+            font-size: 0.9rem;
+            color: #3d5a73;
+            font-weight: 500;
+        }
+        .kk-header-box {
+            background: #f8faff;
+            border: 1px solid #dde3ed;
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            margin: 0.8rem 0 1.2rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .kk-header-box .kk-nama {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #0b2b3d;
+        }
+        .kk-header-box .kk-detail {
+            color: #2a5f7a;
+            font-size: 0.85rem;
+        }
+        .kk-header-box .kk-detail i {
+            margin-right: 4px;
+            color: #1c5f4e;
+        }
+        .kk-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #dde3ed;
+            border-radius: 10px;
+            background: white;
+            margin-top: 0.5rem;
+        }
+        .kk-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            min-width: 1000px;
+        }
+        .kk-table th {
+            background: #e9f0f5;
+            padding: 0.5rem 0.6rem;
+            text-align: left;
+            font-weight: 600;
+            color: #1d3b4f;
+            border-bottom: 2px solid #c8d4e3;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .kk-table td {
+            padding: 0.4rem 0.6rem;
+            border-bottom: 1px solid #e5ecf5;
+            color: #1a3145;
+            font-size: 0.73rem;
+        }
+        .kk-table tr:last-child td { border-bottom: none; }
+        .kk-table .no-col {
+            text-align: center;
+            font-weight: 500;
+            color: #4a6a7a;
+            width: 35px;
+        }
+        .kk-footer {
+            margin-top: 0.8rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: #1c5f4e;
+            font-weight: 500;
+            border-top: 1px solid #dde3ed;
+            padding-top: 0.8rem;
+        }
+        .kk-footer span {
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .kk-footer span:hover {
+            color: #0d3d31;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                padding: 1.2rem 0.8rem;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1.2rem;
+            }
+            .top-header .page-title { font-size: 1.1rem; }
+            .top-header-left .logo-container img { max-height: 35px; max-width: 35px; }
+            .modal-kk { padding: 1.2rem !important; }
+            .kk-table { font-size: 0.65rem; min-width: 700px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .dokumentasi-grid { grid-template-columns: 1fr; }
+            .modal-file-view { max-width: 100% !important; }
+            .modal-file-view .file-display img { max-height: 300px; }
+            .modal-file-view .file-display .pdf-view { height: 300px; }
+            .hamburger {
+                display: flex !important;
+            }
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            color: #0b2b3d;
+            cursor: pointer;
+            padding: 0.3rem;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 99;
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .sidebar-overlay.show { display: block; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e9edf4;
+            border-top: 2px solid #1c5f4e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -209,23 +972,29 @@
             <h2>RT Kita</h2>
             <div class="rt-badge" id="sidebarRTName">RT 08 · Kelurahan Makmur</div>
             <div class="sync-status" id="syncStatus"><i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase</div>
-            <div class="deploy-info"><i class="fas fa-cloud"></i> GitHub Pages · <span class="gofile-badge"><i class="fas fa-upload"></i> GoFile</span></div>
         </div>
     </div>
     <nav class="sidebar-menu">
         <div class="menu-label">Menu Utama</div>
-        <button class="menu-item active" data-tab="tab-keluarga"><i class="fas fa-people-group"></i> Data Keluarga</button>
-        <button class="menu-item" data-tab="tab-dokumentasi"><i class="fas fa-camera"></i> Kerja Bakti</button>
-        <button class="menu-item" data-tab="tab-tamu"><i class="fas fa-address-book"></i> Tamu Wajib Lapor</button>
-        <button class="menu-item" data-tab="tab-iuran"><i class="fas fa-coins"></i> Iuran RT</button>
-        <div class="menu-label" style="margin-top:.5rem;">Pengaturan</div>
-        <button class="menu-item" data-tab="tab-pengaturan"><i class="fas fa-gear"></i> Pengaturan</button>
+        <button class="menu-item active" data-tab="tab-keluarga">
+            <i class="fas fa-people-group"></i> Data Keluarga
+        </button>
+        <button class="menu-item" data-tab="tab-dokumentasi">
+            <i class="fas fa-camera"></i> Kerja Bakti
+        </button>
+        <button class="menu-item" data-tab="tab-tamu">
+            <i class="fas fa-address-book"></i> Tamu Wajib Lapor
+        </button>
+        <button class="menu-item" data-tab="tab-iuran">
+            <i class="fas fa-coins"></i> Iuran RT
+        </button>
+        <div class="menu-label" style="margin-top:0.5rem;">Pengaturan</div>
+        <button class="menu-item" data-tab="tab-pengaturan">
+            <i class="fas fa-gear"></i> Pengaturan
+        </button>
     </nav>
     <div class="sidebar-footer">
         <div class="sync-indicator" id="syncIndicator"><i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud</div>
-        <div style="margin-top:4px;">
-            <a href="https://github.com" target="_blank" class="github-link"><i class="fab fa-github"></i> Hosted on GitHub Pages</a>
-        </div>
     </div>
 </aside>
 
@@ -234,9 +1003,13 @@
         <div class="top-header-left">
             <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
             <div class="logo-container" id="logoContainer">
-                <div id="logoProvinsiHeader"><span class="no-logo-small">Logo Provinsi</span></div>
+                <div id="logoProvinsiHeader">
+                    <span class="no-logo-small">Logo Provinsi</span>
+                </div>
                 <div class="logo-divider"></div>
-                <div id="logoKabupatenHeader"><span class="no-logo-small">Logo Kabupaten</span></div>
+                <div id="logoKabupatenHeader">
+                    <span class="no-logo-small">Logo Kabupaten</span>
+                </div>
             </div>
             <div class="page-title" id="pageTitle"><i class="fas fa-people-group"></i> Data Keluarga</div>
         </div>
@@ -247,10 +1020,22 @@
     </div>
 
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-people-group"></i></div><div class="stat-info"><div class="angka" id="statKeluarga">0</div><div class="label">Keluarga</div></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-camera"></i></div><div class="stat-info"><div class="angka" id="statDokumentasi">0</div><div class="label">Dokumentasi</div></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-plus"></i></div><div class="stat-info"><div class="angka" id="statTamu">0</div><div class="label">Tamu Lapor</div></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><div class="angka" id="statIuran">Rp 0</div><div class="label">Terkumpul</div></div></div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-people-group"></i></div>
+            <div class="stat-info"><div class="angka" id="statKeluarga">0</div><div class="label">Keluarga</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-camera"></i></div>
+            <div class="stat-info"><div class="angka" id="statDokumentasi">0</div><div class="label">Dokumentasi</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="stat-info"><div class="angka" id="statTamu">0</div><div class="label">Tamu Lapor</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-info"><div class="angka" id="statIuran">Rp 0</div><div class="label">Terkumpul</div></div>
+        </div>
     </div>
 
     <!-- PANEL KELUARGA -->
@@ -264,7 +1049,10 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table><thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th><th>Aksi</th></tr></thead><tbody id="tableKeluarga"></tbody></table>
+            <table>
+                <thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th><th>Aksi</th></tr></thead>
+                <tbody id="tableKeluarga"></tbody>
+            </table>
         </div>
     </div>
 
@@ -291,7 +1079,23 @@
         </div>
         <div class="table-responsive">
             <table>
-                <thead><tr><th>No</th><th>Nama Lengkap</th><th>NIK</th><th>JK</th><th>Tempat Lahir</th><th>Tgl Lahir</th><th>Agama</th><th>Pendidikan</th><th>Pekerjaan</th><th>Keperluan</th><th>Tanggal</th><th>Status</th><th>Dokumen</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Lengkap</th>
+                        <th>NIK</th>
+                        <th>Jenis Kelamin</th>
+                        <th>Tempat Lahir</th>
+                        <th>Tanggal Lahir</th>
+                        <th>Agama</th>
+                        <th>Pendidikan</th>
+                        <th>Pekerjaan</th>
+                        <th>Keperluan</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th>Dokumen</th>
+                    </tr>
+                </thead>
                 <tbody id="tableTamu"></tbody>
             </table>
         </div>
@@ -307,7 +1111,10 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table><thead><tr><th>Keluarga</th><th>Bulan</th><th>Nominal</th><th>Status</th></tr></thead><tbody id="tableIuran"></tbody></table>
+            <table>
+                <thead><tr><th>Keluarga</th><th>Bulan</th><th>Nominal</th><th>Status</th></tr></thead>
+                <tbody id="tableIuran"></tbody>
+            </table>
         </div>
         <div style="margin-top:1rem;text-align:right;">
             <span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">0</span></span>
@@ -323,18 +1130,28 @@
         <div class="settings-grid">
             <div class="settings-card">
                 <h3><i class="fas fa-users" style="color:#1c5f4e;"></i> Data Pengurus</h3>
-                <label>Nama RT</label><input type="text" id="settingNamaRT" placeholder="Contoh: RT 08" />
-                <label>Nama Ketua RT</label><input type="text" id="settingKetuaRT" placeholder="Nama Ketua RT" />
-                <label>Nama Wakil RT</label><input type="text" id="settingWakilRT" placeholder="Nama Wakil RT" />
-                <label>Nama Bendahara RT</label><input type="text" id="settingBendahara" placeholder="Nama Bendahara RT" />
+                <label>Nama RT</label>
+                <input type="text" id="settingNamaRT" placeholder="Contoh: RT 08" />
+                <label>Nama Ketua RT</label>
+                <input type="text" id="settingKetuaRT" placeholder="Nama Ketua RT" />
+                <label>Nama Wakil RT</label>
+                <input type="text" id="settingWakilRT" placeholder="Nama Wakil RT" />
+                <label>Nama Bendahara RT</label>
+                <input type="text" id="settingBendahara" placeholder="Nama Bendahara RT" />
                 <button class="btn-simpan-setting" id="simpanPengurus">Simpan Pengurus</button>
             </div>
             <div class="settings-card">
                 <h3><i class="fas fa-image" style="color:#1c5f4e;"></i> Logo</h3>
-                <label>Logo Provinsi</label><input type="file" id="settingLogoProvinsi" accept="image/*" />
-                <div class="logo-preview" id="previewProvinsi"><span class="no-logo">Belum ada logo</span></div>
-                <label style="margin-top:1rem;">Logo Kabupaten</label><input type="file" id="settingLogoKabupaten" accept="image/*" />
-                <div class="logo-preview" id="previewKabupaten"><span class="no-logo">Belum ada logo</span></div>
+                <label>Logo Provinsi</label>
+                <input type="file" id="settingLogoProvinsi" accept="image/*" />
+                <div class="logo-preview" id="previewProvinsi">
+                    <span class="no-logo">Belum ada logo</span>
+                </div>
+                <label style="margin-top:1rem;">Logo Kabupaten</label>
+                <input type="file" id="settingLogoKabupaten" accept="image/*" />
+                <div class="logo-preview" id="previewKabupaten">
+                    <span class="no-logo">Belum ada logo</span>
+                </div>
                 <button class="btn-simpan-setting" id="simpanLogo">Simpan Logo</button>
             </div>
         </div>
@@ -342,12 +1159,18 @@
 </main>
 
 <!-- ========== MODALS ========== -->
+
 <!-- MODAL VIEW FILE -->
 <div class="modal-overlay" id="modalViewFile">
     <div class="modal-box modal-file-view">
         <h2><i class="fas fa-file" style="color:#2980b9;"></i> <span id="viewFileTitle">Lihat Dokumen</span></h2>
-        <div class="file-info"><div class="file-name" id="viewFileName">Nama File</div><div class="file-detail" id="viewFileDetail">Jenis: - | Ukuran: -</div></div>
-        <div class="file-display" id="viewFileContent"><p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p></div>
+        <div class="file-info">
+            <div class="file-name" id="viewFileName">Nama File</div>
+            <div class="file-detail" id="viewFileDetail">Jenis: - | Ukuran: -</div>
+        </div>
+        <div class="file-display" id="viewFileContent">
+            <p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>
+        </div>
         <div class="modal-actions">
             <button class="btn-simpan" id="viewFileDownload"><i class="fas fa-download"></i> Download</button>
             <button class="btn-batal" data-close="modalViewFile">Tutup</button>
@@ -364,19 +1187,40 @@
         <label>Alamat</label><input id="inpAlamat" placeholder="Jl. Contoh 12" />
         <label>Kontak</label><input id="inpKontak" placeholder="0812-3456" />
         <label>No. KK</label><input id="inpNoKK" placeholder="9207011408171003" />
-        <div class="form-row"><div><label>RT</label><input id="inpRT" placeholder="001" /></div><div><label>RW</label><input id="inpRW" placeholder="002" /></div></div>
+        <div class="form-row">
+            <div><label>RT</label><input id="inpRT" placeholder="001" /></div>
+            <div><label>RW</label><input id="inpRW" placeholder="002" /></div>
+        </div>
         <label>Kode Pos</label><input id="inpKodePos" placeholder="98362" />
         <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
-        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota</h3>
+        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota</h3>
         <div id="anggotaFields">
-            <div class="form-row" style="margin-bottom:.5rem;"><div><label>Nama</label><input class="anggota-nama" placeholder="Nama anggota" /></div><div><label>NIK</label><input class="anggota-nik" placeholder="NIK" /></div></div>
-            <div class="form-row" style="margin-bottom:.5rem;"><div><label>JK</label><select class="anggota-jk"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div><div><label>Tempat Lahir</label><input class="anggota-tmpLahir" placeholder="Tempat lahir" /></div></div>
-            <div class="form-row" style="margin-bottom:.5rem;"><div><label>Tgl Lahir</label><input class="anggota-tglLahir" type="date" /></div><div><label>Agama</label><select class="anggota-agama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div></div>
-            <div class="form-row" style="margin-bottom:.5rem;"><div><label>Pendidikan</label><select class="anggota-pendidikan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div><div><label>Pekerjaan</label><select class="anggota-pekerjaan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div></div>
-            <div class="form-row"><div><label>Golongan Darah</label><select class="anggota-golDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div><div style="display:flex;align-items:flex-end;"><button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:#fff;border:none;padding:.4rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah</button></div></div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Nama</label><input class="anggota-nama" placeholder="Nama anggota" /></div>
+                <div><label>NIK</label><input class="anggota-nik" placeholder="NIK" /></div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Jenis Kelamin</label><select class="anggota-jk"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div>
+                <div><label>Tempat Lahir</label><input class="anggota-tmpLahir" placeholder="Tempat lahir" /></div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Tanggal Lahir</label><input class="anggota-tglLahir" type="date" /></div>
+                <div><label>Agama</label><select class="anggota-agama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div>
+            </div>
+            <div class="form-row" style="margin-bottom:0.5rem;">
+                <div><label>Pendidikan</label><select class="anggota-pendidikan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div>
+                <div><label>Pekerjaan</label><select class="anggota-pekerjaan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div>
+            </div>
+            <div class="form-row">
+                <div><label>Golongan Darah</label><select class="anggota-golDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div>
+                <div style="display:flex;align-items:flex-end;"><button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.4rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah</button></div>
+            </div>
             <div id="anggotaTambahanContainer"></div>
         </div>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalKeluarga">Batal</button><button class="btn-simpan" id="simpanKeluarga">Simpan</button></div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalKeluarga">Batal</button>
+            <button class="btn-simpan" id="simpanKeluarga">Simpan</button>
+        </div>
     </div>
 </div>
 
@@ -388,11 +1232,14 @@
         <label>Pilih Keluarga</label><select id="selectKeluargaTujuan"></select>
         <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
         <div class="form-row"><div><label>Nama</label><input id="inpAnggotaNama" placeholder="Nama anggota" /></div><div><label>NIK</label><input id="inpAnggotaNIK" placeholder="NIK" /></div></div>
-        <div class="form-row"><div><label>JK</label><select id="inpAnggotaJK"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div><div><label>Tempat Lahir</label><input id="inpAnggotaTmpLahir" placeholder="Tempat lahir" /></div></div>
-        <div class="form-row"><div><label>Tgl Lahir</label><input id="inpAnggotaTglLahir" type="date" /></div><div><label>Agama</label><select id="inpAnggotaAgama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div></div>
+        <div class="form-row"><div><label>Jenis Kelamin</label><select id="inpAnggotaJK"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div><div><label>Tempat Lahir</label><input id="inpAnggotaTmpLahir" placeholder="Tempat lahir" /></div></div>
+        <div class="form-row"><div><label>Tanggal Lahir</label><input id="inpAnggotaTglLahir" type="date" /></div><div><label>Agama</label><select id="inpAnggotaAgama"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div></div>
         <div class="form-row"><div><label>Pendidikan</label><select id="inpAnggotaPendidikan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div><div><label>Pekerjaan</label><select id="inpAnggotaPekerjaan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div></div>
         <div class="form-row"><div><label>Golongan Darah</label><select id="inpAnggotaGolDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div></div>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalTambahAnggota">Batal</button><button class="btn-simpan" id="simpanTambahAnggota">Tambah</button></div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalTambahAnggota">Batal</button>
+            <button class="btn-simpan" id="simpanTambahAnggota">Tambah</button>
+        </div>
     </div>
 </div>
 
@@ -400,14 +1247,27 @@
 <div class="modal-overlay" id="modalUploadTamu">
     <div class="modal-box">
         <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen Tamu</h2>
-        <div class="info-edit" id="infoUploadTamu">Upload KTP atau Kartu Keluarga (GoFile)</div>
-        <label>Tamu</label><div id="uploadTamuInfo" style="font-weight:600;color:#0b2b3d;padding:.3rem 0;margin-bottom:.5rem;"></div>
-        <label>Jenis Dokumen</label><select id="inpJenisDokumenTamu"><option value="KTP">KTP</option><option value="KARTU KELUARGA">KARTU KELUARGA</option><option value="AKTA LAHIR">AKTA LAHIR</option><option value="LAINNYA">LAINNYA</option></select>
-        <label>Upload File (PDF / JPEG / PNG)</label><input type="file" id="inpFileUploadTamu" accept=".pdf,.jpeg,.jpg,.png" />
-        <div id="filePreviewTamu" class="file-preview" style="display:none;"><i class="fas fa-file"></i><span id="fileNamePreviewTamu"></span><button class="btn-hapus-file" id="btnHapusFileTamu"><i class="fas fa-times"></i></button></div>
-        <div id="uploadProgressTamu" class="upload-progress" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...</div>
-        <div id="uploadStatusTamu" style="display:none;"></div>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalUploadTamu">Batal</button><button class="btn-simpan" id="simpanUploadTamu">Upload</button></div>
+        <div class="info-edit" id="infoUploadTamu">Upload KTP atau Kartu Keluarga</div>
+        <label>Tamu</label>
+        <div id="uploadTamuInfo" style="font-weight:600;color:#0b2b3d;padding:0.3rem 0;margin-bottom:0.5rem;"></div>
+        <label>Jenis Dokumen</label>
+        <select id="inpJenisDokumenTamu">
+            <option value="KTP">KTP</option>
+            <option value="KARTU KELUARGA">KARTU KELUARGA</option>
+            <option value="AKTA LAHIR">AKTA LAHIR</option>
+            <option value="LAINNYA">LAINNYA</option>
+        </select>
+        <label>Upload File (PDF / JPEG / PNG)</label>
+        <input type="file" id="inpFileUploadTamu" accept=".pdf,.jpeg,.jpg,.png" />
+        <div id="filePreviewTamu" class="file-preview" style="display:none;">
+            <i class="fas fa-file"></i>
+            <span id="fileNamePreviewTamu"></span>
+            <button class="btn-hapus-file" id="btnHapusFileTamu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalUploadTamu">Batal</button>
+            <button class="btn-simpan" id="simpanUploadTamu">Upload</button>
+        </div>
     </div>
 </div>
 
@@ -415,27 +1275,33 @@
 <div class="modal-overlay" id="modalUpload">
     <div class="modal-box">
         <h2><i class="fas fa-upload" style="color:#2a7f6e;"></i> Upload Dokumen</h2>
-        <div class="info-edit" id="infoUpload">Upload KTP atau Kartu Keluarga (GoFile)</div>
-        <label>Keluarga</label><div id="uploadKeluargaInfo" style="font-weight:600;color:#0b2b3d;padding:.3rem 0;margin-bottom:.5rem;"></div>
+        <div class="info-edit" id="infoUpload">Upload KTP atau Kartu Keluarga</div>
+        <label>Keluarga</label><div id="uploadKeluargaInfo" style="font-weight:600;color:#0b2b3d;padding:0.3rem 0;margin-bottom:0.5rem;"></div>
         <label>Jenis Dokumen</label><select id="inpJenisDokumen"><option value="KTP">KTP</option><option value="KARTU KELUARGA">KARTU KELUARGA</option><option value="AKTA LAHIR">AKTA LAHIR</option><option value="LAINNYA">LAINNYA</option></select>
         <label>Upload File (PDF / JPEG / PNG)</label><input type="file" id="inpFileUpload" accept=".pdf,.jpeg,.jpg,.png" />
         <div id="filePreview" class="file-preview" style="display:none;"><i class="fas fa-file"></i><span id="fileNamePreview"></span><button class="btn-hapus-file" id="btnHapusFile"><i class="fas fa-times"></i></button></div>
-        <div id="uploadProgress" class="upload-progress" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...</div>
-        <div id="uploadStatus" style="display:none;"></div>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalUpload">Batal</button><button class="btn-simpan" id="simpanUpload">Upload</button></div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalUpload">Batal</button>
+            <button class="btn-simpan" id="simpanUpload">Upload</button>
+        </div>
     </div>
 </div>
 
 <!-- MODAL KARTU KELUARGA -->
 <div class="modal-overlay" id="modalKartuKeluarga">
     <div class="modal-box modal-kk">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:.2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
             <div><div class="kk-title">KARTU KELUARGA</div><div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div></div>
-            <div style="font-size:.8rem;color:#4a6a7a;background:#f0f7f5;padding:.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;"><i class="fas fa-print"></i> Download</div>
+            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;"><i class="fas fa-print"></i> Download</div>
         </div>
         <div id="kkContent"></div>
-        <div class="kk-footer"><span id="btnDownloadPDF"><i class="fas fa-file-pdf"></i> Download PDF</span><span id="btnCopyText"><i class="fas fa-copy"></i> Copy page text</span></div>
-        <div class="modal-actions" style="margin-top:.8rem;"><button class="btn-batal" data-close="modalKartuKeluarga">Tutup</button></div>
+        <div class="kk-footer">
+            <span id="btnDownloadPDF"><i class="fas fa-file-pdf"></i> Download PDF</span>
+            <span id="btnCopyText"><i class="fas fa-copy"></i> Copy page text</span>
+        </div>
+        <div class="modal-actions" style="margin-top:0.8rem;">
+            <button class="btn-batal" data-close="modalKartuKeluarga">Tutup</button>
+        </div>
     </div>
 </div>
 
@@ -443,13 +1309,21 @@
 <div class="modal-overlay" id="modalDokumentasi">
     <div class="modal-box">
         <h2><i class="fas fa-camera" style="color:#1c5f4e;"></i> Tambah Dokumentasi Kerja Bakti</h2>
-        <label>Foto Kegiatan</label><input type="file" id="inpDokFoto" accept="image/*" />
-        <div id="filePreviewDok" class="file-preview" style="display:none;"><i class="fas fa-image"></i><span id="fileNamePreviewDok"></span><button class="btn-hapus-file" id="btnHapusFileDok"><i class="fas fa-times"></i></button></div>
-        <div id="uploadProgressDok" class="upload-progress" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...</div>
-        <div id="uploadStatusDok" style="display:none;"></div>
-        <label>Keterangan</label><textarea id="inpDokKeterangan" placeholder="Deskripsi kegiatan kerja bakti..."></textarea>
-        <label>Tanggal Kegiatan</label><input type="date" id="inpDokTanggal" />
-        <div class="modal-actions"><button class="btn-batal" data-close="modalDokumentasi">Batal</button><button class="btn-simpan" id="simpanDokumentasi">Simpan</button></div>
+        <label>Foto Kegiatan</label>
+        <input type="file" id="inpDokFoto" accept="image/*" />
+        <div id="filePreviewDok" class="file-preview" style="display:none;">
+            <i class="fas fa-image"></i>
+            <span id="fileNamePreviewDok"></span>
+            <button class="btn-hapus-file" id="btnHapusFileDok"><i class="fas fa-times"></i></button>
+        </div>
+        <label>Keterangan</label>
+        <textarea id="inpDokKeterangan" placeholder="Deskripsi kegiatan kerja bakti..."></textarea>
+        <label>Tanggal Kegiatan</label>
+        <input type="date" id="inpDokTanggal" />
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalDokumentasi">Batal</button>
+            <button class="btn-simpan" id="simpanDokumentasi">Simpan</button>
+        </div>
     </div>
 </div>
 
@@ -457,13 +1331,72 @@
 <div class="modal-overlay" id="modalTamu">
     <div class="modal-box">
         <h2><i class="fas fa-user-plus" style="color:#a1581c;"></i> Tambah Tamu Wajib Lapor</h2>
-        <div class="form-row"><div><label>No</label><input id="inpNoTamu" type="number" placeholder="1" /></div><div><label>Nama Lengkap</label><input id="inpNamaTamu" placeholder="Nama lengkap" /></div></div>
-        <div class="form-row"><div><label>NIK</label><input id="inpNikTamu" placeholder="NIK" /></div><div><label>JK</label><select id="inpJkTamu"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div></div>
-        <div class="form-row"><div><label>Tempat Lahir</label><input id="inpTmpLahirTamu" placeholder="Tempat lahir" /></div><div><label>Tgl Lahir</label><input id="inpTglLahirTamu" type="date" /></div></div>
-        <div class="form-row"><div><label>Agama</label><select id="inpAgamaTamu"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div><div><label>Pendidikan</label><select id="inpPendidikanTamu"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div></div>
-        <div class="form-row"><div><label>Pekerjaan</label><select id="inpPekerjaanTamu"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div><div><label>Keperluan</label><input id="inpKeperluanTamu" placeholder="Survey / kunjungan" /></div></div>
-        <div class="form-row"><div><label>Tanggal</label><input id="inpTglTamu" type="date" /></div><div><label>Status</label><select id="inpStatusTamu"><option value="Sudah Lapor">Sudah Lapor</option><option value="Belum Lapor">Belum Lapor</option></select></div></div>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalTamu">Batal</button><button class="btn-simpan" id="simpanTamu">Simpan</button></div>
+        <div class="form-row">
+            <div><label>No</label><input id="inpNoTamu" type="number" placeholder="1" /></div>
+            <div><label>Nama Lengkap</label><input id="inpNamaTamu" placeholder="Nama lengkap" /></div>
+        </div>
+        <div class="form-row">
+            <div><label>NIK</label><input id="inpNikTamu" placeholder="NIK" /></div>
+            <div><label>Jenis Kelamin</label>
+                <select id="inpJkTamu">
+                    <option value="Laki-Laki">Laki-Laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div><label>Tempat Lahir</label><input id="inpTmpLahirTamu" placeholder="Tempat lahir" /></div>
+            <div><label>Tanggal Lahir</label><input id="inpTglLahirTamu" type="date" /></div>
+        </div>
+        <div class="form-row">
+            <div><label>Agama</label>
+                <select id="inpAgamaTamu">
+                    <option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option>
+                    <option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option>
+                    <option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option>
+                </select>
+            </div>
+            <div><label>Pendidikan</label>
+                <select id="inpPendidikanTamu">
+                    <option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD/SEDERAJAT</option>
+                    <option value="SD/SEDERAJAT">SD/SEDERAJAT</option>
+                    <option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option>
+                    <option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option>
+                    <option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option>
+                    <option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option>
+                    <option value="SARJANA (S1)">SARJANA (S1)</option>
+                    <option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div><label>Pekerjaan</label>
+                <select id="inpPekerjaanTamu">
+                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                    <option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option>
+                    <option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option>
+                    <option value="WIRASWASTA">WIRASWASTA</option>
+                    <option value="GURU">GURU</option>
+                    <option value="TANI">TANI</option>
+                    <option value="NELAYAN">NELAYAN</option>
+                    <option value="TIDAK BEKERJA">TIDAK BEKERJA</option>
+                </select>
+            </div>
+            <div><label>Keperluan</label><input id="inpKeperluanTamu" placeholder="Survey / kunjungan" /></div>
+        </div>
+        <div class="form-row">
+            <div><label>Tanggal</label><input id="inpTglTamu" type="date" /></div>
+            <div><label>Status</label>
+                <select id="inpStatusTamu">
+                    <option value="Sudah Lapor">Sudah Lapor</option>
+                    <option value="Belum Lapor">Belum Lapor</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalTamu">Batal</button>
+            <button class="btn-simpan" id="simpanTamu">Simpan</button>
+        </div>
     </div>
 </div>
 
@@ -475,7 +1408,10 @@
         <label>Bulan</label><input id="inpBulanIuran" placeholder="April 2026" />
         <label>Nominal (Rp)</label><input id="inpNominalIuran" type="number" placeholder="200000" />
         <label>Status</label><select id="inpStatusIuran"><option value="Lunas">Lunas</option><option value="Belum">Belum</option></select>
-        <div class="modal-actions"><button class="btn-batal" data-close="modalIuran">Batal</button><button class="btn-simpan" id="simpanIuran">Simpan</button></div>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalIuran">Batal</button>
+            <button class="btn-simpan" id="simpanIuran">Simpan</button>
+        </div>
     </div>
 </div>
 
@@ -497,93 +1433,6 @@
     const storage = firebase.storage();
 
     // ======================================================================
-    // GOFILE CONFIG - Ganti dengan token Anda
-    // ======================================================================
-    const GOFILE_TOKEN = 'YOUR_API_TOKEN_HERE'; // Ganti dengan token GoFile Anda
-    const GOFILE_API = 'https://api.gofile.io';
-
-    // ======================================================================
-    // FUNGSI UPLOAD KE GOFILE - DIPERBAIKI
-    // ======================================================================
-    async function uploadToGoFile(file) {
-        try {
-            // Step 1: Dapatkan server
-            const serverRes = await fetch(`${GOFILE_API}/servers`, {
-                headers: { 'Authorization': `Bearer ${GOFILE_TOKEN}` }
-            });
-            
-            if (!serverRes.ok) {
-                const errorText = await serverRes.text();
-                console.error('Server response error:', errorText);
-                throw new Error(`Gagal mendapatkan server: ${serverRes.status} - ${errorText}`);
-            }
-            
-            const serverData = await serverRes.json();
-            console.log('Server data:', serverData);
-            
-            if (serverData.status !== 'ok') {
-                throw new Error(`Server API error: ${serverData.status}`);
-            }
-            
-            if (!serverData.data || !serverData.data.servers || serverData.data.servers.length === 0) {
-                throw new Error('Tidak ada server tersedia');
-            }
-            
-            const server = serverData.data.servers[0];
-            console.log('Using server:', server);
-
-            // Step 2: Upload file ke server yang dipilih
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const uploadUrl = `https://${server}.gofile.io/uploadFile`;
-            console.log('Upload URL:', uploadUrl);
-
-            const uploadRes = await fetch(uploadUrl, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${GOFILE_TOKEN}` },
-                body: formData
-            });
-
-            if (!uploadRes.ok) {
-                const errorText = await uploadRes.text();
-                console.error('Upload error:', errorText);
-                throw new Error(`Gagal upload: ${uploadRes.status} - ${errorText}`);
-            }
-
-            const uploadData = await uploadRes.json();
-            console.log('Upload result:', uploadData);
-
-            if (uploadData.status !== 'ok') {
-                throw new Error(`Upload error: ${uploadData.status} - ${uploadData.statusText || 'Unknown error'}`);
-            }
-
-            if (!uploadData.data) {
-                throw new Error('Tidak ada data dari server');
-            }
-
-            // Ambil URL download
-            let downloadUrl = uploadData.data.downloadPage || uploadData.data.downloadUrl;
-            if (!downloadUrl && uploadData.data.fileId) {
-                downloadUrl = `https://gofile.io/d/${uploadData.data.fileId}`;
-            }
-
-            if (!downloadUrl) {
-                throw new Error('Tidak ada URL download dari server');
-            }
-
-            return {
-                url: downloadUrl,
-                fileId: uploadData.data.fileId || '',
-                fileName: uploadData.data.fileName || file.name
-            };
-        } catch (error) {
-            console.error('GoFile upload error detail:', error);
-            throw error;
-        }
-    }
-
-    // ======================================================================
     // DATA REFERENCES
     // ======================================================================
     const keluargaRef = db.collection('keluarga');
@@ -592,6 +1441,9 @@
     const iuranRef = db.collection('iuran');
     const settingsRef = db.collection('settings').doc('pengaturan');
 
+    // ======================================================================
+    // GLOBAL STATE
+    // ======================================================================
     let dataKeluarga = [];
     let dokumentasi = [];
     let tamuWajibLapor = [];
@@ -614,44 +1466,117 @@
     }
 
     // ======================================================================
+    // FUNGSI UPLOAD FILE KE FIREBASE STORAGE
+    // ======================================================================
+    async function uploadFileToStorage(file, path) {
+        if (!file) return null;
+        const storageRef = storage.ref(path);
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        return downloadURL;
+    }
+
+    // ======================================================================
+    // FUNGSI VIEW & DOWNLOAD FILE DARI URL
+    // ======================================================================
+    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
+        if (!fileUrl) {
+            alert('File tidak ditemukan');
+            return;
+        }
+        
+        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
+        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
+        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
+        
+        const contentDiv = document.getElementById('viewFileContent');
+        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+        const isPdf = fileUrl.match(/\.pdf$/i);
+        
+        if (isImage) {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
+        } else if (isPdf) {
+            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
+        } else {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
+        }
+        
+        const downloadBtn = document.getElementById('viewFileDownload');
+        downloadBtn.onclick = function() {
+            window.open(fileUrl, '_blank');
+        };
+        
+        openModal('modalViewFile');
+    }
+
+    // ======================================================================
     // LOAD DATA FROM FIREBASE
     // ======================================================================
     async function loadAllData() {
         try {
+            // Load Keluarga
             setLoading('loadingKeluarga', '<span class="loading-spinner"></span> Memuat...');
             const keluargaSnapshot = await keluargaRef.orderBy('kepala').get();
             dataKeluarga = [];
-            keluargaSnapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; dataKeluarga.push(d); });
+            keluargaSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dataKeluarga.push(data);
+            });
             setLoading('loadingKeluarga', '');
 
+            // Load Dokumentasi
             setLoading('loadingDokumentasi', '<span class="loading-spinner"></span> Memuat...');
             const dokSnapshot = await dokumentasiRef.orderBy('tanggal', 'desc').get();
             dokumentasi = [];
-            dokSnapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; dokumentasi.push(d); });
+            dokSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dokumentasi.push(data);
+            });
             setLoading('loadingDokumentasi', '');
 
+            // Load Tamu
             setLoading('loadingTamu', '<span class="loading-spinner"></span> Memuat...');
             const tamuSnapshot = await tamuRef.orderBy('no').get();
             tamuWajibLapor = [];
-            tamuSnapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; tamuWajibLapor.push(d); });
+            tamuSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                tamuWajibLapor.push(data);
+            });
             setLoading('loadingTamu', '');
 
+            // Load Iuran
             setLoading('loadingIuran', '<span class="loading-spinner"></span> Memuat...');
             const iuranSnapshot = await iuranRef.orderBy('bulan', 'desc').get();
             iuranRT = [];
-            iuranSnapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; iuranRT.push(d); });
+            iuranSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                iuranRT.push(data);
+            });
             setLoading('loadingIuran', '');
 
+            // Load Settings
             setLoading('loadingSettings', '<span class="loading-spinner"></span> Memuat...');
             const settingsDoc = await settingsRef.get();
-            if (settingsDoc.exists) settingsData = settingsDoc.data();
+            if (settingsDoc.exists) {
+                settingsData = settingsDoc.data();
+            }
             setLoading('loadingSettings', '');
 
             renderAll();
             updateSyncStatus(true);
         } catch (error) {
             console.error('Error loading data:', error);
+            setLoading('loadingKeluarga', '⚠️ Gagal memuat data');
+            setLoading('loadingDokumentasi', '⚠️ Gagal memuat data');
+            setLoading('loadingTamu', '⚠️ Gagal memuat data');
+            setLoading('loadingIuran', '⚠️ Gagal memuat data');
+            setLoading('loadingSettings', '⚠️ Gagal memuat data');
             updateSyncStatus(false);
+            alert('Gagal memuat data dari Firebase. Pastikan koneksi internet Anda aktif.');
         }
     }
 
@@ -659,35 +1584,12 @@
         const status = document.getElementById('syncStatus');
         const indicator = document.getElementById('syncIndicator');
         if (connected) {
-            status.innerHTML = '<i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase + GoFile';
-            indicator.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud + GoFile';
+            status.innerHTML = '<i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase';
+            indicator.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud';
         } else {
             status.innerHTML = '<i class="fas fa-circle" style="color:#e74c3c;"></i> Tidak terhubung';
             indicator.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#e74c3c;"></i> Offline';
         }
-    }
-
-    // ======================================================================
-    // FUNGSI VIEW & DOWNLOAD FILE DARI URL
-    // ======================================================================
-    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
-        if (!fileUrl) { alert('File tidak ditemukan'); return; }
-        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
-        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
-        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
-        const contentDiv = document.getElementById('viewFileContent');
-        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i) || fileUrl.match(/gofile\.io/);
-        const isPdf = fileUrl.match(/\.pdf$/i);
-        if (isImage) {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
-        } else if (isPdf) {
-            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
-        } else {
-            // Coba tampilkan sebagai iframe untuk gofile
-            contentDiv.innerHTML = `<iframe src="${fileUrl}" style="width:100%;height:500px;border:1px solid #dde3ed;border-radius:12px;"></iframe>`;
-        }
-        document.getElementById('viewFileDownload').onclick = () => window.open(fileUrl, '_blank');
-        openModal('modalViewFile');
     }
 
     // ======================================================================
@@ -703,18 +1605,74 @@
                 const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
                 const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
                 const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+                
                 let viewBtn = '';
-                if (hasFile) viewBtn = `<button class="btn-file-view" data-file-url="${k.fileUrl}" data-file-name="${k.fileName || 'Dokumen'}" data-file-type="${k.fileType || 'Dokumen'}" data-owner="${k.kepala}"><i class="fas fa-eye"></i></button>`;
-                return `<tr><td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td><td>${k.anggota || 0} jiwa</td><td>${k.alamat || '-'}</td><td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak || '-'}</span></td><td><div class="btn-group">${viewBtn}<button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button><button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button><button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button></div></td></tr>`;
+                if (hasFile) {
+                    viewBtn = `<button class="btn-file-view" data-file-url="${k.fileUrl}" data-file-name="${k.fileName || 'Dokumen'}" data-file-type="${k.fileType || 'Dokumen'}" data-owner="${k.kepala}"><i class="fas fa-eye"></i></button>`;
+                }
+                
+                return `
+                    <tr>
+                        <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
+                        <td>${k.anggota || 0} jiwa</td>
+                        <td>${k.alamat || '-'}</td>
+                        <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak || '-'}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                ${viewBtn}
+                                <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                                <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
+                                <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }).join('');
         }
         document.getElementById('statKeluarga').textContent = dataKeluarga.length;
+
         // Event listeners
-        document.querySelectorAll('.keluarga-clickable').forEach(el => el.addEventListener('click', function() { const idx = parseInt(this.dataset.index); showKartuKeluarga(idx); }));
-        document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.index); editKeluarga(idx); }));
-        document.querySelectorAll('.btn-tambah-anggota-row').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.index); openTambahAnggota(idx); }));
-        document.querySelectorAll('.btn-upload').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.index); openUploadModal(idx); }));
-        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const url = this.dataset.fileUrl; const name = this.dataset.fileName; const type = this.dataset.fileType; const owner = this.dataset.owner; openFileViewFromUrl(url, name, type, owner); }));
+        document.querySelectorAll('.keluarga-clickable').forEach(el => {
+            el.addEventListener('click', function() {
+                const idx = parseInt(this.dataset.index);
+                showKartuKeluarga(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                editKeluarga(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-tambah-anggota-row').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                openTambahAnggota(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-upload').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                openUploadModal(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.dataset.fileUrl;
+                const name = this.dataset.fileName;
+                const type = this.dataset.fileType;
+                const owner = this.dataset.owner;
+                openFileViewFromUrl(url, name, type, owner);
+            });
+        });
     }
 
     function renderDokumentasi() {
@@ -724,15 +1682,70 @@
         } else {
             grid.innerHTML = dokumentasi.map((d, index) => {
                 const hasFoto = d.fotoUrl;
-                let fotoHtml = hasFoto ? `<img src="${d.fotoUrl}" alt="${d.judul}" class="dok-image" />` : `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
-                let downloadBtn = hasFoto ? `<button class="btn-download-foto" data-url="${d.fotoUrl}" data-name="${d.judul}"><i class="fas fa-download"></i> Download</button>` : '';
-                return `<div class="dok-item">${fotoHtml}<div class="dok-body"><div class="dok-title">${d.judul || 'Kegiatan'}</div><div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal || '-'}</div><div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div><div class="dok-actions"><button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>${downloadBtn}<button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button></div></div></div>`;
+                let fotoHtml = '';
+                if (hasFoto) {
+                    fotoHtml = `<img src="${d.fotoUrl}" alt="${d.judul}" class="dok-image" />`;
+                } else {
+                    fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
+                }
+                
+                let downloadBtn = '';
+                if (hasFoto) {
+                    downloadBtn = `<button class="btn-download-foto" data-url="${d.fotoUrl}" data-name="${d.judul}"><i class="fas fa-download"></i> Download</button>`;
+                }
+                
+                return `
+                    <div class="dok-item">
+                        ${fotoHtml}
+                        <div class="dok-body">
+                            <div class="dok-title">${d.judul || 'Kegiatan'}</div>
+                            <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal || '-'}</div>
+                            <div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div>
+                            <div class="dok-actions">
+                                <button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>
+                                ${downloadBtn}
+                                <button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
         document.getElementById('statDokumentasi').textContent = dokumentasi.length;
-        document.querySelectorAll('.btn-upload[data-dok-index]').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.dokIndex); openUploadDokumentasi(idx); }));
-        document.querySelectorAll('.btn-download-foto').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const url = this.dataset.url; const name = this.dataset.name; window.open(url, '_blank'); }));
-        document.querySelectorAll('.btn-hapus-dok').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.dokIndex); if (confirm('Hapus dokumentasi ini?')) { const doc = dokumentasi[idx]; if (doc.id) dokumentasiRef.doc(doc.id).delete().then(() => loadAllData()).catch(err => alert('Gagal menghapus: ' + err.message)); } }));
+
+        document.querySelectorAll('.btn-upload[data-dok-index]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.dokIndex);
+                openUploadDokumentasi(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-download-foto').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.dataset.url;
+                const name = this.dataset.name;
+                window.open(url, '_blank');
+            });
+        });
+
+        document.querySelectorAll('.btn-hapus-dok').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.dokIndex);
+                if (confirm('Hapus dokumentasi ini?')) {
+                    const doc = dokumentasi[idx];
+                    if (doc.id) {
+                        dokumentasiRef.doc(doc.id).delete().then(() => {
+                            loadAllData();
+                        }).catch(err => {
+                            alert('Gagal menghapus: ' + err.message);
+                        });
+                    }
+                }
+            });
+        });
     }
 
     function renderTamu() {
@@ -746,13 +1759,56 @@
                 const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
                 const uploadText = hasFile ? 'Tersimpan' : 'Upload';
                 const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
-                let viewBtn = hasFile ? `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>` : '';
-                return `<tr><td>${t.no || '-'}</td><td><strong>${t.nama || '-'}</strong></td><td>${t.nik || '-'}</td><td>${t.jk || '-'}</td><td>${t.tmpLahir || '-'}</td><td>${t.tglLahir || '-'}</td><td>${t.agama || '-'}</td><td>${t.pendidikan || '-'}</td><td>${t.pekerjaan || '-'}</td><td>${t.keperluan || '-'}</td><td>${t.tanggal || '-'}</td><td><span class="tag ${cls}">${t.status}</span></td><td><div class="btn-group">${viewBtn}<button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button></div></td></tr>`;
+                
+                let viewBtn = '';
+                if (hasFile) {
+                    viewBtn = `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>`;
+                }
+                
+                return `
+                    <tr>
+                        <td>${t.no || '-'}</td>
+                        <td><strong>${t.nama || '-'}</strong></td>
+                        <td>${t.nik || '-'}</td>
+                        <td>${t.jk || '-'}</td>
+                        <td>${t.tmpLahir || '-'}</td>
+                        <td>${t.tglLahir || '-'}</td>
+                        <td>${t.agama || '-'}</td>
+                        <td>${t.pendidikan || '-'}</td>
+                        <td>${t.pekerjaan || '-'}</td>
+                        <td>${t.keperluan || '-'}</td>
+                        <td>${t.tanggal || '-'}</td>
+                        <td><span class="tag ${cls}">${t.status}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                ${viewBtn}
+                                <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }).join('');
         }
         document.getElementById('statTamu').textContent = tamuWajibLapor.length;
-        document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const idx = parseInt(this.dataset.tamuIndex); openUploadTamuModal(idx); }));
-        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => btn.addEventListener('click', function(e) { e.stopPropagation(); const url = this.dataset.fileUrl; const name = this.dataset.fileName; const type = this.dataset.fileType; const owner = this.dataset.owner; openFileViewFromUrl(url, name, type, owner); }));
+
+        document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.tamuIndex);
+                openUploadTamuModal(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.dataset.fileUrl;
+                const name = this.dataset.fileName;
+                const type = this.dataset.fileType;
+                const owner = this.dataset.owner;
+                openFileViewFromUrl(url, name, type, owner);
+            });
+        });
     }
 
     function renderIuran() {
@@ -761,7 +1817,11 @@
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data iuran. Klik "Tambah" untuk menambahkan.</td></tr>`;
         } else {
             let total = 0;
-            tbody.innerHTML = iuranRT.map(i => { const lunas = i.status === 'Lunas'; if (lunas) total += (i.nominal || 0); return `<tr><td><strong>${i.keluarga || '-'}</strong></td><td>${i.bulan || '-'}</td><td>Rp ${(i.nominal || 0).toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status || 'Belum'}</span></td></tr>`; }).join('');
+            tbody.innerHTML = iuranRT.map(i => {
+                const lunas = i.status === 'Lunas';
+                if (lunas) total += (i.nominal || 0);
+                return `<tr><td><strong>${i.keluarga || '-'}</strong></td><td>${i.bulan || '-'}</td><td>Rp ${(i.nominal || 0).toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status || 'Belum'}</span></td></tr>`;
+            }).join('');
             document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
             document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
         }
@@ -769,9 +1829,18 @@
 
     function renderHeaderLogos() {
         const provContainer = document.getElementById('logoProvinsiHeader');
-        provContainer.innerHTML = settingsData.logoProvinsi ? `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" title="Logo Provinsi" />` : `<span class="no-logo-small">Logo Provinsi</span>`;
+        if (settingsData.logoProvinsi) {
+            provContainer.innerHTML = `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" title="Logo Provinsi" />`;
+        } else {
+            provContainer.innerHTML = `<span class="no-logo-small">Logo Provinsi</span>`;
+        }
+        
         const kabContainer = document.getElementById('logoKabupatenHeader');
-        kabContainer.innerHTML = settingsData.logoKabupaten ? `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" title="Logo Kabupaten" />` : `<span class="no-logo-small">Logo Kabupaten</span>`;
+        if (settingsData.logoKabupaten) {
+            kabContainer.innerHTML = `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" title="Logo Kabupaten" />`;
+        } else {
+            kabContainer.innerHTML = `<span class="no-logo-small">Logo Kabupaten</span>`;
+        }
     }
 
     function renderSettings() {
@@ -779,14 +1848,34 @@
         document.getElementById('settingKetuaRT').value = settingsData.ketuaRT || '';
         document.getElementById('settingWakilRT').value = settingsData.wakilRT || '';
         document.getElementById('settingBendahara').value = settingsData.bendahara || '';
+        
         document.getElementById('sidebarRTName').textContent = settingsData.namaRT || 'RT 08 · Kelurahan Makmur';
         document.getElementById('headerKetuaRT').textContent = settingsData.ketuaRT || 'Ketua RT';
-        document.getElementById('previewProvinsi').innerHTML = settingsData.logoProvinsi ? `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" />` : `<span class="no-logo">Belum ada logo</span>`;
-        document.getElementById('previewKabupaten').innerHTML = settingsData.logoKabupaten ? `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" />` : `<span class="no-logo">Belum ada logo</span>`;
+        
+        const previewProv = document.getElementById('previewProvinsi');
+        if (settingsData.logoProvinsi) {
+            previewProv.innerHTML = `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" />`;
+        } else {
+            previewProv.innerHTML = `<span class="no-logo">Belum ada logo</span>`;
+        }
+        
+        const previewKab = document.getElementById('previewKabupaten');
+        if (settingsData.logoKabupaten) {
+            previewKab.innerHTML = `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" />`;
+        } else {
+            previewKab.innerHTML = `<span class="no-logo">Belum ada logo</span>`;
+        }
+        
         renderHeaderLogos();
     }
 
-    function renderAll() { renderKeluarga(); renderDokumentasi(); renderTamu(); renderIuran(); renderSettings(); }
+    function renderAll() {
+        renderKeluarga();
+        renderDokumentasi();
+        renderTamu();
+        renderIuran();
+        renderSettings();
+    }
 
     // ======================================================================
     // KARTU KELUARGA
@@ -797,23 +1886,91 @@
         currentKKIndex = index;
         const k = dataKeluarga[index];
         if (!k) return;
+
         const container = document.getElementById('kkContent');
         document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
+        
         let fileHtml = '';
         if (k.fileUrl) {
             const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
             if (isImage) {
-                fileHtml = `<div style="margin:.5rem 0;padding:.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}','${k.fileName || 'Dokumen'}','${k.fileType || 'Dokumen'}','${k.kepala}')"><div style="font-weight:600;color:#0b2b3d;margin-bottom:.3rem;"><i class="fas fa-file-image"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div><img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" /></div>`;
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                    </div>
+                `;
             } else {
-                fileHtml = `<div style="margin:.5rem 0;padding:.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}','${k.fileName || 'Dokumen'}','${k.fileType || 'Dokumen'}','${k.kepala}')"><div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div><div style="font-size:.8rem;color:#4a6a7a;">Klik untuk lihat</div></div>`;
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <div style="font-size:0.8rem;color:#4a6a7a;">Klik untuk lihat</div>
+                    </div>
+                `;
             }
         }
-        let headerHtml = `<div class="kk-header-box"><div><div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div><div class="kk-detail"><i class="fas fa-map-pin"></i> ${k.alamat || '-'} &nbsp;|&nbsp; RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp; <i class="fas fa-code"></i> ${k.kodePos || '98362'}</div></div><div class="kk-detail"><i class="fas fa-phone"></i> ${k.kontak || '-'}</div></div>${fileHtml}`;
+        
+        let headerHtml = `
+            <div class="kk-header-box">
+                <div>
+                    <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
+                    <div class="kk-detail">
+                        <i class="fas fa-map-pin"></i> ${k.alamat || '-'} &nbsp;|&nbsp;
+                        RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
+                        <i class="fas fa-code"></i> ${k.kodePos || '98362'}
+                    </div>
+                </div>
+                <div class="kk-detail"><i class="fas fa-phone"></i> ${k.kontak || '-'}</div>
+            </div>
+            ${fileHtml}
+        `;
+
         let rows = '';
         const anggota = k.anggotaDetail || [];
-        if (anggota.length === 0) rows = `<tr><td colspan="10" style="text-align:center;padding:1rem;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
-        else anggota.forEach(a => { rows += `<tr><td class="no-col">${a.no || '-'}</td><td><strong>${a.nama || '-'}</strong></td><td>${a.nik || '-'}</td><td>${a.jk || '-'}</td><td>${a.tmpLahir || '-'}</td><td>${a.tglLahir || '-'}</td><td>${a.agama || '-'}</td><td>${a.pendidikan || '-'}</td><td>${a.pekerjaan || '-'}</td><td>${a.golDarah || '-'}</td></tr>`; });
-        container.innerHTML = `${headerHtml}<div class="kk-table-wrap"><table class="kk-table"><thead><tr><th>No</th><th>Nama Lengkap</th><th>NIK</th><th>JK</th><th>Tempat Lahir</th><th>Tgl Lahir</th><th>Agama</th><th>Pendidikan</th><th>Pekerjaan</th><th>Gol Darah</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        if (anggota.length === 0) {
+            rows = `<tr><td colspan="10" style="text-align:center;padding:1rem;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
+        } else {
+            anggota.forEach(a => {
+                rows += `
+                    <tr>
+                        <td class="no-col">${a.no || '-'}</td>
+                        <td><strong>${a.nama || '-'}</strong></td>
+                        <td>${a.nik || '-'}</td>
+                        <td>${a.jk || '-'}</td>
+                        <td>${a.tmpLahir || '-'}</td>
+                        <td>${a.tglLahir || '-'}</td>
+                        <td>${a.agama || '-'}</td>
+                        <td>${a.pendidikan || '-'}</td>
+                        <td>${a.pekerjaan || '-'}</td>
+                        <td>${a.golDarah || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        container.innerHTML = `
+            ${headerHtml}
+            <div class="kk-table-wrap" id="kkTableWrapper">
+                <table class="kk-table" id="kkTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Lengkap</th>
+                            <th>NIK</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Tempat Lahir</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Agama</th>
+                            <th>Pendidikan</th>
+                            <th>Jenis Pekerjaan</th>
+                            <th>Golongan Darah</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `;
+
         openModal('modalKartuKeluarga');
     }
 
@@ -823,32 +1980,143 @@
     document.getElementById('btnDownloadPDF').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
         if (!k) return;
+        
         const pdfContainer = document.createElement('div');
         pdfContainer.style.cssText = 'padding:20px;background:white;font-family:"Segoe UI",Arial,sans-serif;';
+        
         let fileHtmlPdf = '';
         if (k.fileUrl) {
             const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-            if (isImage) fileHtmlPdf = `<div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;"><div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div><img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" /></div>`;
-            else fileHtmlPdf = `<div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;"><div style="font-weight:600;color:#0b2b3d;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div><div style="color:#4a6a7a;">PDF document</div></div>`;
+            if (isImage) {
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                    </div>
+                `;
+            } else {
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <div style="color:#4a6a7a;">PDF document</div>
+                    </div>
+                `;
+            }
         }
+        
         let rowsPdf = '';
         const anggota = k.anggotaDetail || [];
-        if (anggota.length === 0) rowsPdf = `<tr><td colspan="10" style="text-align:center;padding:10px;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
-        else anggota.forEach(a => { rowsPdf += `<tr><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;text-align:center;">${a.no || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;font-weight:600;">${a.nama || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.nik || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.jk || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tmpLahir || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tglLahir || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.agama || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pendidikan || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pekerjaan || '-'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.golDarah || '-'}</td></tr>`; });
-        pdfContainer.innerHTML = `<div style="margin-bottom:15px;"><div style="font-size:22px;font-weight:700;color:#0b2b3d;">KARTU KELUARGA</div><div style="font-size:14px;color:#3d5a73;">No. ${k.noKK || '9207011408171003'}</div></div><div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;"><div><div style="font-weight:700;font-size:16px;color:#0b2b3d;">${k.kepala}</div><div style="color:#2a5f7a;font-size:13px;">${k.alamat || '-'} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div></div><div style="color:#2a5f7a;font-size:13px;">${k.kontak || '-'}</div></div>${fileHtmlPdf}<table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #dde3ed;border-radius:8px;overflow:hidden;"><thead><tr style="background:#e9f0f5;"><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">No</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Nama Lengkap</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">NIK</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">JK</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tempat Lahir</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tgl Lahir</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Agama</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Pendidikan</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Pekerjaan</th><th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Gol Darah</th></tr></thead><tbody>${rowsPdf}</tbody></table><div style="margin-top:12px;font-size:10px;color:#6a7e94;text-align:right;">Dicetak dari RT Kita</div>`;
+        if (anggota.length === 0) {
+            rowsPdf = `<tr><td colspan="10" style="text-align:center;padding:10px;color:#6a7e94;">Tidak ada data anggota</td></tr>`;
+        } else {
+            anggota.forEach(a => {
+                rowsPdf += `
+                    <tr>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;text-align:center;">${a.no || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;font-weight:600;">${a.nama || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.nik || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.jk || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tmpLahir || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.tglLahir || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.agama || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pendidikan || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.pekerjaan || '-'}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e5ecf5;">${a.golDarah || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        pdfContainer.innerHTML = `
+            <div style="margin-bottom:15px;">
+                <div style="font-size:22px;font-weight:700;color:#0b2b3d;">KARTU KELUARGA</div>
+                <div style="font-size:14px;color:#3d5a73;">No. ${k.noKK || '9207011408171003'}</div>
+            </div>
+            <div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;">
+                <div>
+                    <div style="font-weight:700;font-size:16px;color:#0b2b3d;">${k.kepala}</div>
+                    <div style="color:#2a5f7a;font-size:13px;">${k.alamat || '-'} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div>
+                </div>
+                <div style="color:#2a5f7a;font-size:13px;">${k.kontak || '-'}</div>
+            </div>
+            ${fileHtmlPdf}
+            <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #dde3ed;border-radius:8px;overflow:hidden;">
+                <thead>
+                    <tr style="background:#e9f0f5;">
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">No</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Nama Lengkap</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">NIK</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Kelamin</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tempat Lahir</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Tanggal Lahir</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Agama</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Pendidikan</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Jenis Pekerjaan</th>
+                        <th style="padding:8px 10px;text-align:left;font-weight:600;color:#1d3b4f;border-bottom:2px solid #c8d4e3;">Golongan Darah</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsPdf}</tbody>
+            </table>
+            <div style="margin-top:12px;font-size:10px;color:#6a7e94;text-align:right;">Dicetak dari RT Kita</div>
+        `;
+
         document.body.appendChild(pdfContainer);
-        html2pdf().set({ margin:10, filename:`Kartu_Keluarga_${k.kepala.replace(/\s/g,'_')}.pdf`, image:{type:'jpeg',quality:.98}, html2canvas:{scale:2,useCORS:true,letterRendering:true}, jsPDF:{unit:'mm',format:'a4',orientation:'landscape'} }).from(pdfContainer).save().then(() => document.body.removeChild(pdfContainer)).catch(() => { document.body.removeChild(pdfContainer); alert('Gagal generate PDF.'); });
+        html2pdf().set({
+            margin: 10,
+            filename: `Kartu_Keluarga_${k.kepala.replace(/\s/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        }).from(pdfContainer).save().then(() => {
+            document.body.removeChild(pdfContainer);
+        }).catch(() => {
+            document.body.removeChild(pdfContainer);
+            alert('Gagal generate PDF. Silakan coba lagi.');
+        });
     });
 
+    // ======================================================================
+    // COPY TEXT
+    // ======================================================================
     document.getElementById('btnCopyText').addEventListener('click', function() {
-        const k = dataKeluarga[currentKKIndex]; if (!k) return;
-        let text = `KARTU KELUARGA\nNo. ${k.noKK || '9207011408171003'}\n\nNama Kepala Keluarga: ${k.kepala}\nAlamat: ${k.alamat || '-'}\nRT/RW: ${k.rt || '001'}/${k.rw || '002'}\nKode Pos: ${k.kodePos || '98362'}\nKontak: ${k.kontak || '-'}\n\n`;
-        if (k.fileUrl) text += `Dokumen: ${k.fileType || 'Dokumen'} - ${k.fileName || 'Dokumen'}\n\n`;
-        text += `DAFTAR ANGGOTA KELUARGA:\nNo\tNama Lengkap\tNIK\tJK\tTempat Lahir\tTgl Lahir\tAgama\tPendidikan\tPekerjaan\tGol Darah\n`;
+        const k = dataKeluarga[currentKKIndex];
+        if (!k) return;
+        
+        let text = `KARTU KELUARGA\n`;
+        text += `No. ${k.noKK || '9207011408171003'}\n\n`;
+        text += `Nama Kepala Keluarga: ${k.kepala}\n`;
+        text += `Alamat: ${k.alamat || '-'}\n`;
+        text += `RT/RW: ${k.rt || '001'}/${k.rw || '002'}\n`;
+        text += `Kode Pos: ${k.kodePos || '98362'}\n`;
+        text += `Kontak: ${k.kontak || '-'}\n\n`;
+        
+        if (k.fileUrl) {
+            text += `Dokumen: ${k.fileType || 'Dokumen'} - ${k.fileName || 'Dokumen'}\n\n`;
+        }
+        
+        text += `DAFTAR ANGGOTA KELUARGA:\n`;
+        text += `No\tNama Lengkap\tNIK\tJenis Kelamin\tTempat Lahir\tTanggal Lahir\tAgama\tPendidikan\tPekerjaan\tGolongan Darah\n`;
+        
         const anggota = k.anggotaDetail || [];
-        if (anggota.length === 0) text += `(Tidak ada data anggota)\n`;
-        else anggota.forEach(a => { text += `${a.no || '-'}\t${a.nama || '-'}\t${a.nik || '-'}\t${a.jk || '-'}\t${a.tmpLahir || '-'}\t${a.tglLahir || '-'}\t${a.agama || '-'}\t${a.pendidikan || '-'}\t${a.pekerjaan || '-'}\t${a.golDarah || '-'}\n`; });
-        navigator.clipboard.writeText(text).then(() => alert('Teks halaman berhasil disalin ke clipboard!')).catch(() => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Teks halaman berhasil disalin!'); });
+        if (anggota.length === 0) {
+            text += `(Tidak ada data anggota)\n`;
+        } else {
+            anggota.forEach(a => {
+                text += `${a.no || '-'}\t${a.nama || '-'}\t${a.nik || '-'}\t${a.jk || '-'}\t${a.tmpLahir || '-'}\t${a.tglLahir || '-'}\t${a.agama || '-'}\t${a.pendidikan || '-'}\t${a.pekerjaan || '-'}\t${a.golDarah || '-'}\n`;
+            });
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Teks halaman berhasil disalin ke clipboard!');
+        }).catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Teks halaman berhasil disalin ke clipboard!');
+        });
     });
 
     // ======================================================================
@@ -870,6 +2138,7 @@
         document.getElementById('inpRW').value = k.rw || '';
         document.getElementById('inpKodePos').value = k.kodePos || '';
         document.getElementById('anggotaTambahanContainer').innerHTML = '';
+        
         const firstNama = document.querySelector('.anggota-nama');
         const firstNik = document.querySelector('.anggota-nik');
         const firstJk = document.querySelector('.anggota-jk');
@@ -879,6 +2148,7 @@
         const firstPend = document.querySelector('.anggota-pendidikan');
         const firstPek = document.querySelector('.anggota-pekerjaan');
         const firstGol = document.querySelector('.anggota-golDarah');
+        
         if (k.anggotaDetail && k.anggotaDetail.length > 0) {
             const kepala = k.anggotaDetail[0];
             firstNama.value = kepala.nama || '';
@@ -891,6 +2161,7 @@
             firstPek.value = kepala.pekerjaan || 'PELAJAR/MAHASISWA';
             firstGol.value = kepala.golDarah || 'TIDAK TAHU';
         }
+        
         document.getElementById('simpanKeluarga').textContent = 'Update';
         openModal('modalKeluarga');
     }
@@ -916,15 +2187,29 @@
         document.querySelector('.anggota-golDarah').value = 'TIDAK TAHU';
     }
 
+    // ======================================================================
+    // TAMBAH ANGGOTA FIELD
+    // ======================================================================
     document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
         const container = document.getElementById('anggotaTambahanContainer');
         const div = document.createElement('div');
         div.className = 'form-row';
-        div.style.marginBottom = '.5rem';
+        div.style.marginBottom = '0.5rem';
         div.style.border = '1px solid #e5ecf5';
-        div.style.padding = '.5rem';
+        div.style.padding = '0.5rem';
         div.style.borderRadius = '12px';
-        div.innerHTML = `<div><label>Nama</label><input class="anggota-nama-tambahan" placeholder="Nama" /></div><div><label>NIK</label><input class="anggota-nik-tambahan" placeholder="NIK" /></div><div><label>JK</label><select class="anggota-jk-tambahan"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div><div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" placeholder="Tempat lahir" /></div><div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" type="date" /></div><div><label>Agama</label><select class="anggota-agama-tambahan"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div><div><label>Pendidikan</label><select class="anggota-pendidikan-tambahan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div><div><label>Pekerjaan</label><select class="anggota-pekerjaan-tambahan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div><div><label>Gol Darah</label><select class="anggota-golDarah-tambahan"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div><div style="display:flex;align-items:flex-end;"><button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:#fff;border:none;padding:.2rem .7rem;border-radius:40px;cursor:pointer;font-size:.7rem;"><i class="fas fa-trash"></i></button></div>`;
+        div.innerHTML = `
+            <div><label>Nama</label><input class="anggota-nama-tambahan" placeholder="Nama" /></div>
+            <div><label>NIK</label><input class="anggota-nik-tambahan" placeholder="NIK" /></div>
+            <div><label>JK</label><select class="anggota-jk-tambahan"><option value="Laki-Laki">Laki-Laki</option><option value="Perempuan">Perempuan</option></select></div>
+            <div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" placeholder="Tempat lahir" /></div>
+            <div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" type="date" /></div>
+            <div><label>Agama</label><select class="anggota-agama-tambahan"><option value="ISLAM">ISLAM</option><option value="KRISTEN">KRISTEN</option><option value="KATOLIK">KATOLIK</option><option value="HINDU">HINDU</option><option value="BUDDHA">BUDDHA</option><option value="KONGHUCU">KONGHUCU</option></select></div>
+            <div><label>Pendidikan</label><select class="anggota-pendidikan-tambahan"><option value="BELUM TAMAT SD/SEDERAJAT">BELUM TAMAT SD</option><option value="SD/SEDERAJAT">SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT">SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT">SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)">DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)">DIPLOMA (IV/S1)</option><option value="SARJANA (S1)">SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)">PASCA SARJANA (S2/S3)</option></select></div>
+            <div><label>Pekerjaan</label><select class="anggota-pekerjaan-tambahan"><option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)">PNS</option><option value="PEGAWAI SWASTA">PEGAWAI SWASTA</option><option value="WIRASWASTA">WIRASWASTA</option><option value="GURU">GURU</option><option value="TANI">TANI</option><option value="NELAYAN">NELAYAN</option><option value="TIDAK BEKERJA">TIDAK BEKERJA</option></select></div>
+            <div><label>Gol Darah</label><select class="anggota-golDarah-tambahan"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div>
+            <div style="display:flex;align-items:flex-end;"><button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.2rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i></button></div>
+        `;
         container.appendChild(div);
         div.querySelector('.btn-hapus-anggota').addEventListener('click', function() { div.remove(); });
     });
@@ -937,7 +2222,9 @@
     function openTambahAnggota(index) {
         targetKeluargaIndex = index;
         const select = document.getElementById('selectKeluargaTujuan');
-        select.innerHTML = dataKeluarga.map((k, i) => `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`).join('');
+        select.innerHTML = dataKeluarga.map((k, i) => 
+            `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`
+        ).join('');
         document.getElementById('infoTambahAnggota').innerHTML = `<i class="fas fa-edit"></i> Menambah anggota ke: <strong>${dataKeluarga[index].kepala}</strong>`;
         document.getElementById('inpAnggotaNama').value = '';
         document.getElementById('inpAnggotaNIK').value = '';
@@ -957,15 +2244,37 @@
         if (!k) { alert('Keluarga tidak ditemukan'); return; }
         const nama = document.getElementById('inpAnggotaNama').value.trim().toUpperCase();
         if (!nama) { alert('Nama anggota harus diisi'); return; }
-        const newAnggota = { no: (k.anggotaDetail || []).length + 1, nama, nik: document.getElementById('inpAnggotaNIK').value.trim() || '-', jk: document.getElementById('inpAnggotaJK').value, tmpLahir: document.getElementById('inpAnggotaTmpLahir').value.trim().toUpperCase() || '-', tglLahir: document.getElementById('inpAnggotaTglLahir').value || '-', agama: document.getElementById('inpAnggotaAgama').value, pendidikan: document.getElementById('inpAnggotaPendidikan').value, pekerjaan: document.getElementById('inpAnggotaPekerjaan').value, golDarah: document.getElementById('inpAnggotaGolDarah').value };
+        const newAnggota = {
+            no: (k.anggotaDetail || []).length + 1,
+            nama: nama,
+            nik: document.getElementById('inpAnggotaNIK').value.trim() || '-',
+            jk: document.getElementById('inpAnggotaJK').value,
+            tmpLahir: document.getElementById('inpAnggotaTmpLahir').value.trim().toUpperCase() || '-',
+            tglLahir: document.getElementById('inpAnggotaTglLahir').value || '-',
+            agama: document.getElementById('inpAnggotaAgama').value,
+            pendidikan: document.getElementById('inpAnggotaPendidikan').value,
+            pekerjaan: document.getElementById('inpAnggotaPekerjaan').value,
+            golDarah: document.getElementById('inpAnggotaGolDarah').value
+        };
         if (!k.anggotaDetail) k.anggotaDetail = [];
         k.anggotaDetail.push(newAnggota);
         k.anggota = k.anggotaDetail.length;
-        keluargaRef.doc(k.id).update({ anggotaDetail: k.anggotaDetail, anggota: k.anggota }).then(() => { loadAllData(); closeModal('modalTambahAnggota'); alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`); }).catch(err => alert('Gagal menambahkan anggota: ' + err.message));
+        
+        // Update ke Firebase
+        keluargaRef.doc(k.id).update({
+            anggotaDetail: k.anggotaDetail,
+            anggota: k.anggota
+        }).then(() => {
+            loadAllData();
+            closeModal('modalTambahAnggota');
+            alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
+        }).catch(err => {
+            alert('Gagal menambahkan anggota: ' + err.message);
+        });
     });
 
     // ======================================================================
-    // SIMPAN KELUARGA
+    // SIMPAN KELUARGA KE FIREBASE
     // ======================================================================
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
         const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
@@ -976,18 +2285,68 @@
         const rw = document.getElementById('inpRW').value.trim() || '002';
         const kodePos = document.getElementById('inpKodePos').value.trim() || '98362';
         if (!kepala || !alamat || !kontak) { alert('Isi semua field'); return; }
+
         const anggotaList = [];
         const nama1 = document.querySelector('.anggota-nama').value.trim().toUpperCase() || kepala;
-        anggotaList.push({ no: 1, nama: nama1, nik: document.querySelector('.anggota-nik').value.trim() || '-', jk: document.querySelector('.anggota-jk').value, tmpLahir: document.querySelector('.anggota-tmpLahir').value.trim().toUpperCase() || '-', tglLahir: document.querySelector('.anggota-tglLahir').value || '-', agama: document.querySelector('.anggota-agama').value, pendidikan: document.querySelector('.anggota-pendidikan').value, pekerjaan: document.querySelector('.anggota-pekerjaan').value, golDarah: document.querySelector('.anggota-golDarah').value });
+        anggotaList.push({
+            no: 1,
+            nama: nama1,
+            nik: document.querySelector('.anggota-nik').value.trim() || '-',
+            jk: document.querySelector('.anggota-jk').value,
+            tmpLahir: document.querySelector('.anggota-tmpLahir').value.trim().toUpperCase() || '-',
+            tglLahir: document.querySelector('.anggota-tglLahir').value || '-',
+            agama: document.querySelector('.anggota-agama').value,
+            pendidikan: document.querySelector('.anggota-pendidikan').value,
+            pekerjaan: document.querySelector('.anggota-pekerjaan').value,
+            golDarah: document.querySelector('.anggota-golDarah').value
+        });
+
         document.querySelectorAll('.anggota-nama-tambahan').forEach(el => {
             const nama = el.value.trim().toUpperCase();
             if (!nama) return;
             const container = el.closest('.form-row');
-            anggotaList.push({ no: anggotaList.length + 1, nama, nik: container.querySelector('.anggota-nik-tambahan').value.trim() || '-', jk: container.querySelector('.anggota-jk-tambahan').value, tmpLahir: container.querySelector('.anggota-tmpLahir-tambahan').value.trim().toUpperCase() || '-', tglLahir: container.querySelector('.anggota-tglLahir-tambahan').value || '-', agama: container.querySelector('.anggota-agama-tambahan').value, pendidikan: container.querySelector('.anggota-pendidikan-tambahan').value, pekerjaan: container.querySelector('.anggota-pekerjaan-tambahan').value, golDarah: container.querySelector('.anggota-golDarah-tambahan').value });
+            anggotaList.push({
+                no: anggotaList.length + 1,
+                nama: nama,
+                nik: container.querySelector('.anggota-nik-tambahan').value.trim() || '-',
+                jk: container.querySelector('.anggota-jk-tambahan').value,
+                tmpLahir: container.querySelector('.anggota-tmpLahir-tambahan').value.trim().toUpperCase() || '-',
+                tglLahir: container.querySelector('.anggota-tglLahir-tambahan').value || '-',
+                agama: container.querySelector('.anggota-agama-tambahan').value,
+                pendidikan: container.querySelector('.anggota-pendidikan-tambahan').value,
+                pekerjaan: container.querySelector('.anggota-pekerjaan-tambahan').value,
+                golDarah: container.querySelector('.anggota-golDarah-tambahan').value
+            });
         });
-        const data = { kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos, anggotaDetail: anggotaList, fileUrl: null, fileName: null, fileType: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-        if (editIndex === -1) keluargaRef.add(data).then(() => { loadAllData(); closeModal('modalKeluarga'); alert('Data keluarga berhasil disimpan!'); }).catch(err => alert('Gagal menyimpan: ' + err.message));
-        else keluargaRef.doc(dataKeluarga[editIndex].id).update(data).then(() => { loadAllData(); closeModal('modalKeluarga'); alert('Data keluarga berhasil diupdate!'); editIndex = -1; }).catch(err => alert('Gagal mengupdate: ' + err.message));
+
+        const data = {
+            kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos,
+            anggotaDetail: anggotaList,
+            fileUrl: null,
+            fileName: null,
+            fileType: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (editIndex === -1) {
+            keluargaRef.add(data).then(() => {
+                loadAllData();
+                closeModal('modalKeluarga');
+                alert('Data keluarga berhasil disimpan!');
+            }).catch(err => {
+                alert('Gagal menyimpan: ' + err.message);
+            });
+        } else {
+            const docId = dataKeluarga[editIndex].id;
+            keluargaRef.doc(docId).update(data).then(() => {
+                loadAllData();
+                closeModal('modalKeluarga');
+                alert('Data keluarga berhasil diupdate!');
+                editIndex = -1;
+            }).catch(err => {
+                alert('Gagal mengupdate: ' + err.message);
+            });
+        }
     });
 
     // ======================================================================
@@ -1001,8 +2360,8 @@
         const d = dokumentasi[index];
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
-        document.getElementById('uploadStatusDok').style.display = 'none';
         selectedFileDok = null;
+        
         if (d.fotoUrl) {
             document.getElementById('filePreviewDok').style.display = 'flex';
             document.getElementById('fileNamePreviewDok').textContent = d.fileName || 'Foto';
@@ -1017,67 +2376,86 @@
         const file = e.target.files[0];
         if (!file) return;
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        if (!validTypes.includes(file.type)) { alert('Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WEBP)'); this.value = ''; return; }
-        if (file.size > 10 * 1024 * 1024) { alert('Ukuran file maksimal 10MB'); this.value = ''; return; }
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WEBP)');
+            this.value = '';
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file maksimal 10MB');
+            this.value = '';
+            return;
+        }
         document.getElementById('filePreviewDok').style.display = 'flex';
         document.getElementById('fileNamePreviewDok').textContent = file.name;
         selectedFileDok = file;
-        document.getElementById('uploadStatusDok').style.display = 'none';
     });
 
     document.getElementById('btnHapusFileDok').addEventListener('click', function() {
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
         selectedFileDok = null;
-        document.getElementById('uploadStatusDok').style.display = 'none';
     });
 
     document.getElementById('simpanDokumentasi').addEventListener('click', async function() {
         const judul = document.getElementById('inpDokKeterangan').value.trim().slice(0, 50) || 'Kegiatan Kerja Bakti';
         const keterangan = document.getElementById('inpDokKeterangan').value.trim();
         const tanggalRaw = document.getElementById('inpDokTanggal').value;
-        if (!tanggalRaw) { alert('Tanggal kegiatan harus diisi'); return; }
+        
+        if (!tanggalRaw) {
+            alert('Tanggal kegiatan harus diisi');
+            return;
+        }
+        
         const d = new Date(tanggalRaw + 'T00:00:00');
         const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
         const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        let fotoUrl = null, fileName = null;
         
-        const statusEl = document.getElementById('uploadStatusDok');
-        const progressEl = document.getElementById('uploadProgressDok');
+        let fotoUrl = null;
+        let fileName = null;
         
+        // Upload foto jika ada
         if (selectedFileDok && selectedFileDok instanceof File) {
             try {
-                progressEl.style.display = 'inline';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-progress';
-                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...';
-                
-                const result = await uploadToGoFile(selectedFileDok);
-                fotoUrl = result.url;
-                fileName = result.fileName || selectedFileDok.name;
-                
-                progressEl.style.display = 'none';
-                statusEl.className = 'upload-success';
-                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Upload berhasil!';
-                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+                const path = `dokumentasi/${Date.now()}_${selectedFileDok.name}`;
+                fotoUrl = await uploadFileToStorage(selectedFileDok, path);
+                fileName = selectedFileDok.name;
             } catch (err) {
-                progressEl.style.display = 'none';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-error';
-                statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Gagal upload: ${err.message}`;
+                alert('Gagal upload foto: ' + err.message);
                 return;
             }
         } else if (selectedFileDok && selectedFileDok.url) {
+            // Jika sudah ada file sebelumnya (edit)
             fotoUrl = selectedFileDok.url;
             fileName = selectedFileDok.name;
         }
-        
-        const data = { judul, keterangan, tanggal: tglStr, fotoUrl, fileName, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
+
+        const data = {
+            judul, keterangan, tanggal: tglStr,
+            fotoUrl, fileName,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
         if (uploadDokIndex !== -1) {
             const docId = dokumentasi[uploadDokIndex].id;
-            dokumentasiRef.doc(docId).update(data).then(() => { loadAllData(); closeModal('modalDokumentasi'); alert('Dokumentasi berhasil diupdate!'); uploadDokIndex = -1; selectedFileDok = null; }).catch(err => alert('Gagal mengupdate: ' + err.message));
+            dokumentasiRef.doc(docId).update(data).then(() => {
+                loadAllData();
+                closeModal('modalDokumentasi');
+                alert('Dokumentasi berhasil diupdate!');
+                uploadDokIndex = -1;
+                selectedFileDok = null;
+            }).catch(err => {
+                alert('Gagal mengupdate: ' + err.message);
+            });
         } else {
-            dokumentasiRef.add(data).then(() => { loadAllData(); closeModal('modalDokumentasi'); alert('Dokumentasi berhasil ditambahkan!'); selectedFileDok = null; }).catch(err => alert('Gagal menambahkan: ' + err.message));
+            dokumentasiRef.add(data).then(() => {
+                loadAllData();
+                closeModal('modalDokumentasi');
+                alert('Dokumentasi berhasil ditambahkan!');
+                selectedFileDok = null;
+            }).catch(err => {
+                alert('Gagal menambahkan: ' + err.message);
+            });
         }
     });
 
@@ -1086,7 +2464,6 @@
         selectedFileDok = null;
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
-        document.getElementById('uploadStatusDok').style.display = 'none';
         document.getElementById('inpDokKeterangan').value = '';
         document.getElementById('inpDokTanggal').value = '';
         openModal('modalDokumentasi');
@@ -1096,34 +2473,69 @@
     // SETTINGS SAVE
     // ======================================================================
     document.getElementById('simpanPengurus').addEventListener('click', function() {
-        const data = { namaRT: document.getElementById('settingNamaRT').value.trim() || 'RT 08 · Kelurahan Makmur', ketuaRT: document.getElementById('settingKetuaRT').value.trim(), wakilRT: document.getElementById('settingWakilRT').value.trim(), bendahara: document.getElementById('settingBendahara').value.trim() };
-        settingsRef.set(data, { merge: true }).then(() => { settingsData = { ...settingsData, ...data }; renderSettings(); alert('Data pengurus berhasil disimpan!'); }).catch(err => alert('Gagal menyimpan: ' + err.message));
+        const data = {
+            namaRT: document.getElementById('settingNamaRT').value.trim() || 'RT 08 · Kelurahan Makmur',
+            ketuaRT: document.getElementById('settingKetuaRT').value.trim(),
+            wakilRT: document.getElementById('settingWakilRT').value.trim(),
+            bendahara: document.getElementById('settingBendahara').value.trim()
+        };
+        
+        settingsRef.set(data, { merge: true }).then(() => {
+            settingsData = { ...settingsData, ...data };
+            renderSettings();
+            alert('Data pengurus berhasil disimpan!');
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
     });
 
     document.getElementById('settingLogoProvinsi').addEventListener('change', function(e) {
-        const file = e.target.files[0]; if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
+            // Upload ke storage
             const storageRef = storage.ref(`logo/provinsi_${Date.now()}`);
-            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => { settingsData.logoProvinsi = url; renderHeaderLogos(); }).catch(err => alert('Gagal upload logo: ' + err.message));
+            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                settingsData.logoProvinsi = url;
+                localStorage.setItem('rt_logoProvinsi', url);
+                renderHeaderLogos();
+            }).catch(err => {
+                alert('Gagal upload logo: ' + err.message);
+            });
         };
         reader.readAsDataURL(file);
     });
 
     document.getElementById('settingLogoKabupaten').addEventListener('change', function(e) {
-        const file = e.target.files[0]; if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('previewKabupaten').innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
             const storageRef = storage.ref(`logo/kabupaten_${Date.now()}`);
-            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => { settingsData.logoKabupaten = url; renderHeaderLogos(); }).catch(err => alert('Gagal upload logo: ' + err.message));
+            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                settingsData.logoKabupaten = url;
+                localStorage.setItem('rt_logoKabupaten', url);
+                renderHeaderLogos();
+            }).catch(err => {
+                alert('Gagal upload logo: ' + err.message);
+            });
         };
         reader.readAsDataURL(file);
     });
 
     document.getElementById('simpanLogo').addEventListener('click', function() {
-        settingsRef.set({ logoProvinsi: settingsData.logoProvinsi || '', logoKabupaten: settingsData.logoKabupaten || '' }, { merge: true }).then(() => { alert('Logo berhasil disimpan!'); renderSettings(); }).catch(err => alert('Gagal menyimpan: ' + err.message));
+        settingsRef.set({
+            logoProvinsi: settingsData.logoProvinsi || '',
+            logoKabupaten: settingsData.logoKabupaten || ''
+        }, { merge: true }).then(() => {
+            alert('Logo berhasil disimpan!');
+            renderSettings();
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -1139,8 +2551,8 @@
         document.getElementById('inpJenisDokumenTamu').value = 'KTP';
         document.getElementById('inpFileUploadTamu').value = '';
         document.getElementById('filePreviewTamu').style.display = 'none';
-        document.getElementById('uploadStatusTamu').style.display = 'none';
         selectedFileTamu = null;
+        
         if (t.fileUrl) {
             document.getElementById('filePreviewTamu').style.display = 'flex';
             document.getElementById('fileNamePreviewTamu').textContent = t.fileName || 'Dokumen';
@@ -1150,52 +2562,45 @@
     }
 
     document.getElementById('inpFileUploadTamu').addEventListener('change', function(e) {
-        const file = e.target.files[0]; if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
         const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!validTypes.includes(file.type)) { alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan'); this.value = ''; return; }
-        if (file.size > 5 * 1024 * 1024) { alert('Ukuran file maksimal 5MB'); this.value = ''; return; }
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
         document.getElementById('filePreviewTamu').style.display = 'flex';
         document.getElementById('fileNamePreviewTamu').textContent = file.name;
         selectedFileTamu = file;
-        document.getElementById('uploadStatusTamu').style.display = 'none';
     });
 
     document.getElementById('btnHapusFileTamu').addEventListener('click', function() {
         document.getElementById('inpFileUploadTamu').value = '';
         document.getElementById('filePreviewTamu').style.display = 'none';
         selectedFileTamu = null;
-        document.getElementById('uploadStatusTamu').style.display = 'none';
     });
 
     document.getElementById('simpanUploadTamu').addEventListener('click', async function() {
         const jenis = document.getElementById('inpJenisDokumenTamu').value;
         const t = tamuWajibLapor[uploadTamuIndex];
         if (!t) return;
-        let fileUrl = null, fileName = null;
         
-        const statusEl = document.getElementById('uploadStatusTamu');
-        const progressEl = document.getElementById('uploadProgressTamu');
+        let fileUrl = null;
+        let fileName = null;
         
         if (selectedFileTamu instanceof File) {
             try {
-                progressEl.style.display = 'inline';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-progress';
-                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...';
-                
-                const result = await uploadToGoFile(selectedFileTamu);
-                fileUrl = result.url;
-                fileName = result.fileName || selectedFileTamu.name;
-                
-                progressEl.style.display = 'none';
-                statusEl.className = 'upload-success';
-                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Upload berhasil!';
-                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+                const path = `tamu/${Date.now()}_${selectedFileTamu.name}`;
+                fileUrl = await uploadFileToStorage(selectedFileTamu, path);
+                fileName = selectedFileTamu.name;
             } catch (err) {
-                progressEl.style.display = 'none';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-error';
-                statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Gagal upload: ${err.message}`;
+                alert('Gagal upload file: ' + err.message);
                 return;
             }
         } else if (selectedFileTamu && selectedFileTamu.url) {
@@ -1205,7 +2610,16 @@
             alert('Silakan pilih file terlebih dahulu');
             return;
         }
-        tamuRef.doc(t.id).update({ fileUrl, fileName, fileType: jenis }).then(() => { loadAllData(); closeModal('modalUploadTamu'); alert(`File berhasil diupload untuk tamu ${t.nama}`); }).catch(err => alert('Gagal menyimpan: ' + err.message));
+
+        tamuRef.doc(t.id).update({
+            fileUrl, fileName, fileType: jenis
+        }).then(() => {
+            loadAllData();
+            closeModal('modalUploadTamu');
+            alert(`File berhasil diupload untuk tamu ${t.nama}`);
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -1221,8 +2635,8 @@
         document.getElementById('inpJenisDokumen').value = 'KTP';
         document.getElementById('inpFileUpload').value = '';
         document.getElementById('filePreview').style.display = 'none';
-        document.getElementById('uploadStatus').style.display = 'none';
         selectedFile = null;
+        
         if (k.fileUrl) {
             document.getElementById('filePreview').style.display = 'flex';
             document.getElementById('fileNamePreview').textContent = k.fileName || 'Dokumen';
@@ -1232,52 +2646,45 @@
     }
 
     document.getElementById('inpFileUpload').addEventListener('change', function(e) {
-        const file = e.target.files[0]; if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
         const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!validTypes.includes(file.type)) { alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan'); this.value = ''; return; }
-        if (file.size > 5 * 1024 * 1024) { alert('Ukuran file maksimal 5MB'); this.value = ''; return; }
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
         document.getElementById('filePreview').style.display = 'flex';
         document.getElementById('fileNamePreview').textContent = file.name;
         selectedFile = file;
-        document.getElementById('uploadStatus').style.display = 'none';
     });
 
     document.getElementById('btnHapusFile').addEventListener('click', function() {
         document.getElementById('inpFileUpload').value = '';
         document.getElementById('filePreview').style.display = 'none';
         selectedFile = null;
-        document.getElementById('uploadStatus').style.display = 'none';
     });
 
     document.getElementById('simpanUpload').addEventListener('click', async function() {
         const jenis = document.getElementById('inpJenisDokumen').value;
         const k = dataKeluarga[uploadTargetIndex];
         if (!k) return;
-        let fileUrl = null, fileName = null;
         
-        const statusEl = document.getElementById('uploadStatus');
-        const progressEl = document.getElementById('uploadProgress');
+        let fileUrl = null;
+        let fileName = null;
         
         if (selectedFile instanceof File) {
             try {
-                progressEl.style.display = 'inline';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-progress';
-                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengupload ke GoFile...';
-                
-                const result = await uploadToGoFile(selectedFile);
-                fileUrl = result.url;
-                fileName = result.fileName || selectedFile.name;
-                
-                progressEl.style.display = 'none';
-                statusEl.className = 'upload-success';
-                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Upload berhasil!';
-                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+                const path = `keluarga/${Date.now()}_${selectedFile.name}`;
+                fileUrl = await uploadFileToStorage(selectedFile, path);
+                fileName = selectedFile.name;
             } catch (err) {
-                progressEl.style.display = 'none';
-                statusEl.style.display = 'block';
-                statusEl.className = 'upload-error';
-                statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Gagal upload: ${err.message}`;
+                alert('Gagal upload file: ' + err.message);
                 return;
             }
         } else if (selectedFile && selectedFile.url) {
@@ -1287,7 +2694,16 @@
             alert('Silakan pilih file terlebih dahulu');
             return;
         }
-        keluargaRef.doc(k.id).update({ fileUrl, fileName, fileType: jenis }).then(() => { loadAllData(); closeModal('modalUpload'); alert(`File berhasil diupload untuk keluarga ${k.kepala}`); }).catch(err => alert('Gagal menyimpan: ' + err.message));
+
+        keluargaRef.doc(k.id).update({
+            fileUrl, fileName, fileType: jenis
+        }).then(() => {
+            loadAllData();
+            closeModal('modalUpload');
+            alert(`File berhasil diupload untuk keluarga ${k.kepala}`);
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -1306,9 +2722,26 @@
         const keperluan = document.getElementById('inpKeperluanTamu').value.trim();
         const tanggal = document.getElementById('inpTglTamu').value;
         const status = document.getElementById('inpStatusTamu').value;
-        if (!nama || !nik || !keperluan || !tanggal) { alert('Isi field yang wajib (Nama, NIK, Keperluan, Tanggal)'); return; }
-        const data = { no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan, keperluan, tanggal, status, fileUrl: null, fileName: null, fileType: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-        tamuRef.add(data).then(() => { loadAllData(); closeModal('modalTamu'); alert('Data tamu berhasil ditambahkan!'); }).catch(err => alert('Gagal menambahkan: ' + err.message));
+        
+        if (!nama || !nik || !keperluan || !tanggal) { 
+            alert('Isi field yang wajib (Nama, NIK, Keperluan, Tanggal)'); 
+            return; 
+        }
+        
+        const data = {
+            no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan,
+            keperluan, tanggal, status,
+            fileUrl: null, fileName: null, fileType: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        tamuRef.add(data).then(() => {
+            loadAllData();
+            closeModal('modalTamu');
+            alert('Data tamu berhasil ditambahkan!');
+        }).catch(err => {
+            alert('Gagal menambahkan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -1320,18 +2753,39 @@
         const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
         const status = document.getElementById('inpStatusIuran').value;
         if (!keluarga || !bulan || nominal <= 0) { alert('Isi semua field dengan benar (nominal > 0)'); return; }
-        iuranRef.add({ keluarga, bulan, nominal, status, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { loadAllData(); closeModal('modalIuran'); alert('Data iuran berhasil ditambahkan!'); }).catch(err => alert('Gagal menambahkan: ' + err.message));
+        
+        const data = {
+            keluarga, bulan, nominal, status,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        iuranRef.add(data).then(() => {
+            loadAllData();
+            closeModal('modalIuran');
+            alert('Data iuran berhasil ditambahkan!');
+        }).catch(err => {
+            alert('Gagal menambahkan: ' + err.message);
+        });
     });
 
     // ======================================================================
     // MODAL UTILITY
     // ======================================================================
-    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function openModal(id) {
+        document.getElementById(id).classList.add('show');
+    }
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
         if (id === 'modalKeluarga') resetModalKeluarga();
-        if (id === 'modalDokumentasi') { document.getElementById('inpDokFoto').value = ''; document.getElementById('filePreviewDok').style.display = 'none'; document.getElementById('uploadStatusDok').style.display = 'none'; selectedFileDok = null; uploadDokIndex = -1; }
-        if (id === 'modalViewFile') { document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>'; }
+        if (id === 'modalDokumentasi') {
+            document.getElementById('inpDokFoto').value = '';
+            document.getElementById('filePreviewDok').style.display = 'none';
+            selectedFileDok = null;
+            uploadDokIndex = -1;
+        }
+        if (id === 'modalViewFile') {
+            document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
+        }
     }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
@@ -1339,24 +2793,49 @@
             if (e.target === this) {
                 this.classList.remove('show');
                 if (this.id === 'modalKeluarga') resetModalKeluarga();
-                if (this.id === 'modalDokumentasi') { document.getElementById('inpDokFoto').value = ''; document.getElementById('filePreviewDok').style.display = 'none'; document.getElementById('uploadStatusDok').style.display = 'none'; selectedFileDok = null; uploadDokIndex = -1; }
-                if (this.id === 'modalViewFile') { document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>'; }
+                if (this.id === 'modalDokumentasi') {
+                    document.getElementById('inpDokFoto').value = '';
+                    document.getElementById('filePreviewDok').style.display = 'none';
+                    selectedFileDok = null;
+                    uploadDokIndex = -1;
+                }
+                if (this.id === 'modalViewFile') {
+                    document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
+                }
             }
         });
     });
 
-    document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', function() { closeModal(this.dataset.close); }));
-    document.querySelectorAll('.btn-tambah').forEach(btn => btn.addEventListener('click', function() { if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga(); openModal(this.dataset.modal); }));
+    document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', function() { closeModal(this.dataset.close); });
+    });
+
+    document.querySelectorAll('.btn-tambah').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
+            openModal(this.dataset.modal);
+        });
+    });
 
     document.getElementById('btnTambahAnggotaUtama').addEventListener('click', function() {
-        if (dataKeluarga.length === 0) { alert('Belum ada data keluarga. Tambahkan keluarga terlebih dahulu.'); return; }
+        if (dataKeluarga.length === 0) {
+            alert('Belum ada data keluarga. Tambahkan keluarga terlebih dahulu.');
+            return;
+        }
         openTambahAnggota(0);
     });
 
     // ======================================================================
     // SIDEBAR NAVIGATION
     // ======================================================================
-    const pageTitles = { 'tab-keluarga': 'Data Keluarga', 'tab-dokumentasi': 'Kerja Bakti', 'tab-tamu': 'Tamu Wajib Lapor', 'tab-iuran': 'Iuran RT', 'tab-pengaturan': 'Pengaturan RT' };
+    const pageTitles = {
+        'tab-keluarga': 'Data Keluarga',
+        'tab-dokumentasi': 'Kerja Bakti',
+        'tab-tamu': 'Tamu Wajib Lapor',
+        'tab-iuran': 'Iuran RT',
+        'tab-pengaturan': 'Pengaturan RT'
+    };
+
     document.querySelectorAll('.menu-item').forEach(item => {
         item.addEventListener('click', function() {
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -1371,6 +2850,9 @@
         });
     });
 
+    // ======================================================================
+    // HAMBURGER (MOBILE)
+    // ======================================================================
     document.getElementById('hamburgerBtn').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebarOverlay').classList.toggle('show');
@@ -1383,17 +2865,15 @@
     // ======================================================================
     // INIT
     // ======================================================================
+    // Load data dari Firestore
     loadAllData();
-    keluargaRef.onSnapshot(() => loadAllData());
-    dokumentasiRef.onSnapshot(() => loadAllData());
-    tamuRef.onSnapshot(() => loadAllData());
-    iuranRef.onSnapshot(() => loadAllData());
-    settingsRef.onSnapshot(() => loadAllData());
 
-    // Cek token GoFile
-    if (GOFILE_TOKEN === 'YOUR_API_TOKEN_HERE') {
-        console.warn('⚠️ PERINGATAN: Ganti GOFILE_TOKEN dengan token API GoFile Anda!');
-    }
+    // Listen to realtime updates
+    keluargaRef.onSnapshot(() => { loadAllData(); });
+    dokumentasiRef.onSnapshot(() => { loadAllData(); });
+    tamuRef.onSnapshot(() => { loadAllData(); });
+    iuranRef.onSnapshot(() => { loadAllData(); });
+    settingsRef.onSnapshot(() => { loadAllData(); });
 </script>
 </body>
 </html>
