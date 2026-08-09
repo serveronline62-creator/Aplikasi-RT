@@ -166,6 +166,7 @@
       padding: 0.8rem;
       border-bottom: 1px solid #e5ecf5;
       color: #1a3145;
+      vertical-align: middle;
     }
     tr:last-child td { border-bottom: none; }
     .tag {
@@ -180,6 +181,43 @@
     .tag-warga { background: #e1f0ea; color: #14634b; }
     .tag-tamu { background: #fff1e0; color: #a1581c; }
     .tag-iuran { background: #e3eaf9; color: #1f4780; }
+
+    .btn-edit {
+      background: #e9eef6;
+      border: none;
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #1f3d58;
+      cursor: pointer;
+      transition: 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-edit:hover { background: #d5deea; }
+
+    .keluarga-clickable {
+      cursor: pointer;
+      color: #1c5f4e;
+      font-weight: 600;
+      transition: 0.1s;
+    }
+    .keluarga-clickable:hover {
+      color: #0d3d31;
+      text-decoration: underline;
+    }
+
+    .anggota-list {
+      background: #f0f6fe;
+      border-radius: 16px;
+      padding: 0.3rem 1rem;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+    .anggota-list i { margin-right: 6px; color: #1f6b58; }
 
     .dokumentasi-grid {
       display: grid;
@@ -234,6 +272,8 @@
       padding: 2rem 1.8rem;
       box-shadow: 0 30px 50px rgba(0,0,0,0.3);
       animation: slideUp 0.25s ease;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     @keyframes slideUp {
       0% { transform: translateY(30px); opacity: 0; }
@@ -293,6 +333,15 @@
     }
     .modal-actions .btn-simpan:hover { background: #134a3b; }
 
+    .info-edit {
+      background: #f0f7f5;
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.8rem;
+      font-size: 0.9rem;
+      color: #1a4d3e;
+    }
+
     @media (max-width: 600px) {
       .app-wrapper { padding: 1.2rem; }
       .header h1 { font-size: 1.4rem; }
@@ -329,7 +378,7 @@
     </div>
     <div class="table-responsive">
       <table>
-        <thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th></tr></thead>
+        <thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th><th>Aksi</th></tr></thead>
         <tbody id="tableKeluarga"></tbody>
       </table>
     </div>
@@ -373,15 +422,18 @@
     <div class="flex-end" style="margin-top:1rem;"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span></div>
   </div>
 
-  <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.0</div>
+  <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.1</div>
 </div>
 
-<!-- ========== MODAL KELUARGA ========== -->
+<!-- ========== MODAL KELUARGA (TAMBAH / EDIT) ========== -->
 <div class="modal-overlay" id="modalKeluarga">
   <div class="modal-box">
-    <h2><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
+    <h2 id="modalKeluargaTitle"><i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga</h2>
+    <div id="infoEditKeluarga" class="info-edit" style="display:none;"></div>
     <label>Kepala Keluarga</label><input id="inpKepala" placeholder="Nama lengkap" />
     <label>Jumlah Anggota</label><input id="inpAnggota" type="number" placeholder="Contoh: 4" />
+    <label>Nama Anggota Lain (pisahkan dengan koma)</label>
+    <input id="inpAnggotaLain" placeholder="Contoh: Ani, Budi, Cici" />
     <label>Alamat</label><input id="inpAlamat" placeholder="Jl. Contoh 12" />
     <label>Kontak</label><input id="inpKontak" placeholder="0812-3456" />
     <div class="modal-actions">
@@ -453,20 +505,20 @@
 
 <script>
   (function() {
-    // ---------- DATA AWAL ----------
+    // ---------- DATA AWAL (dengan anggotaLain) ----------
     let dataKeluarga = [
-      { kepala: 'H. Suryono', anggota: 4, alamat: 'Jl. Mawar 12', kontak: '0812-3456' },
-      { kepala: 'Ibu Ratih', anggota: 3, alamat: 'Jl. Melati 7', kontak: '0856-7890' },
-      { kepala: 'Bapak Dede', anggota: 5, alamat: 'Jl. Kenanga 21', kontak: '0878-1234' },
-      { kepala: 'Sdr. Andi', anggota: 2, alamat: 'Jl. Anggrek 5A', kontak: '0899-4567' },
-      { kepala: 'Ibu Yanti', anggota: 3, alamat: 'Jl. Cempaka 9', kontak: '0813-9876' },
-      { kepala: 'Bapak Rudi', anggota: 4, alamat: 'Jl. Dahlia 3', kontak: '0821-5432' },
-      { kepala: 'Sdr. Farhan', anggota: 2, alamat: 'Jl. Flamboyan 17', kontak: '0857-6543' },
-      { kepala: 'Ibu Sari', anggota: 3, alamat: 'Jl. Kamboja 2', kontak: '0811-2233' },
-      { kepala: 'Bapak Agus', anggota: 5, alamat: 'Jl. Teratai 8', kontak: '0877-9988' },
-      { kepala: 'Sdr. Budi', anggota: 1, alamat: 'Jl. Sakura 14', kontak: '0896-7766' },
-      { kepala: 'Ibu Maya', anggota: 3, alamat: 'Jl. Angsana 6', kontak: '0859-1122' },
-      { kepala: 'Bapak Joko', anggota: 4, alamat: 'Jl. Mahoni 11', kontak: '0812-3344' }
+      { kepala: 'H. Suryono', anggota: 4, alamat: 'Jl. Mawar 12', kontak: '0812-3456', anggotaLain: ['Siti', 'Rina', 'Budi'] },
+      { kepala: 'Ibu Ratih', anggota: 3, alamat: 'Jl. Melati 7', kontak: '0856-7890', anggotaLain: ['Dewi', 'Ayu'] },
+      { kepala: 'Bapak Dede', anggota: 5, alamat: 'Jl. Kenanga 21', kontak: '0878-1234', anggotaLain: ['Rizky', 'Fajar', 'Lina', 'Tono'] },
+      { kepala: 'Sdr. Andi', anggota: 2, alamat: 'Jl. Anggrek 5A', kontak: '0899-4567', anggotaLain: ['Maya'] },
+      { kepala: 'Ibu Yanti', anggota: 3, alamat: 'Jl. Cempaka 9', kontak: '0813-9876', anggotaLain: ['Reno', 'Sari'] },
+      { kepala: 'Bapak Rudi', anggota: 4, alamat: 'Jl. Dahlia 3', kontak: '0821-5432', anggotaLain: ['Ana', 'Doni', 'Eka'] },
+      { kepala: 'Sdr. Farhan', anggota: 2, alamat: 'Jl. Flamboyan 17', kontak: '0857-6543', anggotaLain: ['Zara'] },
+      { kepala: 'Ibu Sari', anggota: 3, alamat: 'Jl. Kamboja 2', kontak: '0811-2233', anggotaLain: ['Lala', 'Gilang'] },
+      { kepala: 'Bapak Agus', anggota: 5, alamat: 'Jl. Teratai 8', kontak: '0877-9988', anggotaLain: ['Wati', 'Joko', 'Marni', 'Dodi'] },
+      { kepala: 'Sdr. Budi', anggota: 1, alamat: 'Jl. Sakura 14', kontak: '0896-7766', anggotaLain: [] },
+      { kepala: 'Ibu Maya', anggota: 3, alamat: 'Jl. Angsana 6', kontak: '0859-1122', anggotaLain: ['Rara', 'Indra'] },
+      { kepala: 'Bapak Joko', anggota: 4, alamat: 'Jl. Mahoni 11', kontak: '0812-3344', anggotaLain: ['Tuti', 'Nina', 'Aldo'] }
     ];
 
     let dokumentasi = [
@@ -504,10 +556,46 @@
     // ---------- RENDER ----------
     function renderKeluarga() {
       const tbody = document.getElementById('tableKeluarga');
-      tbody.innerHTML = dataKeluarga.map(k => `
-        <tr><td><strong>${k.kepala}</strong></td><td>${k.anggota} jiwa</td><td>${k.alamat}</td><td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td></tr>
-      `).join('');
+      tbody.innerHTML = dataKeluarga.map((k, index) => {
+        const anggotaDisplay = k.anggotaLain && k.anggotaLain.length > 0 
+          ? `<div class="anggota-list"><i class="fas fa-user"></i> ${k.anggotaLain.join(', ')}</div>` 
+          : '';
+        return `
+          <tr>
+            <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
+            <td>${k.anggota} jiwa ${anggotaDisplay}</td>
+            <td>${k.alamat}</td>
+            <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
+            <td><button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i> Edit</button></td>
+          </tr>
+        `;
+      }).join('');
       document.getElementById('statKeluarga').textContent = dataKeluarga.length;
+      
+      // Event untuk klik nama (tampilkan anggota)
+      document.querySelectorAll('.keluarga-clickable').forEach(el => {
+        el.addEventListener('click', function() {
+          const idx = parseInt(this.dataset.index);
+          const k = dataKeluarga[idx];
+          let msg = `👨‍👩‍👧‍👦 Keluarga ${k.kepala}\n`;
+          msg += `Jumlah anggota: ${k.anggota} jiwa\n`;
+          if (k.anggotaLain && k.anggotaLain.length > 0) {
+            msg += `Anggota lain: ${k.anggotaLain.join(', ')}`;
+          } else {
+            msg += `Tidak ada anggota lain tercatat`;
+          }
+          alert(msg);
+        });
+      });
+      
+      // Event untuk tombol edit
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const idx = parseInt(this.dataset.index);
+          editKeluarga(idx);
+        });
+      });
     }
 
     function renderDokumentasi() {
@@ -550,48 +638,86 @@
       renderIuran();
     }
 
+    // ---------- EDIT KELUARGA ----------
+    let editIndex = -1;
+    function editKeluarga(index) {
+      editIndex = index;
+      const k = dataKeluarga[index];
+      document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-pen" style="color:#1c5f4e;"></i> Edit Keluarga';
+      document.getElementById('infoEditKeluarga').style.display = 'block';
+      document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Sedang mengedit: <strong>${k.kepala}</strong>`;
+      document.getElementById('inpKepala').value = k.kepala;
+      document.getElementById('inpAnggota').value = k.anggota;
+      document.getElementById('inpAnggotaLain').value = k.anggotaLain ? k.anggotaLain.join(', ') : '';
+      document.getElementById('inpAlamat').value = k.alamat;
+      document.getElementById('inpKontak').value = k.kontak;
+      document.getElementById('simpanKeluarga').textContent = 'Update';
+      openModal('modalKeluarga');
+    }
+
+    // Reset modal untuk tambah
+    function resetModalKeluarga() {
+      editIndex = -1;
+      document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-people-group" style="color:#1c5f4e;"></i> Tambah Keluarga';
+      document.getElementById('infoEditKeluarga').style.display = 'none';
+      document.getElementById('simpanKeluarga').textContent = 'Simpan';
+      document.getElementById('inpKepala').value = '';
+      document.getElementById('inpAnggota').value = '';
+      document.getElementById('inpAnggotaLain').value = '';
+      document.getElementById('inpAlamat').value = '';
+      document.getElementById('inpKontak').value = '';
+    }
+
     // ---------- MODAL UTILITY ----------
     function openModal(id) {
       document.getElementById(id).classList.add('show');
     }
     function closeModal(id) {
       document.getElementById(id).classList.remove('show');
+      if (id === 'modalKeluarga') resetModalKeluarga();
     }
-    // tutup modal dengan klik overlay
     document.querySelectorAll('.modal-overlay').forEach(el => {
       el.addEventListener('click', function(e) {
         if (e.target === this) {
           this.classList.remove('show');
+          if (this.id === 'modalKeluarga') resetModalKeluarga();
         }
       });
     });
-    // tombol batal
     document.querySelectorAll('[data-close]').forEach(btn => {
       btn.addEventListener('click', function() {
-        closeModal(this.dataset.close);
+        const id = this.dataset.close;
+        closeModal(id);
       });
     });
-    // tombol tambah di section
     document.querySelectorAll('.btn-tambah').forEach(btn => {
       btn.addEventListener('click', function() {
+        if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
         openModal(this.dataset.modal);
       });
     });
 
-    // ---------- SIMPAN KELUARGA ----------
+    // ---------- SIMPAN KELUARGA (TAMBAH / EDIT) ----------
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
       const kepala = document.getElementById('inpKepala').value.trim();
       const anggota = parseInt(document.getElementById('inpAnggota').value) || 0;
       const alamat = document.getElementById('inpAlamat').value.trim();
       const kontak = document.getElementById('inpKontak').value.trim();
+      const anggotaLainRaw = document.getElementById('inpAnggotaLain').value.trim();
+      const anggotaLain = anggotaLainRaw ? anggotaLainRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+      
       if (!kepala || !alamat || !kontak) { alert('Isi semua field (kecuali anggota boleh 0)'); return; }
-      dataKeluarga.push({ kepala, anggota, alamat, kontak });
+      
+      if (editIndex === -1) {
+        // Tambah baru
+        dataKeluarga.push({ kepala, anggota, alamat, kontak, anggotaLain });
+      } else {
+        // Edit
+        dataKeluarga[editIndex] = { kepala, anggota, alamat, kontak, anggotaLain };
+        editIndex = -1;
+      }
       renderKeluarga();
       closeModal('modalKeluarga');
-      document.getElementById('inpKepala').value = '';
-      document.getElementById('inpAnggota').value = '';
-      document.getElementById('inpAlamat').value = '';
-      document.getElementById('inpKontak').value = '';
     });
 
     // ---------- SIMPAN DOKUMENTASI ----------
@@ -600,7 +726,6 @@
       const tanggal = document.getElementById('inpTglDok').value;
       const icon = document.getElementById('inpIconDok').value;
       if (!judul || !tanggal) { alert('Judul dan tanggal harus diisi'); return; }
-      // format tanggal ke "dd Mmm yyyy"
       const d = new Date(tanggal + 'T00:00:00');
       const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
       const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
