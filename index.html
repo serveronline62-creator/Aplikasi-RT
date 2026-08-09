@@ -362,6 +362,12 @@
         .tag-warga { background: #e1f0ea; color: #14634b; }
         .tag-tamu { background: #fff1e0; color: #a1581c; }
         .tag-iuran { background: #e3eaf9; color: #1f4780; }
+        .no-urut {
+            text-align: center;
+            font-weight: 600;
+            color: #2a445a;
+            width: 35px;
+        }
 
         .btn-edit {
             background: #e9eef6;
@@ -996,6 +1002,58 @@
             font-size: 0.7rem;
         }
 
+        .btn-hapus-tamu {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-hapus-tamu:hover {
+            background: #c0392b;
+        }
+
+        .btn-edit-tamu {
+            background: #e9eef6;
+            border: none;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #1f3d58;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-edit-tamu:hover { background: #d5deea; }
+
+        .btn-hapus-keluarga {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-hapus-keluarga:hover {
+            background: #c0392b;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 220px;
@@ -1100,39 +1158,17 @@
             font-size: 0.6rem;
         }
 
-        .btn-hapus-tamu {
-            background: #e74c3c;
-            border: none;
-            color: white;
-            padding: 0.15rem 0.7rem;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.1s;
+        .anggota-count-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-        }
-        .btn-hapus-tamu:hover {
-            background: #c0392b;
-        }
-
-        .btn-edit-tamu {
-            background: #e9eef6;
-            border: none;
-            padding: 0.15rem 0.7rem;
+            background: #e8f4f0;
+            color: #1c5f4e;
+            padding: 0.1rem 0.6rem;
             border-radius: 40px;
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: #1f3d58;
-            cursor: pointer;
-            transition: 0.1s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
-        .btn-edit-tamu:hover { background: #d5deea; }
     </style>
 </head>
 <body>
@@ -1226,7 +1262,7 @@
         </div>
         <div class="table-responsive">
             <table>
-                <thead><tr><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th><th>Aksi</th></tr></thead>
+                <thead><tr><th style="width:45px;">No</th><th>Kepala Keluarga</th><th>Anggota</th><th>Alamat</th><th>Kontak</th><th>Aksi</th></tr></thead>
                 <tbody id="tableKeluarga"></tbody>
             </table>
         </div>
@@ -1244,7 +1280,7 @@
         <div class="dokumentasi-grid" id="dokumentasiGrid"></div>
     </div>
 
-    <!-- PANEL TAMU WAJIB LAPOR - DIPERBAIKI -->
+    <!-- PANEL TAMU -->
     <div id="tab-tamu" class="panel">
         <div class="section-title">
             <span><span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor</span>
@@ -1257,7 +1293,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width:50px;">No</th>
+                        <th style="width:45px;">No</th>
                         <th style="min-width:150px;">Nama Tamu</th>
                         <th style="min-width:140px;">Kontak</th>
                         <th style="min-width:120px;">Keperluan</th>
@@ -1370,7 +1406,10 @@
         </div>
         <label>Kode Pos</label><input id="inpKodePos" placeholder="98362" />
         <hr style="margin:1rem 0;border:1px dashed #dde3ed;" />
-        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;"><i class="fas fa-user-plus"></i> Tambah Anggota</h3>
+        <h3 style="font-size:1rem;color:#0b2b3d;margin-bottom:0.5rem;">
+            <i class="fas fa-user-plus"></i> Tambah Anggota (Maksimal 10)
+            <span style="font-size:0.7rem;color:#6a7e94;font-weight:400;" id="anggotaCounter">(1/10)</span>
+        </h3>
         <div id="anggotaFields">
             <div class="form-row" style="margin-bottom:0.5rem;">
                 <div><label>Nama</label><input class="anggota-nama" placeholder="Nama anggota" /></div>
@@ -1390,7 +1429,11 @@
             </div>
             <div class="form-row">
                 <div><label>Golongan Darah</label><select class="anggota-golDarah"><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option><option value="TIDAK TAHU">TIDAK TAHU</option></select></div>
-                <div style="display:flex;align-items:flex-end;"><button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.4rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;"><i class="fas fa-plus"></i> Tambah</button></div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button type="button" id="btnTambahAnggotaField" style="background:#2a7f6e;color:white;border:none;padding:0.4rem 1rem;border-radius:40px;cursor:pointer;font-weight:500;">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
+                </div>
             </div>
             <div id="anggotaTambahanContainer"></div>
         </div>
@@ -1750,6 +1793,7 @@
         logoKabupaten: ''
     };
     let editTamuIndex = -1;
+    let anggotaCount = 1;
 
     // ======================================================================
     // LOADING INDICATORS
@@ -1894,12 +1938,30 @@
     }
 
     // ======================================================================
+    // UPDATE ANGGOTA COUNTER
+    // ======================================================================
+    function updateAnggotaCounter() {
+        const tambahan = document.querySelectorAll('.anggota-nama-tambahan').length;
+        const total = 1 + tambahan;
+        const counter = document.getElementById('anggotaCounter');
+        if (counter) {
+            counter.textContent = `(${total}/10)`;
+        }
+        const btnTambah = document.getElementById('btnTambahAnggotaField');
+        if (total >= 10) {
+            btnTambah.style.display = 'none';
+        } else {
+            btnTambah.style.display = 'flex';
+        }
+    }
+
+    // ======================================================================
     // RENDER FUNCTIONS
     // ======================================================================
     function renderKeluarga() {
         const tbody = document.getElementById('tableKeluarga');
         if (dataKeluarga.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data keluarga. Klik "Tambah Keluarga" untuk menambahkan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data keluarga. Klik "Tambah Keluarga" untuk menambahkan.</td></tr>`;
         } else {
             tbody.innerHTML = dataKeluarga.map((k, index) => {
                 const hasFile = k.fileUrl;
@@ -1914,11 +1976,12 @@
                 
                 return `
                     <tr>
+                        <td class="no-urut">${index + 1}</td>
                         <td>
                             <span class="icon-keluarga"><i class="fas fa-users"></i></span>
                             <span class="keluarga-clickable" data-index="${index}">${k.kepala}</span>
                         </td>
-                        <td>${k.anggota || 0} jiwa</td>
+                        <td><span class="anggota-count-badge"><i class="fas fa-user"></i> ${k.anggota || 0}</span></td>
                         <td>${k.alamat || '-'}</td>
                         <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak || '-'}</span></td>
                         <td>
@@ -1927,6 +1990,7 @@
                                 <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
                                 <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
                                 <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
+                                <button class="btn-hapus-keluarga" data-index="${index}"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1966,6 +2030,22 @@
             });
         });
 
+        document.querySelectorAll('.btn-hapus-keluarga').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.index);
+                const k = dataKeluarga[idx];
+                if (confirm(`Hapus data keluarga "${k.kepala}"?`)) {
+                    keluargaRef.doc(k.id).delete().then(() => {
+                        loadAllData();
+                        alert('Data keluarga berhasil dihapus!');
+                    }).catch(err => {
+                        alert('Gagal menghapus: ' + err.message);
+                    });
+                }
+            });
+        });
+
         document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -2001,7 +2081,7 @@
                 
                 return `
                     <tr>
-                        <td style="text-align:center;">${t.no || '-'}</td>
+                        <td class="no-urut">${t.no || index + 1}</td>
                         <td>
                             <span class="icon-tamu"><i class="fas fa-user"></i></span>
                             <span class="tamu-clickable" data-index="${index}"><strong>${t.nama || '-'}</strong></span>
@@ -2404,7 +2484,6 @@
             ${fileHtml}
         `;
 
-        // Detail lengkap tamu
         let detailRows = `
             <tr>
                 <td><strong>NIK</strong></td>
@@ -2457,7 +2536,6 @@
     // ======================================================================
     // TAMU DETAIL ACTIONS
     // ======================================================================
-    // Copy text for tamu detail
     document.getElementById('btnTamuCopyText').addEventListener('click', function() {
         const t = tamuWajibLapor[currentTamuIndex];
         if (!t) return;
@@ -2496,7 +2574,6 @@
         });
     });
 
-    // Edit tamu from detail
     document.getElementById('btnTamuEdit').addEventListener('click', function() {
         if (currentTamuIndex !== -1) {
             closeModal('modalDetailTamu');
@@ -2504,7 +2581,6 @@
         }
     });
 
-    // Hapus tamu from detail
     document.getElementById('btnTamuHapus').addEventListener('click', function() {
         if (currentTamuIndex !== -1) {
             const t = tamuWajibLapor[currentTamuIndex];
@@ -2742,8 +2818,12 @@
         document.getElementById('inpRT').value = k.rt || '';
         document.getElementById('inpRW').value = k.rw || '';
         document.getElementById('inpKodePos').value = k.kodePos || '';
-        document.getElementById('anggotaTambahanContainer').innerHTML = '';
         
+        // Clear tambahan anggota
+        document.getElementById('anggotaTambahanContainer').innerHTML = '';
+        anggotaCount = 1;
+        
+        // Isi data anggota pertama
         const firstNama = document.querySelector('.anggota-nama');
         const firstNik = document.querySelector('.anggota-nik');
         const firstJk = document.querySelector('.anggota-jk');
@@ -2765,6 +2845,37 @@
             firstPend.value = kepala.pendidikan || 'SLTA/SEDERAJAT';
             firstPek.value = kepala.pekerjaan || 'PELAJAR/MAHASISWA';
             firstGol.value = kepala.golDarah || 'TIDAK TAHU';
+            
+            // Isi anggota tambahan
+            for (let i = 1; i < k.anggotaDetail.length; i++) {
+                const a = k.anggotaDetail[i];
+                const container = document.getElementById('anggotaTambahanContainer');
+                const div = document.createElement('div');
+                div.className = 'form-row';
+                div.style.marginBottom = '0.5rem';
+                div.style.border = '1px solid #e5ecf5';
+                div.style.padding = '0.5rem';
+                div.style.borderRadius = '12px';
+                div.innerHTML = `
+                    <div><label>Nama</label><input class="anggota-nama-tambahan" value="${a.nama || ''}" placeholder="Nama" /></div>
+                    <div><label>NIK</label><input class="anggota-nik-tambahan" value="${a.nik || ''}" placeholder="NIK" /></div>
+                    <div><label>JK</label><select class="anggota-jk-tambahan"><option value="Laki-Laki" ${a.jk === 'Laki-Laki' ? 'selected' : ''}>Laki-Laki</option><option value="Perempuan" ${a.jk === 'Perempuan' ? 'selected' : ''}>Perempuan</option></select></div>
+                    <div><label>Tempat Lahir</label><input class="anggota-tmpLahir-tambahan" value="${a.tmpLahir || ''}" placeholder="Tempat lahir" /></div>
+                    <div><label>Tgl Lahir</label><input class="anggota-tglLahir-tambahan" value="${a.tglLahir || ''}" type="date" /></div>
+                    <div><label>Agama</label><select class="anggota-agama-tambahan"><option value="ISLAM" ${a.agama === 'ISLAM' ? 'selected' : ''}>ISLAM</option><option value="KRISTEN" ${a.agama === 'KRISTEN' ? 'selected' : ''}>KRISTEN</option><option value="KATOLIK" ${a.agama === 'KATOLIK' ? 'selected' : ''}>KATOLIK</option><option value="HINDU" ${a.agama === 'HINDU' ? 'selected' : ''}>HINDU</option><option value="BUDDHA" ${a.agama === 'BUDDHA' ? 'selected' : ''}>BUDDHA</option><option value="KONGHUCU" ${a.agama === 'KONGHUCU' ? 'selected' : ''}>KONGHUCU</option></select></div>
+                    <div><label>Pendidikan</label><select class="anggota-pendidikan-tambahan"><option value="BELUM TAMAT SD/SEDERAJAT" ${a.pendidikan === 'BELUM TAMAT SD/SEDERAJAT' ? 'selected' : ''}>BELUM TAMAT SD</option><option value="SD/SEDERAJAT" ${a.pendidikan === 'SD/SEDERAJAT' ? 'selected' : ''}>SD/SEDERAJAT</option><option value="SLTP/SEDERAJAT" ${a.pendidikan === 'SLTP/SEDERAJAT' ? 'selected' : ''}>SLTP/SEDERAJAT</option><option value="SLTA/SEDERAJAT" ${a.pendidikan === 'SLTA/SEDERAJAT' ? 'selected' : ''}>SLTA/SEDERAJAT</option><option value="DIPLOMA (III/STRATA 1)" ${a.pendidikan === 'DIPLOMA (III/STRATA 1)' ? 'selected' : ''}>DIPLOMA (III/S1)</option><option value="DIPLOMA (IV/STRATA 1)" ${a.pendidikan === 'DIPLOMA (IV/STRATA 1)' ? 'selected' : ''}>DIPLOMA (IV/S1)</option><option value="SARJANA (S1)" ${a.pendidikan === 'SARJANA (S1)' ? 'selected' : ''}>SARJANA (S1)</option><option value="PASCA SARJANA (S2/S3)" ${a.pendidikan === 'PASCA SARJANA (S2/S3)' ? 'selected' : ''}>PASCA SARJANA (S2/S3)</option></select></div>
+                    <div><label>Pekerjaan</label><select class="anggota-pekerjaan-tambahan"><option value="PELAJAR/MAHASISWA" ${a.pekerjaan === 'PELAJAR/MAHASISWA' ? 'selected' : ''}>PELAJAR/MAHASISWA</option><option value="PEGAWAI NEGERI SIPIL (PNS)" ${a.pekerjaan === 'PEGAWAI NEGERI SIPIL (PNS)' ? 'selected' : ''}>PNS</option><option value="PEGAWAI SWASTA" ${a.pekerjaan === 'PEGAWAI SWASTA' ? 'selected' : ''}>PEGAWAI SWASTA</option><option value="WIRASWASTA" ${a.pekerjaan === 'WIRASWASTA' ? 'selected' : ''}>WIRASWASTA</option><option value="GURU" ${a.pekerjaan === 'GURU' ? 'selected' : ''}>GURU</option><option value="TANI" ${a.pekerjaan === 'TANI' ? 'selected' : ''}>TANI</option><option value="NELAYAN" ${a.pekerjaan === 'NELAYAN' ? 'selected' : ''}>NELAYAN</option><option value="TIDAK BEKERJA" ${a.pekerjaan === 'TIDAK BEKERJA' ? 'selected' : ''}>TIDAK BEKERJA</option></select></div>
+                    <div><label>Gol Darah</label><select class="anggota-golDarah-tambahan"><option value="A" ${a.golDarah === 'A' ? 'selected' : ''}>A</option><option value="B" ${a.golDarah === 'B' ? 'selected' : ''}>B</option><option value="AB" ${a.golDarah === 'AB' ? 'selected' : ''}>AB</option><option value="O" ${a.golDarah === 'O' ? 'selected' : ''}>O</option><option value="TIDAK TAHU" ${a.golDarah === 'TIDAK TAHU' ? 'selected' : ''}>TIDAK TAHU</option></select></div>
+                    <div style="display:flex;align-items:flex-end;"><button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.2rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i></button></div>
+                `;
+                container.appendChild(div);
+                div.querySelector('.btn-hapus-anggota').addEventListener('click', function() { 
+                    div.remove(); 
+                    updateAnggotaCounter();
+                });
+                anggotaCount++;
+            }
+            updateAnggotaCounter();
         }
         
         document.getElementById('simpanKeluarga').textContent = 'Update';
@@ -2784,18 +2895,27 @@
         document.getElementById('inpRW').value = '';
         document.getElementById('inpKodePos').value = '';
         document.getElementById('anggotaTambahanContainer').innerHTML = '';
+        anggotaCount = 1;
         document.querySelectorAll('.anggota-nama, .anggota-nik, .anggota-tmpLahir, .anggota-tglLahir').forEach(el => el.value = '');
         document.querySelector('.anggota-jk').value = 'Laki-Laki';
         document.querySelector('.anggota-agama').value = 'ISLAM';
         document.querySelector('.anggota-pendidikan').value = 'SLTA/SEDERAJAT';
         document.querySelector('.anggota-pekerjaan').value = 'PELAJAR/MAHASISWA';
         document.querySelector('.anggota-golDarah').value = 'TIDAK TAHU';
+        updateAnggotaCounter();
+        document.getElementById('btnTambahAnggotaField').style.display = 'flex';
     }
 
     // ======================================================================
     // TAMBAH ANGGOTA FIELD
     // ======================================================================
     document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
+        const totalAnggota = 1 + document.querySelectorAll('.anggota-nama-tambahan').length;
+        if (totalAnggota >= 10) {
+            alert('Maksimal 10 anggota per keluarga!');
+            return;
+        }
+        
         const container = document.getElementById('anggotaTambahanContainer');
         const div = document.createElement('div');
         div.className = 'form-row';
@@ -2816,7 +2936,12 @@
             <div style="display:flex;align-items:flex-end;"><button type="button" class="btn-hapus-anggota" style="background:#e74c3c;color:white;border:none;padding:0.2rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-trash"></i></button></div>
         `;
         container.appendChild(div);
-        div.querySelector('.btn-hapus-anggota').addEventListener('click', function() { div.remove(); });
+        div.querySelector('.btn-hapus-anggota').addEventListener('click', function() { 
+            div.remove(); 
+            updateAnggotaCounter();
+        });
+        anggotaCount++;
+        updateAnggotaCounter();
     });
 
     // ======================================================================
@@ -2828,7 +2953,7 @@
         targetKeluargaIndex = index;
         const select = document.getElementById('selectKeluargaTujuan');
         select.innerHTML = dataKeluarga.map((k, i) => 
-            `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat}</option>`
+            `<option value="${i}" ${i === index ? 'selected' : ''}>${k.kepala} - ${k.alamat} (${k.anggota || 0} anggota)</option>`
         ).join('');
         document.getElementById('infoTambahAnggota').innerHTML = `<i class="fas fa-edit"></i> Menambah anggota ke: <strong>${dataKeluarga[index].kepala}</strong>`;
         document.getElementById('inpAnggotaNama').value = '';
@@ -2847,6 +2972,13 @@
         const idx = parseInt(document.getElementById('selectKeluargaTujuan').value);
         const k = dataKeluarga[idx];
         if (!k) { alert('Keluarga tidak ditemukan'); return; }
+        
+        // Check if already max 10 anggota
+        if (k.anggotaDetail && k.anggotaDetail.length >= 10) {
+            alert('Keluarga ini sudah memiliki 10 anggota (maksimal)!');
+            return;
+        }
+        
         const nama = document.getElementById('inpAnggotaNama').value.trim().toUpperCase();
         if (!nama) { alert('Nama anggota harus diisi'); return; }
         const newAnggota = {
@@ -2923,6 +3055,12 @@
             });
         });
 
+        // Limit to 10 anggota
+        if (anggotaList.length > 10) {
+            alert('Maksimal 10 anggota per keluarga!');
+            return;
+        }
+
         const data = {
             kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos,
             anggotaDetail: anggotaList,
@@ -2966,7 +3104,6 @@
         const tanggal = document.getElementById('inpTglTamu').value;
         const status = document.getElementById('inpStatusTamu').value;
         
-        // Field opsional
         const nik = document.getElementById('inpNikTamu').value.trim();
         const jk = document.getElementById('inpJkTamu').value;
         const tmpLahir = document.getElementById('inpTmpLahirTamu').value.trim().toUpperCase();
@@ -3593,6 +3730,9 @@
     if (GOFILE_API_TOKEN === 'YOUR_API_TOKEN_HERE') {
         console.warn('⚠️ GoFile API token belum diatur. Silakan ganti GOFILE_API_TOKEN dengan token Anda.');
     }
+
+    // Initialize anggota counter
+    updateAnggotaCounter();
 
     loadAllData();
 
