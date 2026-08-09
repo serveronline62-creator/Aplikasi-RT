@@ -972,6 +972,32 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .upload-progress {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f0f7f5;
+            border-radius: 8px;
+            display: none;
+        }
+        .upload-progress .progress-bar {
+            height: 6px;
+            background: #dde3ed;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .upload-progress .progress-bar .progress-fill {
+            height: 100%;
+            background: #1c5f4e;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+        .upload-progress .progress-text {
+            font-size: 0.75rem;
+            color: #1a4d3e;
+        }
     </style>
 </head>
 <body>
@@ -985,7 +1011,7 @@
             <h2>RT Kita</h2>
             <div class="rt-badge" id="sidebarRTName">RT 08 · Kelurahan Makmur</div>
             <div class="sync-status" id="syncStatus"><i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase</div>
-            <div class="deploy-info"><i class="fas fa-cloud"></i> GitHub Pages</div>
+            <div class="deploy-info"><i class="fas fa-cloud"></i> GitHub Pages + GoFile</div>
         </div>
     </div>
     <nav class="sidebar-menu">
@@ -1283,6 +1309,10 @@
             <span id="fileNamePreviewTamu"></span>
             <button class="btn-hapus-file" id="btnHapusFileTamu"><i class="fas fa-times"></i></button>
         </div>
+        <div class="upload-progress" id="uploadProgressTamu">
+            <div class="progress-text" id="progressTextTamu">Mengupload...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillTamu"></div></div>
+        </div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalUploadTamu">Batal</button>
             <button class="btn-simpan" id="simpanUploadTamu">Upload</button>
@@ -1299,6 +1329,10 @@
         <label>Jenis Dokumen</label><select id="inpJenisDokumen"><option value="KTP">KTP</option><option value="KARTU KELUARGA">KARTU KELUARGA</option><option value="AKTA LAHIR">AKTA LAHIR</option><option value="LAINNYA">LAINNYA</option></select>
         <label>Upload File (PDF / JPEG / PNG)</label><input type="file" id="inpFileUpload" accept=".pdf,.jpeg,.jpg,.png" />
         <div id="filePreview" class="file-preview" style="display:none;"><i class="fas fa-file"></i><span id="fileNamePreview"></span><button class="btn-hapus-file" id="btnHapusFile"><i class="fas fa-times"></i></button></div>
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-text" id="progressText">Mengupload...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalUpload">Batal</button>
             <button class="btn-simpan" id="simpanUpload">Upload</button>
@@ -1334,6 +1368,10 @@
             <i class="fas fa-image"></i>
             <span id="fileNamePreviewDok"></span>
             <button class="btn-hapus-file" id="btnHapusFileDok"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="upload-progress" id="uploadProgressDok">
+            <div class="progress-text" id="progressTextDok">Mengupload...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillDok"></div></div>
         </div>
         <label>Keterangan</label>
         <textarea id="inpDokKeterangan" placeholder="Deskripsi kegiatan kerja bakti..."></textarea>
@@ -1453,6 +1491,88 @@
     const storage = firebase.storage();
 
     // ======================================================================
+    // GOFILE CONFIG
+    // ======================================================================
+    const GOFILE_CONFIG = {
+        // Gunakan endpoint yang Anda berikan
+        uploadUrl: 'https://upload-ap-hkg.gofile.io/uploadFile',
+        fallbackUrl: 'https://upload.gofile.io/uploadFile',
+        // Ganti dengan token API Anda dari dashboard GoFile
+        apiToken: 'YOUR_API_TOKEN_HERE'
+    };
+
+    // ======================================================================
+    // FUNGSI UPLOAD KE GOFILE
+    // ======================================================================
+    async function uploadToGoFile(file, onProgress) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const endpoints = [
+            GOFILE_CONFIG.uploadUrl,
+            GOFILE_CONFIG.fallbackUrl,
+            'https://store1.gofile.io/uploadFile',
+            'https://store2.gofile.io/uploadFile',
+            'https://srv-store1.gofile.io/uploadFile',
+            'https://srv-store2.gofile.io/uploadFile'
+        ];
+
+        for (const url of endpoints) {
+            try {
+                console.log(`Mencoba upload ke: ${url}`);
+                
+                const xhr = new XMLHttpRequest();
+                const uploadPromise = new Promise((resolve, reject) => {
+                    xhr.open('POST', url);
+                    xhr.setRequestHeader('Authorization', `Bearer ${GOFILE_CONFIG.apiToken}`);
+                    
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable && onProgress) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            onProgress(percent);
+                        }
+                    };
+                    
+                    xhr.onload = () => {
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            try {
+                                const result = JSON.parse(xhr.responseText);
+                                resolve(result);
+                            } catch (e) {
+                                reject(new Error('Response tidak valid'));
+                            }
+                        } else {
+                            reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+                        }
+                    };
+                    
+                    xhr.onerror = () => reject(new Error('Network error'));
+                    xhr.send(formData);
+                });
+
+                const result = await uploadPromise;
+
+                if (result.status === 'ok') {
+                    return {
+                        success: true,
+                        downloadUrl: result.data.downloadPage || result.data.directLink,
+                        fileId: result.data.fileId,
+                        fileName: result.data.fileName || file.name,
+                        directLink: result.data.directLink || null,
+                        code: result.data.code || null
+                    };
+                } else {
+                    console.warn(`Gagal upload ke ${url}:`, result);
+                }
+            } catch (error) {
+                console.warn(`Error dengan endpoint ${url}:`, error.message);
+            }
+        }
+
+        throw new Error('Semua endpoint upload GoFile gagal. Coba periksa token API Anda.');
+    }
+
+    // ======================================================================
     // DATA REFERENCES
     // ======================================================================
     const keluargaRef = db.collection('keluarga');
@@ -1486,17 +1606,6 @@
     }
 
     // ======================================================================
-    // FUNGSI UPLOAD FILE KE FIREBASE STORAGE
-    // ======================================================================
-    async function uploadFileToStorage(file, path) {
-        if (!file) return null;
-        const storageRef = storage.ref(path);
-        const snapshot = await storageRef.put(file);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        return downloadURL;
-    }
-
-    // ======================================================================
     // FUNGSI VIEW & DOWNLOAD FILE DARI URL
     // ======================================================================
     function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
@@ -1510,15 +1619,15 @@
         document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
         
         const contentDiv = document.getElementById('viewFileContent');
-        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-        const isPdf = fileUrl.match(/\.pdf$/i);
+        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i) || fileUrl.includes('image');
+        const isPdf = fileUrl.match(/\.pdf$/i) || fileUrl.includes('pdf');
         
         if (isImage) {
             contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
         } else if (isPdf) {
             contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
         } else {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
+            contentDiv.innerHTML = `<iframe src="${fileUrl}" style="width:100%;height:500px;border:none;border-radius:12px;"></iframe>`;
         }
         
         const downloadBtn = document.getElementById('viewFileDownload');
@@ -1534,7 +1643,6 @@
     // ======================================================================
     async function loadAllData() {
         try {
-            // Load Keluarga
             setLoading('loadingKeluarga', '<span class="loading-spinner"></span> Memuat...');
             const keluargaSnapshot = await keluargaRef.orderBy('kepala').get();
             dataKeluarga = [];
@@ -1545,7 +1653,6 @@
             });
             setLoading('loadingKeluarga', '');
 
-            // Load Dokumentasi
             setLoading('loadingDokumentasi', '<span class="loading-spinner"></span> Memuat...');
             const dokSnapshot = await dokumentasiRef.orderBy('tanggal', 'desc').get();
             dokumentasi = [];
@@ -1556,7 +1663,6 @@
             });
             setLoading('loadingDokumentasi', '');
 
-            // Load Tamu
             setLoading('loadingTamu', '<span class="loading-spinner"></span> Memuat...');
             const tamuSnapshot = await tamuRef.orderBy('no').get();
             tamuWajibLapor = [];
@@ -1567,7 +1673,6 @@
             });
             setLoading('loadingTamu', '');
 
-            // Load Iuran
             setLoading('loadingIuran', '<span class="loading-spinner"></span> Memuat...');
             const iuranSnapshot = await iuranRef.orderBy('bulan', 'desc').get();
             iuranRT = [];
@@ -1578,7 +1683,6 @@
             });
             setLoading('loadingIuran', '');
 
-            // Load Settings
             setLoading('loadingSettings', '<span class="loading-spinner"></span> Memuat...');
             const settingsDoc = await settingsRef.get();
             if (settingsDoc.exists) {
@@ -1596,7 +1700,6 @@
             setLoading('loadingIuran', '⚠️ Gagal memuat data');
             setLoading('loadingSettings', '⚠️ Gagal memuat data');
             updateSyncStatus(false);
-            alert('Gagal memuat data dari Firebase. Pastikan koneksi internet Anda aktif.');
         }
     }
 
@@ -1651,7 +1754,6 @@
         }
         document.getElementById('statKeluarga').textContent = dataKeluarga.length;
 
-        // Event listeners
         document.querySelectorAll('.keluarga-clickable').forEach(el => {
             el.addEventListener('click', function() {
                 const idx = parseInt(this.dataset.index);
@@ -1745,7 +1847,6 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const url = this.dataset.url;
-                const name = this.dataset.name;
                 window.open(url, '_blank');
             });
         });
@@ -2433,13 +2534,34 @@
         let fotoUrl = null;
         let fileName = null;
         
-        if (selectedFileDok && selectedFileDok instanceof File) {
+        if (selectedFileDok instanceof File) {
+            // Upload ke GoFile
             try {
-                const path = `dokumentasi/${Date.now()}_${selectedFileDok.name}`;
-                fotoUrl = await uploadFileToStorage(selectedFileDok, path);
-                fileName = selectedFileDok.name;
+                const progressDiv = document.getElementById('uploadProgressDok');
+                const progressFill = document.getElementById('progressFillDok');
+                const progressText = document.getElementById('progressTextDok');
+                
+                progressDiv.style.display = 'block';
+                progressText.textContent = 'Mengupload ke GoFile...';
+                
+                const result = await uploadToGoFile(selectedFileDok, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = `Mengupload ${percent}%`;
+                });
+                
+                if (result && result.success) {
+                    fotoUrl = result.downloadUrl || result.directLink;
+                    fileName = result.fileName || selectedFileDok.name;
+                    progressText.textContent = 'Upload berhasil! ✅';
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 2000);
+                } else {
+                    throw new Error('Upload GoFile gagal');
+                }
             } catch (err) {
-                alert('Gagal upload foto: ' + err.message);
+                alert('Gagal upload ke GoFile: ' + err.message);
                 return;
             }
         } else if (selectedFileDok && selectedFileDok.url) {
@@ -2553,7 +2675,7 @@
     });
 
     // ======================================================================
-    // UPLOAD TAMU
+    // UPLOAD TAMU KE GOFILE
     // ======================================================================
     let uploadTamuIndex = -1;
     let selectedFileTamu = null;
@@ -2584,8 +2706,8 @@
             this.value = '';
             return;
         }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB');
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file maksimal 10MB');
             this.value = '';
             return;
         }
@@ -2610,11 +2732,31 @@
         
         if (selectedFileTamu instanceof File) {
             try {
-                const path = `tamu/${Date.now()}_${selectedFileTamu.name}`;
-                fileUrl = await uploadFileToStorage(selectedFileTamu, path);
-                fileName = selectedFileTamu.name;
+                const progressDiv = document.getElementById('uploadProgressTamu');
+                const progressFill = document.getElementById('progressFillTamu');
+                const progressText = document.getElementById('progressTextTamu');
+                
+                progressDiv.style.display = 'block';
+                progressText.textContent = 'Mengupload ke GoFile...';
+                
+                const result = await uploadToGoFile(selectedFileTamu, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = `Mengupload ${percent}%`;
+                });
+                
+                if (result && result.success) {
+                    fileUrl = result.downloadUrl || result.directLink;
+                    fileName = result.fileName || selectedFileTamu.name;
+                    progressText.textContent = 'Upload berhasil! ✅';
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 2000);
+                } else {
+                    throw new Error('Upload GoFile gagal');
+                }
             } catch (err) {
-                alert('Gagal upload file: ' + err.message);
+                alert('Gagal upload ke GoFile: ' + err.message);
                 return;
             }
         } else if (selectedFileTamu && selectedFileTamu.url) {
@@ -2637,7 +2779,7 @@
     });
 
     // ======================================================================
-    // UPLOAD KELUARGA
+    // UPLOAD KELUARGA KE GOFILE
     // ======================================================================
     let uploadTargetIndex = -1;
     let selectedFile = null;
@@ -2668,8 +2810,8 @@
             this.value = '';
             return;
         }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB');
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file maksimal 10MB');
             this.value = '';
             return;
         }
@@ -2694,11 +2836,31 @@
         
         if (selectedFile instanceof File) {
             try {
-                const path = `keluarga/${Date.now()}_${selectedFile.name}`;
-                fileUrl = await uploadFileToStorage(selectedFile, path);
-                fileName = selectedFile.name;
+                const progressDiv = document.getElementById('uploadProgress');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                progressDiv.style.display = 'block';
+                progressText.textContent = 'Mengupload ke GoFile...';
+                
+                const result = await uploadToGoFile(selectedFile, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = `Mengupload ${percent}%`;
+                });
+                
+                if (result && result.success) {
+                    fileUrl = result.downloadUrl || result.directLink;
+                    fileName = result.fileName || selectedFile.name;
+                    progressText.textContent = 'Upload berhasil! ✅';
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 2000);
+                } else {
+                    throw new Error('Upload GoFile gagal');
+                }
             } catch (err) {
-                alert('Gagal upload file: ' + err.message);
+                alert('Gagal upload ke GoFile: ' + err.message);
                 return;
             }
         } else if (selectedFile && selectedFile.url) {
@@ -2797,6 +2959,20 @@
             selectedFileDok = null;
             uploadDokIndex = -1;
         }
+        if (id === 'modalUploadTamu') {
+            document.getElementById('inpFileUploadTamu').value = '';
+            document.getElementById('filePreviewTamu').style.display = 'none';
+            document.getElementById('uploadProgressTamu').style.display = 'none';
+            document.getElementById('progressFillTamu').style.width = '0%';
+            selectedFileTamu = null;
+        }
+        if (id === 'modalUpload') {
+            document.getElementById('inpFileUpload').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            selectedFile = null;
+        }
         if (id === 'modalViewFile') {
             document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
         }
@@ -2812,6 +2988,20 @@
                     document.getElementById('filePreviewDok').style.display = 'none';
                     selectedFileDok = null;
                     uploadDokIndex = -1;
+                }
+                if (this.id === 'modalUploadTamu') {
+                    document.getElementById('inpFileUploadTamu').value = '';
+                    document.getElementById('filePreviewTamu').style.display = 'none';
+                    document.getElementById('uploadProgressTamu').style.display = 'none';
+                    document.getElementById('progressFillTamu').style.width = '0%';
+                    selectedFileTamu = null;
+                }
+                if (this.id === 'modalUpload') {
+                    document.getElementById('inpFileUpload').value = '';
+                    document.getElementById('filePreview').style.display = 'none';
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    document.getElementById('progressFill').style.width = '0%';
+                    selectedFile = null;
                 }
                 if (this.id === 'modalViewFile') {
                     document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
