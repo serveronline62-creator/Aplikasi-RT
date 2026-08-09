@@ -8,7 +8,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
@@ -959,6 +958,31 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Upload progress bar */
+        .upload-progress {
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .upload-progress .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9edf4;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .upload-progress .progress-bar .progress-fill {
+            height: 100%;
+            background: #1c5f4e;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .upload-progress .progress-text {
+            font-size: 0.75rem;
+            color: #4a6a7a;
+            margin-top: 0.2rem;
+        }
     </style>
 </head>
 <body>
@@ -1264,6 +1288,10 @@
             <span id="fileNamePreviewTamu"></span>
             <button class="btn-hapus-file" id="btnHapusFileTamu"><i class="fas fa-times"></i></button>
         </div>
+        <div class="upload-progress" id="uploadProgressTamu">
+            <div class="progress-bar"><div class="progress-fill" id="progressFillTamu"></div></div>
+            <div class="progress-text" id="progressTextTamu">0%</div>
+        </div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalUploadTamu">Batal</button>
             <button class="btn-simpan" id="simpanUploadTamu">Upload</button>
@@ -1280,6 +1308,10 @@
         <label>Jenis Dokumen</label><select id="inpJenisDokumen"><option value="KTP">KTP</option><option value="KARTU KELUARGA">KARTU KELUARGA</option><option value="AKTA LAHIR">AKTA LAHIR</option><option value="LAINNYA">LAINNYA</option></select>
         <label>Upload File (PDF / JPEG / PNG)</label><input type="file" id="inpFileUpload" accept=".pdf,.jpeg,.jpg,.png" />
         <div id="filePreview" class="file-preview" style="display:none;"><i class="fas fa-file"></i><span id="fileNamePreview"></span><button class="btn-hapus-file" id="btnHapusFile"><i class="fas fa-times"></i></button></div>
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalUpload">Batal</button>
             <button class="btn-simpan" id="simpanUpload">Upload</button>
@@ -1315,6 +1347,10 @@
             <i class="fas fa-image"></i>
             <span id="fileNamePreviewDok"></span>
             <button class="btn-hapus-file" id="btnHapusFileDok"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="upload-progress" id="uploadProgressDok">
+            <div class="progress-bar"><div class="progress-fill" id="progressFillDok"></div></div>
+            <div class="progress-text" id="progressTextDok">0%</div>
         </div>
         <label>Keterangan</label>
         <textarea id="inpDokKeterangan" placeholder="Deskripsi kegiatan kerja bakti..."></textarea>
@@ -1417,6 +1453,12 @@
 
 <script>
     // ======================================================================
+    // GOFILE CONFIGURATION
+    // ======================================================================
+    const GOFILE_API_TOKEN = 'YOUR_API_TOKEN_HERE'; // Ganti dengan API token Anda
+    const GOFILE_UPLOAD_URL = 'https://upload.gofile.io/uploadfile';
+
+    // ======================================================================
     // FIREBASE CONFIG
     // ======================================================================
     const firebaseConfig = {
@@ -1430,10 +1472,62 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
     // ======================================================================
-    // DATA REFERENCES
+    // GOFILE UPLOAD FUNCTION
+    // ======================================================================
+    async function uploadToGoFile(file, onProgress) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable && onProgress) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    onProgress(percent);
+                }
+            });
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.status === 'ok' && response.data) {
+                            resolve({
+                                url: response.data.downloadPage || response.data.directLink,
+                                fileId: response.data.fileId,
+                                fileName: file.name
+                            });
+                        } else {
+                            reject(new Error('GoFile upload error: ' + (response.message || 'Unknown error')));
+                        }
+                    } catch (e) {
+                        reject(new Error('Invalid response from GoFile: ' + e.message));
+                    }
+                } else {
+                    reject(new Error(`Upload failed with status ${xhr.status}`));
+                }
+            };
+
+            xhr.onerror = function() {
+                reject(new Error('Network error during upload'));
+            };
+
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            xhr.open('POST', GOFILE_UPLOAD_URL, true);
+            
+            // Add authorization header if token is set
+            if (GOFILE_API_TOKEN && GOFILE_API_TOKEN !== 'YOUR_API_TOKEN_HERE') {
+                xhr.setRequestHeader('Authorization', `Bearer ${GOFILE_API_TOKEN}`);
+            }
+            
+            xhr.send(formData);
+        });
+    }
+
+    // ======================================================================
+    // DATA REFERENCES (Firebase only for metadata)
     // ======================================================================
     const keluargaRef = db.collection('keluarga');
     const dokumentasiRef = db.collection('dokumentasi');
@@ -1463,50 +1557,6 @@
     function setLoading(id, text) {
         const el = document.getElementById(id);
         if (el) el.innerHTML = text;
-    }
-
-    // ======================================================================
-    // FUNGSI UPLOAD FILE KE FIREBASE STORAGE
-    // ======================================================================
-    async function uploadFileToStorage(file, path) {
-        if (!file) return null;
-        const storageRef = storage.ref(path);
-        const snapshot = await storageRef.put(file);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        return downloadURL;
-    }
-
-    // ======================================================================
-    // FUNGSI VIEW & DOWNLOAD FILE DARI URL
-    // ======================================================================
-    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
-        if (!fileUrl) {
-            alert('File tidak ditemukan');
-            return;
-        }
-        
-        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
-        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
-        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
-        
-        const contentDiv = document.getElementById('viewFileContent');
-        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-        const isPdf = fileUrl.match(/\.pdf$/i);
-        
-        if (isImage) {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
-        } else if (isPdf) {
-            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
-        } else {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
-        }
-        
-        const downloadBtn = document.getElementById('viewFileDownload');
-        downloadBtn.onclick = function() {
-            window.open(fileUrl, '_blank');
-        };
-        
-        openModal('modalViewFile');
     }
 
     // ======================================================================
@@ -1593,7 +1643,7 @@
     }
 
     // ======================================================================
-    // RENDER FUNCTIONS
+    // RENDER FUNCTIONS (Same as before)
     // ======================================================================
     function renderKeluarga() {
         const tbody = document.getElementById('tableKeluarga');
@@ -1878,7 +1928,7 @@
     }
 
     // ======================================================================
-    // KARTU KELUARGA
+    // KARTU KELUARGA (Same as before)
     // ======================================================================
     let currentKKIndex = -1;
 
@@ -1975,7 +2025,7 @@
     }
 
     // ======================================================================
-    // DOWNLOAD PDF
+    // DOWNLOAD PDF (Same as before)
     // ======================================================================
     document.getElementById('btnDownloadPDF').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2076,7 +2126,7 @@
     });
 
     // ======================================================================
-    // COPY TEXT
+    // COPY TEXT (Same as before)
     // ======================================================================
     document.getElementById('btnCopyText').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2120,7 +2170,7 @@
     });
 
     // ======================================================================
-    // EDIT KELUARGA
+    // EDIT KELUARGA (Same as before)
     // ======================================================================
     let editIndex = -1;
 
@@ -2188,7 +2238,7 @@
     }
 
     // ======================================================================
-    // TAMBAH ANGGOTA FIELD
+    // TAMBAH ANGGOTA FIELD (Same as before)
     // ======================================================================
     document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
         const container = document.getElementById('anggotaTambahanContainer');
@@ -2215,7 +2265,7 @@
     });
 
     // ======================================================================
-    // TAMBAH ANGGOTA KE KELUARGA EXISTING
+    // TAMBAH ANGGOTA KE KELUARGA EXISTING (Same as before)
     // ======================================================================
     let targetKeluargaIndex = -1;
 
@@ -2260,7 +2310,6 @@
         k.anggotaDetail.push(newAnggota);
         k.anggota = k.anggotaDetail.length;
         
-        // Update ke Firebase
         keluargaRef.doc(k.id).update({
             anggotaDetail: k.anggotaDetail,
             anggota: k.anggota
@@ -2274,7 +2323,7 @@
     });
 
     // ======================================================================
-    // SIMPAN KELUARGA KE FIREBASE
+    // SIMPAN KELUARGA KE FIREBASE (Same as before)
     // ======================================================================
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
         const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
@@ -2350,7 +2399,7 @@
     });
 
     // ======================================================================
-    // SIMPAN DOKUMENTASI
+    // SIMPAN DOKUMENTASI with GoFile
     // ======================================================================
     let uploadDokIndex = -1;
     let selectedFileDok = null;
@@ -2360,6 +2409,7 @@
         const d = dokumentasi[index];
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('uploadProgressDok').style.display = 'none';
         selectedFileDok = null;
         
         if (d.fotoUrl) {
@@ -2388,12 +2438,14 @@
         }
         document.getElementById('filePreviewDok').style.display = 'flex';
         document.getElementById('fileNamePreviewDok').textContent = file.name;
+        document.getElementById('uploadProgressDok').style.display = 'none';
         selectedFileDok = file;
     });
 
     document.getElementById('btnHapusFileDok').addEventListener('click', function() {
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('uploadProgressDok').style.display = 'none';
         selectedFileDok = null;
     });
 
@@ -2414,14 +2466,25 @@
         let fotoUrl = null;
         let fileName = null;
         
-        // Upload foto jika ada
+        // Upload foto ke GoFile jika ada file baru
         if (selectedFileDok && selectedFileDok instanceof File) {
             try {
-                const path = `dokumentasi/${Date.now()}_${selectedFileDok.name}`;
-                fotoUrl = await uploadFileToStorage(selectedFileDok, path);
-                fileName = selectedFileDok.name;
+                const progressDiv = document.getElementById('uploadProgressDok');
+                progressDiv.style.display = 'block';
+                const progressFill = document.getElementById('progressFillDok');
+                const progressText = document.getElementById('progressTextDok');
+                
+                const result = await uploadToGoFile(selectedFileDok, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                });
+                
+                fotoUrl = result.url;
+                fileName = result.fileName;
+                progressDiv.style.display = 'none';
             } catch (err) {
-                alert('Gagal upload foto: ' + err.message);
+                alert('Gagal upload foto ke GoFile: ' + err.message);
+                document.getElementById('uploadProgressDok').style.display = 'none';
                 return;
             }
         } else if (selectedFileDok && selectedFileDok.url) {
@@ -2464,13 +2527,14 @@
         selectedFileDok = null;
         document.getElementById('inpDokFoto').value = '';
         document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('uploadProgressDok').style.display = 'none';
         document.getElementById('inpDokKeterangan').value = '';
         document.getElementById('inpDokTanggal').value = '';
         openModal('modalDokumentasi');
     });
 
     // ======================================================================
-    // SETTINGS SAVE
+    // SETTINGS SAVE (Same as before)
     // ======================================================================
     document.getElementById('simpanPengurus').addEventListener('click', function() {
         const data = {
@@ -2495,17 +2559,18 @@
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
-            // Upload ke storage
-            const storageRef = storage.ref(`logo/provinsi_${Date.now()}`);
-            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
-                settingsData.logoProvinsi = url;
-                localStorage.setItem('rt_logoProvinsi', url);
-                renderHeaderLogos();
-            }).catch(err => {
-                alert('Gagal upload logo: ' + err.message);
-            });
         };
         reader.readAsDataURL(file);
+        
+        // Upload to GoFile
+        uploadToGoFile(file, null).then(result => {
+            settingsData.logoProvinsi = result.url;
+            localStorage.setItem('rt_logoProvinsi', result.url);
+            renderHeaderLogos();
+            alert('Logo provinsi berhasil diupload ke GoFile!');
+        }).catch(err => {
+            alert('Gagal upload logo ke GoFile: ' + err.message);
+        });
     });
 
     document.getElementById('settingLogoKabupaten').addEventListener('change', function(e) {
@@ -2514,16 +2579,18 @@
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('previewKabupaten').innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
-            const storageRef = storage.ref(`logo/kabupaten_${Date.now()}`);
-            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
-                settingsData.logoKabupaten = url;
-                localStorage.setItem('rt_logoKabupaten', url);
-                renderHeaderLogos();
-            }).catch(err => {
-                alert('Gagal upload logo: ' + err.message);
-            });
         };
         reader.readAsDataURL(file);
+        
+        // Upload to GoFile
+        uploadToGoFile(file, null).then(result => {
+            settingsData.logoKabupaten = result.url;
+            localStorage.setItem('rt_logoKabupaten', result.url);
+            renderHeaderLogos();
+            alert('Logo kabupaten berhasil diupload ke GoFile!');
+        }).catch(err => {
+            alert('Gagal upload logo ke GoFile: ' + err.message);
+        });
     });
 
     document.getElementById('simpanLogo').addEventListener('click', function() {
@@ -2539,7 +2606,7 @@
     });
 
     // ======================================================================
-    // UPLOAD TAMU
+    // UPLOAD TAMU with GoFile
     // ======================================================================
     let uploadTamuIndex = -1;
     let selectedFileTamu = null;
@@ -2551,6 +2618,7 @@
         document.getElementById('inpJenisDokumenTamu').value = 'KTP';
         document.getElementById('inpFileUploadTamu').value = '';
         document.getElementById('filePreviewTamu').style.display = 'none';
+        document.getElementById('uploadProgressTamu').style.display = 'none';
         selectedFileTamu = null;
         
         if (t.fileUrl) {
@@ -2577,12 +2645,14 @@
         }
         document.getElementById('filePreviewTamu').style.display = 'flex';
         document.getElementById('fileNamePreviewTamu').textContent = file.name;
+        document.getElementById('uploadProgressTamu').style.display = 'none';
         selectedFileTamu = file;
     });
 
     document.getElementById('btnHapusFileTamu').addEventListener('click', function() {
         document.getElementById('inpFileUploadTamu').value = '';
         document.getElementById('filePreviewTamu').style.display = 'none';
+        document.getElementById('uploadProgressTamu').style.display = 'none';
         selectedFileTamu = null;
     });
 
@@ -2596,11 +2666,22 @@
         
         if (selectedFileTamu instanceof File) {
             try {
-                const path = `tamu/${Date.now()}_${selectedFileTamu.name}`;
-                fileUrl = await uploadFileToStorage(selectedFileTamu, path);
-                fileName = selectedFileTamu.name;
+                const progressDiv = document.getElementById('uploadProgressTamu');
+                progressDiv.style.display = 'block';
+                const progressFill = document.getElementById('progressFillTamu');
+                const progressText = document.getElementById('progressTextTamu');
+                
+                const result = await uploadToGoFile(selectedFileTamu, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                });
+                
+                fileUrl = result.url;
+                fileName = result.fileName;
+                progressDiv.style.display = 'none';
             } catch (err) {
-                alert('Gagal upload file: ' + err.message);
+                alert('Gagal upload file ke GoFile: ' + err.message);
+                document.getElementById('uploadProgressTamu').style.display = 'none';
                 return;
             }
         } else if (selectedFileTamu && selectedFileTamu.url) {
@@ -2623,7 +2704,7 @@
     });
 
     // ======================================================================
-    // UPLOAD KELUARGA
+    // UPLOAD KELUARGA with GoFile
     // ======================================================================
     let uploadTargetIndex = -1;
     let selectedFile = null;
@@ -2635,6 +2716,7 @@
         document.getElementById('inpJenisDokumen').value = 'KTP';
         document.getElementById('inpFileUpload').value = '';
         document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('uploadProgress').style.display = 'none';
         selectedFile = null;
         
         if (k.fileUrl) {
@@ -2661,12 +2743,14 @@
         }
         document.getElementById('filePreview').style.display = 'flex';
         document.getElementById('fileNamePreview').textContent = file.name;
+        document.getElementById('uploadProgress').style.display = 'none';
         selectedFile = file;
     });
 
     document.getElementById('btnHapusFile').addEventListener('click', function() {
         document.getElementById('inpFileUpload').value = '';
         document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('uploadProgress').style.display = 'none';
         selectedFile = null;
     });
 
@@ -2680,11 +2764,22 @@
         
         if (selectedFile instanceof File) {
             try {
-                const path = `keluarga/${Date.now()}_${selectedFile.name}`;
-                fileUrl = await uploadFileToStorage(selectedFile, path);
-                fileName = selectedFile.name;
+                const progressDiv = document.getElementById('uploadProgress');
+                progressDiv.style.display = 'block';
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                const result = await uploadToGoFile(selectedFile, (percent) => {
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                });
+                
+                fileUrl = result.url;
+                fileName = result.fileName;
+                progressDiv.style.display = 'none';
             } catch (err) {
-                alert('Gagal upload file: ' + err.message);
+                alert('Gagal upload file ke GoFile: ' + err.message);
+                document.getElementById('uploadProgress').style.display = 'none';
                 return;
             }
         } else if (selectedFile && selectedFile.url) {
@@ -2707,7 +2802,40 @@
     });
 
     // ======================================================================
-    // SIMPAN TAMU
+    // OPEN FILE VIEW FROM URL
+    // ======================================================================
+    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
+        if (!fileUrl) {
+            alert('File tidak ditemukan');
+            return;
+        }
+        
+        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
+        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
+        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
+        
+        const contentDiv = document.getElementById('viewFileContent');
+        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+        const isPdf = fileUrl.match(/\.pdf$/i);
+        
+        if (isImage) {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
+        } else if (isPdf) {
+            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
+        } else {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
+        }
+        
+        const downloadBtn = document.getElementById('viewFileDownload');
+        downloadBtn.onclick = function() {
+            window.open(fileUrl, '_blank');
+        };
+        
+        openModal('modalViewFile');
+    }
+
+    // ======================================================================
+    // SIMPAN TAMU (Same as before)
     // ======================================================================
     document.getElementById('simpanTamu').addEventListener('click', function() {
         const no = parseInt(document.getElementById('inpNoTamu').value) || tamuWajibLapor.length + 1;
@@ -2745,7 +2873,7 @@
     });
 
     // ======================================================================
-    // SIMPAN IURAN
+    // SIMPAN IURAN (Same as before)
     // ======================================================================
     document.getElementById('simpanIuran').addEventListener('click', function() {
         const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
@@ -2769,7 +2897,7 @@
     });
 
     // ======================================================================
-    // MODAL UTILITY
+    // MODAL UTILITY (Same as before)
     // ======================================================================
     function openModal(id) {
         document.getElementById(id).classList.add('show');
@@ -2780,8 +2908,21 @@
         if (id === 'modalDokumentasi') {
             document.getElementById('inpDokFoto').value = '';
             document.getElementById('filePreviewDok').style.display = 'none';
+            document.getElementById('uploadProgressDok').style.display = 'none';
             selectedFileDok = null;
             uploadDokIndex = -1;
+        }
+        if (id === 'modalUpload') {
+            document.getElementById('inpFileUpload').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('uploadProgress').style.display = 'none';
+            selectedFile = null;
+        }
+        if (id === 'modalUploadTamu') {
+            document.getElementById('inpFileUploadTamu').value = '';
+            document.getElementById('filePreviewTamu').style.display = 'none';
+            document.getElementById('uploadProgressTamu').style.display = 'none';
+            selectedFileTamu = null;
         }
         if (id === 'modalViewFile') {
             document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
@@ -2796,8 +2937,21 @@
                 if (this.id === 'modalDokumentasi') {
                     document.getElementById('inpDokFoto').value = '';
                     document.getElementById('filePreviewDok').style.display = 'none';
+                    document.getElementById('uploadProgressDok').style.display = 'none';
                     selectedFileDok = null;
                     uploadDokIndex = -1;
+                }
+                if (this.id === 'modalUpload') {
+                    document.getElementById('inpFileUpload').value = '';
+                    document.getElementById('filePreview').style.display = 'none';
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    selectedFile = null;
+                }
+                if (this.id === 'modalUploadTamu') {
+                    document.getElementById('inpFileUploadTamu').value = '';
+                    document.getElementById('filePreviewTamu').style.display = 'none';
+                    document.getElementById('uploadProgressTamu').style.display = 'none';
+                    selectedFileTamu = null;
                 }
                 if (this.id === 'modalViewFile') {
                     document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
@@ -2865,6 +3019,11 @@
     // ======================================================================
     // INIT
     // ======================================================================
+    // Check if GoFile token is set
+    if (GOFILE_API_TOKEN === 'YOUR_API_TOKEN_HERE') {
+        console.warn('⚠️ GoFile API token belum diatur. Silakan ganti GOFILE_API_TOKEN dengan token Anda.');
+    }
+
     // Load data dari Firestore
     loadAllData();
 
