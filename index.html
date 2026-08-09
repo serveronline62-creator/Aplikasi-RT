@@ -446,13 +446,13 @@
         }
         .btn-tambah-anggota-row:hover { background: #1c5f4e; }
 
-        .keluarga-clickable, .tamu-clickable {
+        .keluarga-clickable {
             cursor: pointer;
             color: #1c5f4e;
             font-weight: 600;
             transition: 0.1s;
         }
-        .keluarga-clickable:hover, .tamu-clickable:hover {
+        .keluarga-clickable:hover {
             color: #0d3d31;
             text-decoration: underline;
         }
@@ -795,34 +795,23 @@
             font-size: 0.8rem;
             color: #4a6a7a;
         }
-        .modal-file-view .file-info .file-metadata {
-            font-size: 0.75rem;
-            color: #6a7e94;
-            margin-top: 0.3rem;
-            padding-top: 0.3rem;
-            border-top: 1px dashed #e9edf4;
-        }
-        .modal-file-view .file-info .file-metadata i {
-            margin-right: 4px;
-            color: #2a7f6e;
-        }
 
-        .modal-kk, .modal-tamu-detail {
+        .modal-kk {
             max-width: 1200px !important;
             width: 97% !important;
             padding: 1.8rem 2rem !important;
         }
-        .kk-title, .tamu-detail-title {
+        .kk-title {
             font-size: 1.5rem;
             font-weight: 700;
             color: #0b2b3d;
         }
-        .kk-subtitle, .tamu-detail-subtitle {
+        .kk-subtitle {
             font-size: 0.9rem;
             color: #3d5a73;
             font-weight: 500;
         }
-        .kk-header-box, .tamu-detail-header-box {
+        .kk-header-box {
             background: #f8faff;
             border: 1px solid #dde3ed;
             border-radius: 10px;
@@ -833,33 +822,33 @@
             justify-content: space-between;
             align-items: center;
         }
-        .kk-header-box .kk-nama, .tamu-detail-header-box .tamu-nama {
+        .kk-header-box .kk-nama {
             font-weight: 700;
             font-size: 1.05rem;
             color: #0b2b3d;
         }
-        .kk-header-box .kk-detail, .tamu-detail-header-box .tamu-detail {
+        .kk-header-box .kk-detail {
             color: #2a5f7a;
             font-size: 0.85rem;
         }
-        .kk-header-box .kk-detail i, .tamu-detail-header-box .tamu-detail i {
+        .kk-header-box .kk-detail i {
             margin-right: 4px;
             color: #1c5f4e;
         }
-        .kk-table-wrap, .tamu-detail-table-wrap {
+        .kk-table-wrap {
             overflow-x: auto;
             border: 1px solid #dde3ed;
             border-radius: 10px;
             background: white;
             margin-top: 0.5rem;
         }
-        .kk-table, .tamu-detail-table {
+        .kk-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.75rem;
             min-width: 1000px;
         }
-        .kk-table th, .tamu-detail-table th {
+        .kk-table th {
             background: #e9f0f5;
             padding: 0.5rem 0.6rem;
             text-align: left;
@@ -869,20 +858,20 @@
             font-size: 0.7rem;
             white-space: nowrap;
         }
-        .kk-table td, .tamu-detail-table td {
+        .kk-table td {
             padding: 0.4rem 0.6rem;
             border-bottom: 1px solid #e5ecf5;
             color: #1a3145;
             font-size: 0.73rem;
         }
-        .kk-table tr:last-child td, .tamu-detail-table tr:last-child td { border-bottom: none; }
-        .kk-table .no-col, .tamu-detail-table .no-col {
+        .kk-table tr:last-child td { border-bottom: none; }
+        .kk-table .no-col {
             text-align: center;
             font-weight: 500;
             color: #4a6a7a;
             width: 35px;
         }
-        .kk-footer, .tamu-detail-footer {
+        .kk-footer {
             margin-top: 0.8rem;
             display: flex;
             justify-content: flex-end;
@@ -893,110 +882,16 @@
             border-top: 1px solid #dde3ed;
             padding-top: 0.8rem;
         }
-        .kk-footer span, .tamu-detail-footer span {
+        .kk-footer span {
             cursor: pointer;
             transition: 0.1s;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
-        .kk-footer span:hover, .tamu-detail-footer span:hover {
+        .kk-footer span:hover {
             color: #0d3d31;
             text-decoration: underline;
-        }
-
-        /* Icon keluarga & tamu style */
-        .icon-keluarga, .icon-tamu {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: #e8f4f0;
-            border-radius: 50%;
-            color: #1c5f4e;
-            font-size: 0.9rem;
-            margin-right: 6px;
-            flex-shrink: 0;
-        }
-        .icon-tamu {
-            background: #fff1e0;
-            color: #a1581c;
-        }
-        .icon-keluarga-lg, .icon-tamu-lg {
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-        }
-        .kk-nama .icon-keluarga {
-            width: 28px;
-            height: 28px;
-            font-size: 0.8rem;
-            background: #1c5f4e;
-            color: white;
-        }
-        .tamu-nama .icon-tamu {
-            width: 28px;
-            height: 28px;
-            font-size: 0.8rem;
-            background: #a1581c;
-            color: white;
-        }
-        .sidebar-menu .menu-item .icon-keluarga, .sidebar-menu .menu-item .icon-tamu {
-            background: rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.5);
-            width: 28px;
-            height: 28px;
-            font-size: 0.8rem;
-        }
-        .sidebar-menu .menu-item.active .icon-keluarga,
-        .sidebar-menu .menu-item.active .icon-tamu {
-            background: rgba(91, 192, 168, 0.2);
-            color: #5bc0a8;
-        }
-        .sidebar-menu .menu-item:hover .icon-keluarga,
-        .sidebar-menu .menu-item:hover .icon-tamu {
-            background: rgba(91, 192, 168, 0.15);
-            color: #5bc0a8;
-        }
-
-        .tamu-status-badge {
-            display: inline-block;
-            padding: 0.15rem 0.8rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        .tamu-status-badge.sudah-lapor {
-            background: #d4edda;
-            color: #155724;
-        }
-        .tamu-status-badge.belum-lapor {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        /* File metadata display */
-        .file-metadata-box {
-            background: #f8faff;
-            border: 1px solid #dde3ed;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            margin: 0.3rem 0 0.5rem 0;
-            font-size: 0.75rem;
-            color: #4a6a7a;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem 1.5rem;
-        }
-        .file-metadata-box .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .file-metadata-box .meta-item i {
-            color: #2a7f6e;
-            width: 16px;
         }
 
         @media (max-width: 768px) {
@@ -1014,8 +909,8 @@
             }
             .top-header .page-title { font-size: 1.1rem; }
             .top-header-left .logo-container img { max-height: 35px; max-width: 35px; }
-            .modal-kk, .modal-tamu-detail { padding: 1.2rem !important; }
-            .kk-table, .tamu-detail-table { font-size: 0.65rem; min-width: 700px; }
+            .modal-kk { padding: 1.2rem !important; }
+            .kk-table { font-size: 0.65rem; min-width: 700px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .settings-grid { grid-template-columns: 1fr; }
             .dokumentasi-grid { grid-template-columns: 1fr; }
@@ -1087,6 +982,48 @@
             color: #4a6a7a;
             margin-top: 0.2rem;
         }
+
+        /* Icon keluarga style */
+        .icon-keluarga {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #e8f4f0;
+            border-radius: 50%;
+            color: #1c5f4e;
+            font-size: 0.9rem;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .icon-keluarga-lg {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+        .kk-nama .icon-keluarga {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+            background: #1c5f4e;
+            color: white;
+        }
+        .sidebar-menu .menu-item .icon-keluarga {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+        .sidebar-menu .menu-item.active .icon-keluarga {
+            background: rgba(91, 192, 168, 0.2);
+            color: #5bc0a8;
+        }
+        .sidebar-menu .menu-item:hover .icon-keluarga {
+            background: rgba(91, 192, 168, 0.15);
+            color: #5bc0a8;
+        }
     </style>
 </head>
 <body>
@@ -1111,7 +1048,7 @@
             <i class="fas fa-camera"></i> Kerja Bakti
         </button>
         <button class="menu-item" data-tab="tab-tamu">
-            <span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor
+            <i class="fas fa-address-book"></i> Tamu Wajib Lapor
         </button>
         <button class="menu-item" data-tab="tab-iuran">
             <i class="fas fa-coins"></i> Iuran RT
@@ -1159,7 +1096,7 @@
             <div class="stat-info"><div class="angka" id="statDokumentasi">0</div><div class="label">Dokumentasi</div></div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><span class="icon-tamu"><i class="fas fa-user"></i></span></div>
+            <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
             <div class="stat-info"><div class="angka" id="statTamu">0</div><div class="label">Tamu Lapor</div></div>
         </div>
         <div class="stat-card">
@@ -1201,7 +1138,7 @@
     <!-- PANEL TAMU -->
     <div id="tab-tamu" class="panel">
         <div class="section-title">
-            <span><span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor</span>
+            <span><i class="fas fa-door-open" style="color:#a1581c;"></i> Tamu Wajib Lapor</span>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 <span class="loading-text" id="loadingTamu"></span>
                 <button class="btn-tambah" data-modal="modalTamu"><i class="fas fa-plus"></i> Tambah</button>
@@ -1297,10 +1234,6 @@
         <div class="file-info">
             <div class="file-name" id="viewFileName">Nama File</div>
             <div class="file-detail" id="viewFileDetail">Jenis: - | Ukuran: -</div>
-            <div class="file-metadata" id="viewFileMetadata">
-                <span class="meta-item"><i class="fas fa-calendar"></i> Upload: <span id="viewUploadDate">-</span></span>
-                <span class="meta-item"><i class="fas fa-clock"></i> <span id="viewUploadTime">-</span></span>
-            </div>
         </div>
         <div class="file-display" id="viewFileContent">
             <p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>
@@ -1455,33 +1388,6 @@
     </div>
 </div>
 
-<!-- MODAL DETAIL TAMU -->
-<div class="modal-overlay" id="modalDetailTamu">
-    <div class="modal-box modal-tamu-detail">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
-            <div>
-                <div class="tamu-detail-title">
-                    <span class="icon-tamu" style="width:36px;height:36px;font-size:1.1rem;background:#a1581c;color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    DETAIL TAMU
-                </div>
-                <div class="tamu-detail-subtitle">ID: <span id="tamuDetailId">-</span></div>
-            </div>
-            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;">
-                <i class="fas fa-print"></i> <span id="tamuDetailStatus">Status</span>
-            </div>
-        </div>
-        <div id="tamuDetailContent"></div>
-        <div class="tamu-detail-footer">
-            <span id="btnTamuCopyText"><i class="fas fa-copy"></i> Copy data tamu</span>
-        </div>
-        <div class="modal-actions" style="margin-top:0.8rem;">
-            <button class="btn-batal" data-close="modalDetailTamu">Tutup</button>
-        </div>
-    </div>
-</div>
-
 <!-- MODAL DOKUMENTASI -->
 <div class="modal-overlay" id="modalDokumentasi">
     <div class="modal-box">
@@ -1600,7 +1506,7 @@
     // ======================================================================
     // GOFILE CONFIGURATION
     // ======================================================================
-    const GOFILE_API_TOKEN = 'YOUR_API_TOKEN_HERE';
+    const GOFILE_API_TOKEN = 'YOUR_API_TOKEN_HERE'; // Ganti dengan API token Anda
     const GOFILE_UPLOAD_URL = 'https://upload.gofile.io/uploadfile';
 
     // ======================================================================
@@ -1640,10 +1546,7 @@
                             resolve({
                                 url: response.data.downloadPage || response.data.directLink,
                                 fileId: response.data.fileId,
-                                fileName: file.name,
-                                fileSize: file.size,
-                                fileType: file.type,
-                                uploadDate: new Date().toISOString()
+                                fileName: file.name
                             });
                         } else {
                             reject(new Error('GoFile upload error: ' + (response.message || 'Unknown error')));
@@ -1699,43 +1602,11 @@
     };
 
     // ======================================================================
-    // HELPER FUNCTIONS
+    // LOADING INDICATORS
     // ======================================================================
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-
-    function formatDateTime(dateString) {
-        if (!dateString) return '-';
-        try {
-            const date = new Date(dateString);
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            return date.toLocaleDateString('id-ID', options);
-        } catch {
-            return dateString;
-        }
-    }
-
-    function getFileIcon(fileType) {
-        if (!fileType) return 'fa-file';
-        if (fileType.includes('image')) return 'fa-file-image';
-        if (fileType.includes('pdf')) return 'fa-file-pdf';
-        if (fileType.includes('word') || fileType.includes('document')) return 'fa-file-word';
-        if (fileType.includes('excel') || fileType.includes('sheet')) return 'fa-file-excel';
-        if (fileType.includes('zip') || fileType.includes('rar')) return 'fa-file-archive';
-        return 'fa-file';
+    function setLoading(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = text;
     }
 
     // ======================================================================
@@ -1832,7 +1703,7 @@
                 
                 let viewBtn = '';
                 if (hasFile) {
-                    viewBtn = `<button class="btn-file-view" data-file-url="${k.fileUrl}" data-file-name="${k.fileName || 'Dokumen'}" data-file-type="${k.fileType || 'Dokumen'}" data-file-size="${k.fileSize || 0}" data-upload-date="${k.uploadDate || ''}" data-owner="${k.kepala}"><i class="fas fa-eye"></i></button>`;
+                    viewBtn = `<button class="btn-file-view" data-file-url="${k.fileUrl}" data-file-name="${k.fileName || 'Dokumen'}" data-file-type="${k.fileType || 'Dokumen'}" data-owner="${k.kepala}"><i class="fas fa-eye"></i></button>`;
                 }
                 
                 return `
@@ -1895,85 +1766,8 @@
                 const url = this.dataset.fileUrl;
                 const name = this.dataset.fileName;
                 const type = this.dataset.fileType;
-                const size = parseInt(this.dataset.fileSize) || 0;
-                const uploadDate = this.dataset.uploadDate || '';
                 const owner = this.dataset.owner;
-                openFileViewFromUrl(url, name, type, size, uploadDate, owner);
-            });
-        });
-    }
-
-    function renderTamu() {
-        const tbody = document.getElementById('tableTamu');
-        if (tamuWajibLapor.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data tamu. Klik "Tambah" untuk menambahkan.</td></tr>`;
-        } else {
-            tbody.innerHTML = tamuWajibLapor.map((t, index) => {
-                const hasFile = t.fileUrl;
-                const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
-                const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
-                const uploadText = hasFile ? 'Tersimpan' : 'Upload';
-                const cls = t.status === 'Sudah Lapor' ? 'tamu-status-badge sudah-lapor' : 'tamu-status-badge belum-lapor';
-                
-                let viewBtn = '';
-                if (hasFile) {
-                    viewBtn = `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-file-size="${t.fileSize || 0}" data-upload-date="${t.uploadDate || ''}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>`;
-                }
-                
-                return `
-                    <tr>
-                        <td>${t.no || '-'}</td>
-                        <td>
-                            <span class="icon-tamu"><i class="fas fa-user"></i></span>
-                            <span class="tamu-clickable" data-index="${index}"><strong>${t.nama || '-'}</strong></span>
-                        </td>
-                        <td>${t.nik || '-'}</td>
-                        <td>${t.jk || '-'}</td>
-                        <td>${t.tmpLahir || '-'}</td>
-                        <td>${t.tglLahir || '-'}</td>
-                        <td>${t.agama || '-'}</td>
-                        <td>${t.pendidikan || '-'}</td>
-                        <td>${t.pekerjaan || '-'}</td>
-                        <td>${t.keperluan || '-'}</td>
-                        <td>${t.tanggal || '-'}</td>
-                        <td><span class="${cls}">${t.status}</span></td>
-                        <td>
-                            <div class="btn-group">
-                                ${viewBtn}
-                                <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        document.getElementById('statTamu').textContent = tamuWajibLapor.length;
-
-        document.querySelectorAll('.tamu-clickable').forEach(el => {
-            el.addEventListener('click', function() {
-                const idx = parseInt(this.dataset.index);
-                showDetailTamu(idx);
-            });
-        });
-
-        document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const idx = parseInt(this.dataset.tamuIndex);
-                openUploadTamuModal(idx);
-            });
-        });
-
-        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const url = this.dataset.fileUrl;
-                const name = this.dataset.fileName;
-                const type = this.dataset.fileType;
-                const size = parseInt(this.dataset.fileSize) || 0;
-                const uploadDate = this.dataset.uploadDate || '';
-                const owner = this.dataset.owner;
-                openFileViewFromUrl(url, name, type, size, uploadDate, owner);
+                openFileViewFromUrl(url, name, type, owner);
             });
         });
     }
@@ -1993,10 +1787,8 @@
                 }
                 
                 let downloadBtn = '';
-                let viewBtn = '';
                 if (hasFoto) {
                     downloadBtn = `<button class="btn-download-foto" data-url="${d.fotoUrl}" data-name="${d.judul}"><i class="fas fa-download"></i> Download</button>`;
-                    viewBtn = `<button class="btn-file-view" data-file-url="${d.fotoUrl}" data-file-name="${d.fileName || 'Foto'}" data-file-type="${d.fileType || 'image'}" data-file-size="${d.fileSize || 0}" data-upload-date="${d.uploadDate || ''}" data-owner="${d.judul}"><i class="fas fa-eye"></i> Lihat</button>`;
                 }
                 
                 return `
@@ -2008,7 +1800,6 @@
                             <div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div>
                             <div class="dok-actions">
                                 <button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>
-                                ${viewBtn}
                                 ${downloadBtn}
                                 <button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button>
                             </div>
@@ -2036,19 +1827,6 @@
             });
         });
 
-        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const url = this.dataset.fileUrl;
-                const name = this.dataset.fileName;
-                const type = this.dataset.fileType;
-                const size = parseInt(this.dataset.fileSize) || 0;
-                const uploadDate = this.dataset.uploadDate || '';
-                const owner = this.dataset.owner;
-                openFileViewFromUrl(url, name, type, size, uploadDate, owner);
-            });
-        });
-
         document.querySelectorAll('.btn-hapus-dok').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -2063,6 +1841,69 @@
                         });
                     }
                 }
+            });
+        });
+    }
+
+    function renderTamu() {
+        const tbody = document.getElementById('tableTamu');
+        if (tamuWajibLapor.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data tamu. Klik "Tambah" untuk menambahkan.</td></tr>`;
+        } else {
+            tbody.innerHTML = tamuWajibLapor.map((t, index) => {
+                const hasFile = t.fileUrl;
+                const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
+                const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
+                const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+                const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
+                
+                let viewBtn = '';
+                if (hasFile) {
+                    viewBtn = `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>`;
+                }
+                
+                return `
+                    <tr>
+                        <td>${t.no || '-'}</td>
+                        <td><strong>${t.nama || '-'}</strong></td>
+                        <td>${t.nik || '-'}</td>
+                        <td>${t.jk || '-'}</td>
+                        <td>${t.tmpLahir || '-'}</td>
+                        <td>${t.tglLahir || '-'}</td>
+                        <td>${t.agama || '-'}</td>
+                        <td>${t.pendidikan || '-'}</td>
+                        <td>${t.pekerjaan || '-'}</td>
+                        <td>${t.keperluan || '-'}</td>
+                        <td>${t.tanggal || '-'}</td>
+                        <td><span class="tag ${cls}">${t.status}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                ${viewBtn}
+                                <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        document.getElementById('statTamu').textContent = tamuWajibLapor.length;
+
+        document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.tamuIndex);
+                openUploadTamuModal(idx);
+            });
+        });
+
+        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.dataset.fileUrl;
+                const name = this.dataset.fileName;
+                const type = this.dataset.fileType;
+                const owner = this.dataset.owner;
+                openFileViewFromUrl(url, name, type, owner);
             });
         });
     }
@@ -2127,14 +1968,14 @@
 
     function renderAll() {
         renderKeluarga();
-        renderTamu();
         renderDokumentasi();
+        renderTamu();
         renderIuran();
         renderSettings();
     }
 
     // ======================================================================
-    // KARTU KELUARGA (Same as before with file metadata)
+    // KARTU KELUARGA
     // ======================================================================
     let currentKKIndex = -1;
 
@@ -2149,23 +1990,21 @@
         let fileHtml = '';
         if (k.fileUrl) {
             const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-            const fileIcon = getFileIcon(k.fileType);
-            const fileSizeText = k.fileSize ? formatFileSize(k.fileSize) : 'Tidak diketahui';
-            const uploadDateText = k.uploadDate ? formatDateTime(k.uploadDate) : 'Tidak diketahui';
-            
-            fileHtml = `
-                <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', ${k.fileSize || 0}, '${k.uploadDate || ''}', '${k.kepala}')">
-                    <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;">
-                        <i class="fas ${fileIcon}"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}
+            if (isImage) {
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
                     </div>
-                    <div class="file-metadata-box">
-                        <span class="meta-item"><i class="fas fa-file"></i> Jenis: ${k.fileType || '-'}</span>
-                        <span class="meta-item"><i class="fas fa-weight-hanging"></i> Ukuran: ${fileSizeText}</span>
-                        <span class="meta-item"><i class="fas fa-calendar"></i> Upload: ${uploadDateText}</span>
+                `;
+            } else {
+                fileHtml = `
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <div style="font-size:0.8rem;color:#4a6a7a;">Klik untuk lihat</div>
                     </div>
-                    ${isImage ? `<img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;margin-top:0.3rem;" />` : ''}
-                </div>
-            `;
+                `;
+            }
         }
         
         let headerHtml = `
@@ -2238,145 +2077,7 @@
     }
 
     // ======================================================================
-    // DETAIL TAMU (with file metadata)
-    // ======================================================================
-    let currentTamuIndex = -1;
-
-    function showDetailTamu(index) {
-        currentTamuIndex = index;
-        const t = tamuWajibLapor[index];
-        if (!t) return;
-
-        const container = document.getElementById('tamuDetailContent');
-        document.getElementById('tamuDetailId').textContent = t.no || '-';
-        
-        const statusBadge = t.status === 'Sudah Lapor' ? 
-            '<span class="tamu-status-badge sudah-lapor">Sudah Lapor</span>' : 
-            '<span class="tamu-status-badge belum-lapor">Belum Lapor</span>';
-        document.getElementById('tamuDetailStatus').innerHTML = statusBadge;
-        
-        let fileHtml = '';
-        if (t.fileUrl) {
-            const isImage = t.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-            const fileIcon = getFileIcon(t.fileType);
-            const fileSizeText = t.fileSize ? formatFileSize(t.fileSize) : 'Tidak diketahui';
-            const uploadDateText = t.uploadDate ? formatDateTime(t.uploadDate) : 'Tidak diketahui';
-            
-            fileHtml = `
-                <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${t.fileUrl}', '${t.fileName || 'Dokumen'}', '${t.fileType || 'Dokumen'}', ${t.fileSize || 0}, '${t.uploadDate || ''}', '${t.nama}')">
-                    <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;">
-                        <i class="fas ${fileIcon}"></i> ${t.fileType || 'Dokumen'}: ${t.fileName || 'Dokumen'}
-                    </div>
-                    <div class="file-metadata-box">
-                        <span class="meta-item"><i class="fas fa-file"></i> Jenis: ${t.fileType || '-'}</span>
-                        <span class="meta-item"><i class="fas fa-weight-hanging"></i> Ukuran: ${fileSizeText}</span>
-                        <span class="meta-item"><i class="fas fa-calendar"></i> Upload: ${uploadDateText}</span>
-                    </div>
-                    ${isImage ? `<img src="${t.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;margin-top:0.3rem;" />` : ''}
-                </div>
-            `;
-        }
-        
-        let headerHtml = `
-            <div class="tamu-detail-header-box">
-                <div>
-                    <div class="tamu-nama">
-                        <span class="icon-tamu" style="width:28px;height:28px;font-size:0.8rem;background:#a1581c;color:white;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;">
-                            <i class="fas fa-user"></i>
-                        </span>
-                        ${t.nama || '-'}
-                    </div>
-                    <div class="tamu-detail">
-                        <i class="fas fa-id-card"></i> NIK: ${t.nik || '-'} &nbsp;|&nbsp;
-                        <i class="fas fa-venus-mars"></i> ${t.jk || '-'} &nbsp;|&nbsp;
-                        <i class="fas fa-calendar-alt"></i> ${t.tglLahir || '-'}
-                    </div>
-                </div>
-                <div class="tamu-detail">
-                    <i class="fas fa-calendar-check"></i> ${t.tanggal || '-'} &nbsp;|&nbsp;
-                    <i class="fas fa-door-open"></i> ${t.keperluan || '-'}
-                </div>
-            </div>
-            ${fileHtml}
-        `;
-
-        container.innerHTML = `
-            ${headerHtml}
-            <div class="tamu-detail-table-wrap">
-                <table class="tamu-detail-table">
-                    <thead>
-                        <tr>
-                            <th>Tempat Lahir</th>
-                            <th>Agama</th>
-                            <th>Pendidikan</th>
-                            <th>Pekerjaan</th>
-                            <th>Keperluan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>${t.tmpLahir || '-'}</td>
-                            <td>${t.agama || '-'}</td>
-                            <td>${t.pendidikan || '-'}</td>
-                            <td>${t.pekerjaan || '-'}</td>
-                            <td><strong>${t.keperluan || '-'}</strong></td>
-                            <td>${t.tanggal || '-'}</td>
-                            <td>${t.status === 'Sudah Lapor' ? '✅ Sudah Lapor' : '⏳ Belum Lapor'}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        openModal('modalDetailTamu');
-    }
-
-    // ======================================================================
-    // OPEN FILE VIEW FROM URL (with metadata)
-    // ======================================================================
-    function openFileViewFromUrl(fileUrl, fileName, fileType, fileSize, uploadDate, owner) {
-        if (!fileUrl) {
-            alert('File tidak ditemukan');
-            return;
-        }
-        
-        const fileIcon = getFileIcon(fileType);
-        const sizeText = fileSize ? formatFileSize(fileSize) : 'Tidak diketahui';
-        const dateText = uploadDate ? formatDateTime(uploadDate) : 'Tidak diketahui';
-        
-        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
-        document.getElementById('viewFileName').textContent = `${fileName || 'Dokumen'}`;
-        document.getElementById('viewFileDetail').innerHTML = `
-            <i class="fas ${fileIcon}"></i> Jenis: ${fileType || 'Dokumen'} &nbsp;|&nbsp;
-            <i class="fas fa-weight-hanging"></i> Ukuran: ${sizeText}
-        `;
-        document.getElementById('viewUploadDate').textContent = dateText;
-        document.getElementById('viewUploadTime').textContent = '';
-        
-        const contentDiv = document.getElementById('viewFileContent');
-        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-        const isPdf = fileUrl.match(/\.pdf$/i);
-        
-        if (isImage) {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
-        } else if (isPdf) {
-            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
-        } else {
-            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
-        }
-        
-        const downloadBtn = document.getElementById('viewFileDownload');
-        downloadBtn.onclick = function() {
-            window.open(fileUrl, '_blank');
-        };
-        
-        openModal('modalViewFile');
-    }
-
-    // ======================================================================
-    // DOWNLOAD PDF (Same as before)
+    // DOWNLOAD PDF
     // ======================================================================
     document.getElementById('btnDownloadPDF').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2388,23 +2089,21 @@
         let fileHtmlPdf = '';
         if (k.fileUrl) {
             const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-            const fileIcon = getFileIcon(k.fileType);
-            const fileSizeText = k.fileSize ? formatFileSize(k.fileSize) : 'Tidak diketahui';
-            const uploadDateText = k.uploadDate ? formatDateTime(k.uploadDate) : 'Tidak diketahui';
-            
-            fileHtmlPdf = `
-                <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
-                    <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">
-                        <i class="fas ${fileIcon}"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}
+            if (isImage) {
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
                     </div>
-                    <div style="font-size:11px;color:#4a6a7a;">
-                        <span>Jenis: ${k.fileType || '-'}</span> | 
-                        <span>Ukuran: ${fileSizeText}</span> | 
-                        <span>Upload: ${uploadDateText}</span>
+                `;
+            } else {
+                fileHtmlPdf = `
+                    <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
+                        <div style="font-weight:600;color:#0b2b3d;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <div style="color:#4a6a7a;">PDF document</div>
                     </div>
-                    ${isImage ? `<img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;margin-top:5px;" />` : ''}
-                </div>
-            `;
+                `;
+            }
         }
         
         let rowsPdf = '';
@@ -2484,7 +2183,7 @@
     });
 
     // ======================================================================
-    // COPY TEXT (Same as before)
+    // COPY TEXT
     // ======================================================================
     document.getElementById('btnCopyText').addEventListener('click', function() {
         const k = dataKeluarga[currentKKIndex];
@@ -2499,11 +2198,7 @@
         text += `Kontak: ${k.kontak || '-'}\n\n`;
         
         if (k.fileUrl) {
-            const fileSizeText = k.fileSize ? formatFileSize(k.fileSize) : 'Tidak diketahui';
-            const uploadDateText = k.uploadDate ? formatDateTime(k.uploadDate) : 'Tidak diketahui';
-            text += `Dokumen: ${k.fileType || 'Dokumen'} - ${k.fileName || 'Dokumen'}\n`;
-            text += `Ukuran: ${fileSizeText}\n`;
-            text += `Upload: ${uploadDateText}\n\n`;
+            text += `Dokumen: ${k.fileType || 'Dokumen'} - ${k.fileName || 'Dokumen'}\n\n`;
         }
         
         text += `DAFTAR ANGGOTA KELUARGA:\n`;
@@ -2532,7 +2227,7 @@
     });
 
     // ======================================================================
-    // EDIT KELUARGA (Same as before)
+    // EDIT KELUARGA
     // ======================================================================
     let editIndex = -1;
 
@@ -2600,7 +2295,7 @@
     }
 
     // ======================================================================
-    // TAMBAH ANGGOTA FIELD (Same as before)
+    // TAMBAH ANGGOTA FIELD
     // ======================================================================
     document.getElementById('btnTambahAnggotaField').addEventListener('click', function() {
         const container = document.getElementById('anggotaTambahanContainer');
@@ -2627,7 +2322,7 @@
     });
 
     // ======================================================================
-    // TAMBAH ANGGOTA KE KELUARGA EXISTING (Same as before)
+    // TAMBAH ANGGOTA KE KELUARGA EXISTING
     // ======================================================================
     let targetKeluargaIndex = -1;
 
@@ -2685,7 +2380,7 @@
     });
 
     // ======================================================================
-    // SIMPAN KELUARGA KE FIREBASE (Same as before)
+    // SIMPAN KELUARGA KE FIREBASE
     // ======================================================================
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
         const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
@@ -2736,8 +2431,6 @@
             fileUrl: null,
             fileName: null,
             fileType: null,
-            fileSize: null,
-            uploadDate: null,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -2829,9 +2522,6 @@
         
         let fotoUrl = null;
         let fileName = null;
-        let fileSize = null;
-        let fileType = null;
-        let uploadDate = null;
         
         if (selectedFileDok && selectedFileDok instanceof File) {
             try {
@@ -2847,9 +2537,6 @@
                 
                 fotoUrl = result.url;
                 fileName = result.fileName;
-                fileSize = result.fileSize;
-                fileType = result.fileType;
-                uploadDate = result.uploadDate;
                 progressDiv.style.display = 'none';
             } catch (err) {
                 alert('Gagal upload foto ke GoFile: ' + err.message);
@@ -2863,7 +2550,7 @@
 
         const data = {
             judul, keterangan, tanggal: tglStr,
-            fotoUrl, fileName, fileSize, fileType, uploadDate,
+            fotoUrl, fileName,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -2932,9 +2619,6 @@
         
         uploadToGoFile(file, null).then(result => {
             settingsData.logoProvinsi = result.url;
-            settingsData.logoProvinsiSize = result.fileSize;
-            settingsData.logoProvinsiType = result.fileType;
-            settingsData.logoProvinsiUploadDate = result.uploadDate;
             localStorage.setItem('rt_logoProvinsi', result.url);
             renderHeaderLogos();
             alert('Logo provinsi berhasil diupload ke GoFile!');
@@ -2954,9 +2638,6 @@
         
         uploadToGoFile(file, null).then(result => {
             settingsData.logoKabupaten = result.url;
-            settingsData.logoKabupatenSize = result.fileSize;
-            settingsData.logoKabupatenType = result.fileType;
-            settingsData.logoKabupatenUploadDate = result.uploadDate;
             localStorage.setItem('rt_logoKabupaten', result.url);
             renderHeaderLogos();
             alert('Logo kabupaten berhasil diupload ke GoFile!');
@@ -2968,13 +2649,7 @@
     document.getElementById('simpanLogo').addEventListener('click', function() {
         settingsRef.set({
             logoProvinsi: settingsData.logoProvinsi || '',
-            logoKabupaten: settingsData.logoKabupaten || '',
-            logoProvinsiSize: settingsData.logoProvinsiSize || null,
-            logoKabupatenSize: settingsData.logoKabupatenSize || null,
-            logoProvinsiType: settingsData.logoProvinsiType || null,
-            logoKabupatenType: settingsData.logoKabupatenType || null,
-            logoProvinsiUploadDate: settingsData.logoProvinsiUploadDate || null,
-            logoKabupatenUploadDate: settingsData.logoKabupatenUploadDate || null
+            logoKabupaten: settingsData.logoKabupaten || ''
         }, { merge: true }).then(() => {
             alert('Logo berhasil disimpan!');
             renderSettings();
@@ -3041,9 +2716,6 @@
         
         let fileUrl = null;
         let fileName = null;
-        let fileSize = null;
-        let fileType = null;
-        let uploadDate = null;
         
         if (selectedFileTamu instanceof File) {
             try {
@@ -3059,9 +2731,6 @@
                 
                 fileUrl = result.url;
                 fileName = result.fileName;
-                fileSize = result.fileSize;
-                fileType = result.fileType;
-                uploadDate = result.uploadDate;
                 progressDiv.style.display = 'none';
             } catch (err) {
                 alert('Gagal upload file ke GoFile: ' + err.message);
@@ -3077,7 +2746,7 @@
         }
 
         tamuRef.doc(t.id).update({
-            fileUrl, fileName, fileType: jenis, fileSize, uploadDate
+            fileUrl, fileName, fileType: jenis
         }).then(() => {
             loadAllData();
             closeModal('modalUploadTamu');
@@ -3145,9 +2814,6 @@
         
         let fileUrl = null;
         let fileName = null;
-        let fileSize = null;
-        let fileType = null;
-        let uploadDate = null;
         
         if (selectedFile instanceof File) {
             try {
@@ -3163,9 +2829,6 @@
                 
                 fileUrl = result.url;
                 fileName = result.fileName;
-                fileSize = result.fileSize;
-                fileType = result.fileType;
-                uploadDate = result.uploadDate;
                 progressDiv.style.display = 'none';
             } catch (err) {
                 alert('Gagal upload file ke GoFile: ' + err.message);
@@ -3181,7 +2844,7 @@
         }
 
         keluargaRef.doc(k.id).update({
-            fileUrl, fileName, fileType: jenis, fileSize, uploadDate
+            fileUrl, fileName, fileType: jenis
         }).then(() => {
             loadAllData();
             closeModal('modalUpload');
@@ -3192,48 +2855,40 @@
     });
 
     // ======================================================================
-    // COPY TEXT FOR TAMU (Same as before)
+    // OPEN FILE VIEW FROM URL
     // ======================================================================
-    document.getElementById('btnTamuCopyText').addEventListener('click', function() {
-        const t = tamuWajibLapor[currentTamuIndex];
-        if (!t) return;
-        
-        let text = `DETAIL TAMU\n`;
-        text += `ID: ${t.no || '-'}\n\n`;
-        text += `Nama Lengkap: ${t.nama || '-'}\n`;
-        text += `NIK: ${t.nik || '-'}\n`;
-        text += `Jenis Kelamin: ${t.jk || '-'}\n`;
-        text += `Tempat Lahir: ${t.tmpLahir || '-'}\n`;
-        text += `Tanggal Lahir: ${t.tglLahir || '-'}\n`;
-        text += `Agama: ${t.agama || '-'}\n`;
-        text += `Pendidikan: ${t.pendidikan || '-'}\n`;
-        text += `Pekerjaan: ${t.pekerjaan || '-'}\n`;
-        text += `Keperluan: ${t.keperluan || '-'}\n`;
-        text += `Tanggal: ${t.tanggal || '-'}\n`;
-        text += `Status: ${t.status || '-'}\n`;
-        if (t.fileUrl) {
-            const fileSizeText = t.fileSize ? formatFileSize(t.fileSize) : 'Tidak diketahui';
-            const uploadDateText = t.uploadDate ? formatDateTime(t.uploadDate) : 'Tidak diketahui';
-            text += `Dokumen: ${t.fileType || 'Dokumen'} - ${t.fileName || 'Dokumen'}\n`;
-            text += `Ukuran: ${fileSizeText}\n`;
-            text += `Upload: ${uploadDateText}\n`;
+    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
+        if (!fileUrl) {
+            alert('File tidak ditemukan');
+            return;
         }
         
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Data tamu berhasil disalin ke clipboard!');
-        }).catch(() => {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            alert('Data tamu berhasil disalin ke clipboard!');
-        });
-    });
+        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
+        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
+        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
+        
+        const contentDiv = document.getElementById('viewFileContent');
+        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+        const isPdf = fileUrl.match(/\.pdf$/i);
+        
+        if (isImage) {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
+        } else if (isPdf) {
+            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
+        } else {
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
+        }
+        
+        const downloadBtn = document.getElementById('viewFileDownload');
+        downloadBtn.onclick = function() {
+            window.open(fileUrl, '_blank');
+        };
+        
+        openModal('modalViewFile');
+    }
 
     // ======================================================================
-    // SIMPAN TAMU (Same as before)
+    // SIMPAN TAMU
     // ======================================================================
     document.getElementById('simpanTamu').addEventListener('click', function() {
         const no = parseInt(document.getElementById('inpNoTamu').value) || tamuWajibLapor.length + 1;
@@ -3257,7 +2912,7 @@
         const data = {
             no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan,
             keperluan, tanggal, status,
-            fileUrl: null, fileName: null, fileType: null, fileSize: null, uploadDate: null,
+            fileUrl: null, fileName: null, fileType: null,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
         
@@ -3271,7 +2926,7 @@
     });
 
     // ======================================================================
-    // SIMPAN IURAN (Same as before)
+    // SIMPAN IURAN
     // ======================================================================
     document.getElementById('simpanIuran').addEventListener('click', function() {
         const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
@@ -3295,7 +2950,7 @@
     });
 
     // ======================================================================
-    // MODAL UTILITY (Same as before)
+    // MODAL UTILITY
     // ======================================================================
     function openModal(id) {
         document.getElementById(id).classList.add('show');
@@ -3378,7 +3033,7 @@
     });
 
     // ======================================================================
-    // SIDEBAR NAVIGATION (Same as before)
+    // SIDEBAR NAVIGATION
     // ======================================================================
     const pageTitles = {
         'tab-keluarga': 'Data Keluarga',
@@ -3395,16 +3050,9 @@
             const tabId = this.dataset.tab;
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            const iconKeluarga = this.querySelector('.icon-keluarga');
-            const iconTamu = this.querySelector('.icon-tamu');
-            let iconHtml = '';
-            if (iconKeluarga) {
-                iconHtml = `<span class="icon-keluarga icon-keluarga-lg"><i class="fas fa-users"></i></span>`;
-            } else if (iconTamu) {
-                iconHtml = `<span class="icon-tamu icon-tamu-lg"><i class="fas fa-user"></i></span>`;
-            } else {
-                iconHtml = `<i class="${this.querySelector('i').className}"></i>`;
-            }
+            const iconHtml = this.querySelector('.icon-keluarga') ? 
+                `<span class="icon-keluarga icon-keluarga-lg"><i class="fas fa-users"></i></span>` :
+                `<i class="${this.querySelector('i').className}"></i>`;
             document.getElementById('pageTitle').innerHTML = `${iconHtml} ${pageTitles[tabId] || tabId}`;
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('show');
