@@ -332,30 +332,31 @@
             color: #1a4d3e;
         }
 
-        /* MODAL KARTU KELUARGA - style sesuai gambar */
+        /* ========== MODAL KARTU KELUARGA - PERSIS SEPERTI GAMBAR ========== */
         .modal-kk {
-            max-width: 1100px !important;
-            width: 96% !important;
+            max-width: 1200px !important;
+            width: 97% !important;
             padding: 1.8rem 2rem !important;
+            background: white;
         }
         .kk-title {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: #0b2b3d;
-            margin-bottom: 0.2rem;
+            letter-spacing: 0.5px;
         }
         .kk-subtitle {
             font-size: 0.95rem;
             color: #3d5a73;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.2rem;
             font-weight: 500;
         }
         .kk-header-box {
-            background: #f5f8fc;
+            background: #f8faff;
             border: 1px solid #dde3ed;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 0.8rem 1.2rem;
-            margin-bottom: 1.2rem;
+            margin: 0.8rem 0 1.2rem 0;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -365,6 +366,7 @@
             font-weight: 700;
             font-size: 1.1rem;
             color: #0b2b3d;
+            letter-spacing: 0.3px;
         }
         .kk-header-box .kk-detail {
             color: #2a5f7a;
@@ -372,18 +374,20 @@
         }
         .kk-header-box .kk-detail i {
             margin-right: 4px;
+            color: #1c5f4e;
         }
         .kk-table-wrap {
             overflow-x: auto;
             border: 1px solid #dde3ed;
-            border-radius: 12px;
+            border-radius: 8px;
             background: white;
+            margin-top: 0.5rem;
         }
         .kk-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
-            min-width: 700px;
+            font-size: 0.78rem;
+            min-width: 1000px;
         }
         .kk-table th {
             background: #e9f0f5;
@@ -392,39 +396,50 @@
             font-weight: 600;
             color: #1d3b4f;
             border-bottom: 2px solid #c8d4e3;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             white-space: nowrap;
+            letter-spacing: 0.3px;
         }
         .kk-table td {
             padding: 0.45rem 0.6rem;
             border-bottom: 1px solid #e5ecf5;
             color: #1a3145;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
         }
         .kk-table tr:last-child td { border-bottom: none; }
         .kk-table .no-col {
             text-align: center;
             font-weight: 500;
             color: #4a6a7a;
-            width: 40px;
+            width: 35px;
         }
         .kk-footer {
             margin-top: 0.8rem;
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
+            gap: 1.5rem;
             font-size: 0.8rem;
-            color: #4a6a7a;
+            color: #1c5f4e;
+            font-weight: 500;
         }
         .kk-footer i {
-            margin-right: 4px;
+            margin-right: 6px;
+            color: #1c5f4e;
+        }
+        .kk-footer span {
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .kk-footer span:hover {
+            color: #0d3d31;
+            text-decoration: underline;
         }
 
-        /* untuk form tambah anggota di KK (nanti) */
         @media (max-width: 768px) {
             .modal-kk { padding: 1.2rem !important; }
-            .kk-table { font-size: 0.7rem; min-width: 600px; }
+            .kk-table { font-size: 0.65rem; min-width: 800px; }
             .kk-table th, .kk-table td { padding: 0.3rem 0.4rem; }
+            .kk-title { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -501,7 +516,7 @@
         <div class="flex-end" style="margin-top:1rem;"><span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span></div>
     </div>
 
-    <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.3</div>
+    <div class="footer-note"><i class="fas fa-rotate-right"></i> Data simulasi · RT Kita v2.4</div>
 </div>
 
 <!-- ========== MODAL KELUARGA (TAMBAH / EDIT) ========== -->
@@ -520,15 +535,15 @@
     </div>
 </div>
 
-<!-- ========== MODAL KARTU KELUARGA (DETAIL ANGGOTA) ========== -->
+<!-- ========== MODAL KARTU KELUARGA (PERSIS SEPERTI GAMBAR) ========== -->
 <div class="modal-overlay" id="modalKartuKeluarga">
     <div class="modal-box modal-kk">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.2rem;">
             <div>
-                <div class="kk-title"><i class="fas fa-id-card" style="color:#1c5f4e;"></i> KARTU KELUARGA</div>
-                <div class="kk-subtitle">No. 9207011408171003</div>
+                <div class="kk-title">KARTU KELUARGA</div>
+                <div class="kk-subtitle">No. <span id="kkNoKK">9207011408171003</span></div>
             </div>
-            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;">
+            <div style="font-size:0.8rem;color:#4a6a7a;background:#f0f7f5;padding:0.2rem 1rem;border-radius:40px;border:1px solid #dde3ed;">
                 <i class="fas fa-print"></i> Download
             </div>
         </div>
@@ -603,7 +618,7 @@
 
 <script>
     (function() {
-        // ---------- DATA KELUARGA dengan detail lengkap seperti KK ----------
+        // ---------- DATA KELUARGA dengan detail lengkap seperti gambar ----------
         let dataKeluarga = [
             {
                 kepala: 'UJANG PRYATNA WAPRAK',
@@ -622,37 +637,39 @@
                 ]
             },
             {
-                kepala: 'H. Suryono',
+                kepala: 'H. SURYONO',
                 anggota: 4,
-                alamat: 'Jl. Mawar 12',
+                alamat: 'JL. MAWAR 12',
                 kontak: '0812-3456',
                 noKK: '9207011408171004',
                 rt: '001',
                 rw: '002',
                 kodePos: '98362',
                 anggotaDetail: [
-                    { no:1, nama:'H. Suryono', nik:'9107011303740002', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'ISLAM', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'A' },
-                    { no:2, nama:'Siti Rahayu', nik:'9202040610930003', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'B' }
+                    { no:1, nama:'H. SURYONO', nik:'9107011303740002', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'ISLAM', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'A' },
+                    { no:2, nama:'SITI RAHAYU', nik:'9202040610930003', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'B' },
+                    { no:3, nama:'AHMAD FAUZI', nik:'9202040610930004', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
+                    { no:4, nama:'FATIMAH', nik:'9202040610930005', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' }
                 ]
             },
             {
-                kepala: 'Ibu Ratih',
+                kepala: 'IBU RATIH',
                 anggota: 3,
-                alamat: 'Jl. Melati 7',
+                alamat: 'JL. MELATI 7',
                 kontak: '0856-7890',
                 noKK: '9207011408171005',
                 rt: '002',
                 rw: '003',
                 kodePos: '98363',
                 anggotaDetail: [
-                    { no:1, nama:'Ibu Ratih', nik:'9107011303740003', jk:'Perempuan', tmpLahir:'JAKARTA', tglLahir:'15-07-1980', agama:'KRISTEN', pendidikan:'SARJANA (S1)', pekerjaan:'GURU', golDarah:'O' },
-                    { no:2, nama:'Dewi', nik:'9202040610930004', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' },
-                    { no:3, nama:'Ayu', nik:'9202040610930005', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
+                    { no:1, nama:'IBU RATIH', nik:'9107011303740003', jk:'Perempuan', tmpLahir:'JAKARTA', tglLahir:'15-07-1980', agama:'KRISTEN', pendidikan:'SARJANA (S1)', pekerjaan:'GURU', golDarah:'O' },
+                    { no:2, nama:'DEWI', nik:'9202040610930006', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' },
+                    { no:3, nama:'AYU', nik:'9202040610930007', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
                 ]
             }
         ];
 
-        // Data lain tetap
+        // Data lain
         let dokumentasi = [
             { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
             { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
@@ -672,8 +689,8 @@
 
         let iuranRT = [
             { keluarga: 'UJANG PRYATNA WAPRAK', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-            { keluarga: 'H. Suryono', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-            { keluarga: 'Ibu Ratih', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
+            { keluarga: 'H. SURYONO', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
+            { keluarga: 'IBU RATIH', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
         ];
 
         // ---------- RENDER KELUARGA ----------
@@ -708,18 +725,19 @@
             });
         }
 
-        // ---------- KARTU KELUARGA (sesuai gambar) ----------
+        // ---------- KARTU KELUARGA (PERSIS SEPERTI GAMBAR) ----------
         function showKartuKeluarga(index) {
             const k = dataKeluarga[index];
             if (!k) return;
 
             const container = document.getElementById('kkContent');
+            document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
             
-            // Header info
+            // Header info - seperti gambar
             let headerHtml = `
                 <div class="kk-header-box">
                     <div>
-                        <div class="kk-nama"><i class="fas fa-user"></i> ${k.kepala}</div>
+                        <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
                         <div class="kk-detail">
                             <i class="fas fa-map-pin"></i> ${k.alamat} &nbsp;|&nbsp;
                             RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
@@ -780,7 +798,6 @@
                 <div class="kk-footer">
                     <span><i class="fas fa-download"></i> Download document</span>
                     <span><i class="fas fa-copy"></i> Copy page text</span>
-                    <span><i class="fas fa-print"></i> Cetak</span>
                 </div>
             `;
 
@@ -888,9 +905,9 @@
 
         // ---------- SIMPAN KELUARGA ----------
         document.getElementById('simpanKeluarga').addEventListener('click', function() {
-            const kepala = document.getElementById('inpKepala').value.trim();
+            const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
             const anggota = parseInt(document.getElementById('inpAnggota').value) || 0;
-            const alamat = document.getElementById('inpAlamat').value.trim();
+            const alamat = document.getElementById('inpAlamat').value.trim().toUpperCase();
             const kontak = document.getElementById('inpKontak').value.trim();
 
             if (!kepala || !alamat || !kontak) { alert('Isi semua field'); return; }
@@ -936,7 +953,7 @@
 
         // ---------- SIMPAN TAMU ----------
         document.getElementById('simpanTamu').addEventListener('click', function() {
-            const nama = document.getElementById('inpNamaTamu').value.trim();
+            const nama = document.getElementById('inpNamaTamu').value.trim().toUpperCase();
             const keperluan = document.getElementById('inpKeperluan').value.trim();
             const tanggal = document.getElementById('inpTglTamu').value;
             const status = document.getElementById('inpStatusTamu').value;
@@ -951,7 +968,7 @@
 
         // ---------- SIMPAN IURAN ----------
         document.getElementById('simpanIuran').addEventListener('click', function() {
-            const keluarga = document.getElementById('inpKeluargaIuran').value.trim();
+            const keluarga = document.getElementById('inpKeluargaIuran').value.trim().toUpperCase();
             const bulan = document.getElementById('inpBulanIuran').value.trim();
             const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
             const status = document.getElementById('inpStatusIuran').value;
