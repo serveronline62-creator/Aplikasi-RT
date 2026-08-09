@@ -281,23 +281,6 @@
             background: #134a3b;
             transform: scale(1.02);
         }
-        .section-title .btn-tambah-anggota {
-            background: #2a7f6e;
-            border: none;
-            color: white;
-            padding: 0.4rem 1.2rem;
-            border-radius: 60px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: 0.15s;
-        }
-        .section-title .btn-tambah-anggota:hover {
-            background: #1c5f4e;
-        }
 
         .table-responsive {
             overflow-x: auto;
@@ -406,30 +389,91 @@
             text-decoration: underline;
         }
 
+        /* ========== DOKUMENTASI GRID ========== */
         .dokumentasi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1.2rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
             margin-top: 0.5rem;
         }
         .dok-item {
             background: white;
             border-radius: 20px;
-            padding: 1rem 0.8rem 0.8rem;
             border: 1px solid #e9edf4;
-            text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: 0.2s;
         }
-        .dok-item i {
-            font-size: 2.4rem;
-            color: #2c7f6b;
-            background: #dff0ea;
-            padding: 12px;
-            border-radius: 60px;
-            margin-bottom: 6px;
+        .dok-item:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
         }
-        .dok-item .dok-title { font-weight: 600; color: #103f31; font-size: 0.9rem; }
-        .dok-item .dok-date { font-size: 0.75rem; color: #4a6a7a; }
+        .dok-item .dok-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f2f5;
+        }
+        .dok-item .dok-image-placeholder {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f4f0;
+            color: #2a7f6e;
+            font-size: 3rem;
+        }
+        .dok-item .dok-body {
+            padding: 1rem 1.2rem 1.2rem;
+        }
+        .dok-item .dok-title {
+            font-weight: 600;
+            color: #0b2b3d;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .dok-item .dok-date {
+            font-size: 0.8rem;
+            color: #4a6a7a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dok-item .dok-date i {
+            color: #2a7f6e;
+        }
+        .dok-item .dok-description {
+            font-size: 0.85rem;
+            color: #2a445a;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+        .dok-item .dok-actions {
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-hapus-dok {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-hapus-dok:hover {
+            background: #c0392b;
+        }
 
         .btn-group {
             display: flex;
@@ -564,7 +608,7 @@
             margin: 0.5rem 0 0.2rem;
             font-size: 0.8rem;
         }
-        .modal-box input, .modal-box select {
+        .modal-box input, .modal-box select, .modal-box textarea {
             width: 100%;
             padding: 0.5rem 1rem;
             border-radius: 40px;
@@ -573,7 +617,12 @@
             background: #fafcff;
             transition: 0.1s;
         }
-        .modal-box input:focus, .modal-box select:focus {
+        .modal-box textarea {
+            border-radius: 16px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
             outline: none;
             border-color: #1c5f4e;
             box-shadow: 0 0 0 3px rgba(28,95,78,0.15);
@@ -760,6 +809,7 @@
             .kk-table { font-size: 0.65rem; min-width: 700px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .settings-grid { grid-template-columns: 1fr; }
+            .dokumentasi-grid { grid-template-columns: 1fr; }
             .hamburger {
                 display: flex !important;
             }
@@ -820,7 +870,7 @@
         </button>
     </nav>
     <div class="sidebar-footer">
-        <i class="fas fa-database"></i> Data simulasi v3.1
+        <i class="fas fa-database"></i> Data simulasi v3.2
     </div>
 </aside>
 
@@ -1105,10 +1155,18 @@
 <!-- MODAL DOKUMENTASI -->
 <div class="modal-overlay" id="modalDokumentasi">
     <div class="modal-box">
-        <h2><i class="fas fa-camera" style="color:#1c5f4e;"></i> Tambah Dokumentasi</h2>
-        <label>Judul Kegiatan</label><input id="inpJudul" placeholder="Bersih-bersih sungai" />
-        <label>Tanggal</label><input id="inpTglDok" type="date" />
-        <label>Ikon</label><select id="inpIconDok"><option value="fa-people-group">👥 Orang</option><option value="fa-tree">🌳 Pohon</option><option value="fa-road">🛣️ Jalan</option><option value="fa-tent">⛺ Tenda</option><option value="fa-water">💧 Air</option><option value="fa-trash">🗑️ Sampah</option></select>
+        <h2><i class="fas fa-camera" style="color:#1c5f4e;"></i> Tambah Dokumentasi Kerja Bakti</h2>
+        <label>Foto Kegiatan</label>
+        <input type="file" id="inpDokFoto" accept="image/*" />
+        <div id="filePreviewDok" class="file-preview" style="display:none;">
+            <i class="fas fa-image"></i>
+            <span id="fileNamePreviewDok"></span>
+            <button class="btn-hapus-file" id="btnHapusFileDok"><i class="fas fa-times"></i></button>
+        </div>
+        <label>Keterangan</label>
+        <textarea id="inpDokKeterangan" placeholder="Deskripsi kegiatan kerja bakti..."></textarea>
+        <label>Tanggal Kegiatan</label>
+        <input type="date" id="inpDokTanggal" />
         <div class="modal-actions">
             <button class="btn-batal" data-close="modalDokumentasi">Batal</button>
             <button class="btn-simpan" id="simpanDokumentasi">Simpan</button>
@@ -1262,10 +1320,38 @@
     ];
 
     let dokumentasi = [
-        { judul: 'Bersih-bersih sungai', tanggal: '12 Jan 2026', icon: 'fa-people-group' },
-        { judul: 'Tanam pohon produktif', tanggal: '28 Feb 2026', icon: 'fa-tree' },
-        { judul: 'Perbaikan jalan warga', tanggal: '15 Mar 2026', icon: 'fa-road' },
-        { judul: 'Gotong royong pos ronda', tanggal: '2 Apr 2026', icon: 'fa-tent' }
+        { 
+            id: 1,
+            judul: 'Bersih-bersih sungai', 
+            tanggal: '12 Jan 2026', 
+            keterangan: 'Kegiatan gotong royong membersihkan sungai di sekitar lingkungan RT 08',
+            foto: null,
+            fotoPlaceholder: true
+        },
+        { 
+            id: 2,
+            judul: 'Tanam pohon produktif', 
+            tanggal: '28 Feb 2026', 
+            keterangan: 'Penanaman pohon mangga dan rambutan di lahan kosong RT 08',
+            foto: null,
+            fotoPlaceholder: true
+        },
+        { 
+            id: 3,
+            judul: 'Perbaikan jalan warga', 
+            tanggal: '15 Mar 2026', 
+            keterangan: 'Perbaikan jalan berlubang di Jalan Mawar RT 08',
+            foto: null,
+            fotoPlaceholder: true
+        },
+        { 
+            id: 4,
+            judul: 'Gotong royong pos ronda', 
+            tanggal: '2 Apr 2026', 
+            keterangan: 'Pembangunan dan renovasi pos ronda bersama warga RT 08',
+            foto: null,
+            fotoPlaceholder: true
+        }
     ];
 
     let tamuWajibLapor = [
@@ -1283,6 +1369,8 @@
         { keluarga: 'H. SURYONO', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
         { keluarga: 'IBU RATIH', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
     ];
+
+    let dokumenCounter = dokumentasi.length + 1;
 
     // ======================================================================
     // SETTINGS DATA
@@ -1358,14 +1446,56 @@
 
     function renderDokumentasi() {
         const grid = document.getElementById('dokumentasiGrid');
-        grid.innerHTML = dokumentasi.map(d => `
-            <div class="dok-item">
-                <i class="fas ${d.icon}"></i>
-                <div class="dok-title">${d.judul}</div>
-                <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal}</div>
-            </div>
-        `).join('');
+        grid.innerHTML = dokumentasi.map((d, index) => {
+            const hasFoto = d.foto && d.foto.base64;
+            let fotoHtml = '';
+            if (hasFoto) {
+                const isImage = d.foto.tipe && d.foto.tipe.startsWith('image/');
+                if (isImage) {
+                    fotoHtml = `<img src="${d.foto.base64}" alt="${d.judul}" class="dok-image" />`;
+                } else {
+                    fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-file-image"></i></div>`;
+                }
+            } else {
+                fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
+            }
+            return `
+                <div class="dok-item">
+                    ${fotoHtml}
+                    <div class="dok-body">
+                        <div class="dok-title">${d.judul}</div>
+                        <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal}</div>
+                        <div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div>
+                        <div class="dok-actions">
+                            <button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>
+                            <button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
         document.getElementById('statDokumentasi').textContent = dokumentasi.length;
+
+        // Event upload foto
+        document.querySelectorAll('.btn-upload[data-dok-index]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.dokIndex);
+                openUploadDokumentasi(idx);
+            });
+        });
+
+        // Event hapus
+        document.querySelectorAll('.btn-hapus-dok').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.dokIndex);
+                if (confirm('Hapus dokumentasi ini?')) {
+                    dokumentasi.splice(idx, 1);
+                    renderDokumentasi();
+                }
+            });
+        });
     }
 
     function renderTamu() {
@@ -1468,6 +1598,109 @@
         renderIuran();
         renderSettings();
     }
+
+    // ======================================================================
+    // UPLOAD DOKUMENTASI
+    // ======================================================================
+    let uploadDokIndex = -1;
+    let selectedFileDok = null;
+
+    function openUploadDokumentasi(index) {
+        uploadDokIndex = index;
+        const d = dokumentasi[index];
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        selectedFileDok = null;
+        
+        if (d.foto && d.foto.base64) {
+            document.getElementById('filePreviewDok').style.display = 'flex';
+            document.getElementById('fileNamePreviewDok').textContent = d.foto.nama || 'Foto';
+            selectedFileDok = d.foto;
+        }
+        // Isi form untuk edit
+        document.getElementById('inpDokKeterangan').value = d.keterangan || '';
+        document.getElementById('inpDokTanggal').value = d.tanggal ? d.tanggal.replace(/\s/g, '-') : '';
+        openModal('modalDokumentasi');
+    }
+
+    document.getElementById('inpDokFoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WEBP)');
+            this.value = '';
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file maksimal 10MB');
+            this.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedFileDok = {
+                nama: file.name,
+                base64: e.target.result,
+                tipe: file.type
+            };
+            document.getElementById('filePreviewDok').style.display = 'flex';
+            document.getElementById('fileNamePreviewDok').textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btnHapusFileDok').addEventListener('click', function() {
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        selectedFileDok = null;
+    });
+
+    document.getElementById('simpanDokumentasi').addEventListener('click', function() {
+        const judul = document.getElementById('inpDokKeterangan').value.trim().slice(0, 50) || 'Kegiatan Kerja Bakti';
+        const keterangan = document.getElementById('inpDokKeterangan').value.trim();
+        const tanggalRaw = document.getElementById('inpDokTanggal').value;
+        
+        if (!tanggalRaw) {
+            alert('Tanggal kegiatan harus diisi');
+            return;
+        }
+        
+        const d = new Date(tanggalRaw + 'T00:00:00');
+        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        
+        if (uploadDokIndex !== -1) {
+            // Edit existing
+            const existing = dokumentasi[uploadDokIndex];
+            existing.judul = judul;
+            existing.keterangan = keterangan;
+            existing.tanggal = tglStr;
+            if (selectedFileDok && selectedFileDok.base64) {
+                existing.foto = selectedFileDok;
+            }
+        } else {
+            // Tambah baru
+            dokumentasi.push({
+                id: dokumenCounter++,
+                judul: judul,
+                tanggal: tglStr,
+                keterangan: keterangan || 'Tidak ada keterangan',
+                foto: selectedFileDok || null,
+                fotoPlaceholder: !selectedFileDok
+            });
+        }
+        
+        renderDokumentasi();
+        closeModal('modalDokumentasi');
+        uploadDokIndex = -1;
+        selectedFileDok = null;
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('inpDokKeterangan').value = '';
+        document.getElementById('inpDokTanggal').value = '';
+        alert('Dokumentasi berhasil disimpan!');
+    });
 
     // ======================================================================
     // SETTINGS SAVE
@@ -2125,24 +2358,6 @@
     });
 
     // ======================================================================
-    // SIMPAN DOKUMENTASI
-    // ======================================================================
-    document.getElementById('simpanDokumentasi').addEventListener('click', function() {
-        const judul = document.getElementById('inpJudul').value.trim();
-        const tanggal = document.getElementById('inpTglDok').value;
-        const icon = document.getElementById('inpIconDok').value;
-        if (!judul || !tanggal) { alert('Judul dan tanggal harus diisi'); return; }
-        const d = new Date(tanggal + 'T00:00:00');
-        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-        const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        dokumentasi.push({ judul, tanggal: tglStr, icon });
-        renderDokumentasi();
-        closeModal('modalDokumentasi');
-        document.getElementById('inpJudul').value = '';
-        document.getElementById('inpTglDok').value = '';
-    });
-
-    // ======================================================================
     // SIMPAN TAMU
     // ======================================================================
     document.getElementById('simpanTamu').addEventListener('click', function() {
@@ -2212,7 +2427,24 @@
             document.getElementById('filePreviewTamu').style.display = 'none';
             selectedFileTamu = null;
         }
+        if (id === 'modalDokumentasi') {
+            document.getElementById('inpDokFoto').value = '';
+            document.getElementById('filePreviewDok').style.display = 'none';
+            selectedFileDok = null;
+            uploadDokIndex = -1;
+        }
     }
+
+    // Override untuk modal dokumentasi - tambah baru
+    document.querySelector('.btn-tambah[data-modal="modalDokumentasi"]').addEventListener('click', function() {
+        uploadDokIndex = -1;
+        selectedFileDok = null;
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('inpDokKeterangan').value = '';
+        document.getElementById('inpDokTanggal').value = '';
+        openModal('modalDokumentasi');
+    });
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
         el.addEventListener('click', function(e) {
@@ -2228,6 +2460,12 @@
                     document.getElementById('inpFileUploadTamu').value = '';
                     document.getElementById('filePreviewTamu').style.display = 'none';
                     selectedFileTamu = null;
+                }
+                if (this.id === 'modalDokumentasi') {
+                    document.getElementById('inpDokFoto').value = '';
+                    document.getElementById('filePreviewDok').style.display = 'none';
+                    selectedFileDok = null;
+                    uploadDokIndex = -1;
                 }
             }
         });
