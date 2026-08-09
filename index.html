@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RT Kita · Manajemen Rukun Tetangga</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -59,6 +63,14 @@
             border-radius: 40px;
             color: #5bc0a8;
             margin-top: 2px;
+        }
+        .sidebar-brand .sync-status {
+            font-size: 0.6rem;
+            color: #5bc0a8;
+            margin-top: 2px;
+        }
+        .sidebar-brand .sync-status i {
+            font-size: 0.6rem;
         }
 
         .sidebar-menu {
@@ -121,6 +133,10 @@
             font-size: 0.7rem;
             color: rgba(255,255,255,0.3);
             text-align: center;
+        }
+        .sidebar-footer .sync-indicator {
+            color: #5bc0a8;
+            font-size: 0.65rem;
         }
 
         .main-content {
@@ -298,6 +314,10 @@
         .section-title .btn-tambah-anggota:hover {
             background: #1c5f4e;
         }
+        .section-title .loading-text {
+            font-size: 0.8rem;
+            color: #6a7e94;
+        }
 
         .table-responsive {
             overflow-x: auto;
@@ -438,7 +458,6 @@
             text-decoration: underline;
         }
 
-        /* ========== DOKUMENTASI GRID ========== */
         .dokumentasi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -741,7 +760,6 @@
             cursor: pointer;
         }
 
-        /* MODAL VIEW FILE */
         .modal-file-view {
             max-width: 800px !important;
             width: 95% !important;
@@ -926,6 +944,21 @@
         @media (max-width: 768px) {
             .sidebar-overlay.show { display: block; }
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e9edf4;
+            border-top: 2px solid #1c5f4e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -938,6 +971,7 @@
         <div>
             <h2>RT Kita</h2>
             <div class="rt-badge" id="sidebarRTName">RT 08 · Kelurahan Makmur</div>
+            <div class="sync-status" id="syncStatus"><i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase</div>
         </div>
     </div>
     <nav class="sidebar-menu">
@@ -960,7 +994,7 @@
         </button>
     </nav>
     <div class="sidebar-footer">
-        <i class="fas fa-database"></i> Data simulasi v3.4
+        <div class="sync-indicator" id="syncIndicator"><i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud</div>
     </div>
 </aside>
 
@@ -988,19 +1022,19 @@
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-people-group"></i></div>
-            <div class="stat-info"><div class="angka" id="statKeluarga">12</div><div class="label">Keluarga</div></div>
+            <div class="stat-info"><div class="angka" id="statKeluarga">0</div><div class="label">Keluarga</div></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-camera"></i></div>
-            <div class="stat-info"><div class="angka" id="statDokumentasi">4</div><div class="label">Dokumentasi</div></div>
+            <div class="stat-info"><div class="angka" id="statDokumentasi">0</div><div class="label">Dokumentasi</div></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
-            <div class="stat-info"><div class="angka" id="statTamu">7</div><div class="label">Tamu Lapor</div></div>
+            <div class="stat-info"><div class="angka" id="statTamu">0</div><div class="label">Tamu Lapor</div></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-coins"></i></div>
-            <div class="stat-info"><div class="angka" id="statIuran">Rp 2.4Jt</div><div class="label">Terkumpul</div></div>
+            <div class="stat-info"><div class="angka" id="statIuran">Rp 0</div><div class="label">Terkumpul</div></div>
         </div>
     </div>
 
@@ -1009,6 +1043,7 @@
         <div class="section-title">
             <span><i class="fas fa-people-arrows" style="color:#1f6b58;"></i> Data Keluarga</span>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingKeluarga"></span>
                 <button class="btn-tambah-anggota" id="btnTambahAnggotaUtama"><i class="fas fa-user-plus"></i> Anggota</button>
                 <button class="btn-tambah" data-modal="modalKeluarga"><i class="fas fa-plus"></i> Keluarga</button>
             </div>
@@ -1025,7 +1060,10 @@
     <div id="tab-dokumentasi" class="panel">
         <div class="section-title">
             <span><i class="fas fa-broom" style="color:#1f6b58;"></i> Dokumentasi Kerja Bakti</span>
-            <button class="btn-tambah" data-modal="modalDokumentasi"><i class="fas fa-plus"></i> Tambah</button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingDokumentasi"></span>
+                <button class="btn-tambah" data-modal="modalDokumentasi"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
         </div>
         <div class="dokumentasi-grid" id="dokumentasiGrid"></div>
     </div>
@@ -1034,7 +1072,10 @@
     <div id="tab-tamu" class="panel">
         <div class="section-title">
             <span><i class="fas fa-door-open" style="color:#a1581c;"></i> Tamu Wajib Lapor</span>
-            <button class="btn-tambah" data-modal="modalTamu"><i class="fas fa-plus"></i> Tambah</button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingTamu"></span>
+                <button class="btn-tambah" data-modal="modalTamu"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
         </div>
         <div class="table-responsive">
             <table>
@@ -1064,7 +1105,10 @@
     <div id="tab-iuran" class="panel">
         <div class="section-title">
             <span><i class="fas fa-hand-holding-dollar" style="color:#1f4780;"></i> Data Iuran RT</span>
-            <button class="btn-tambah" data-modal="modalIuran"><i class="fas fa-plus"></i> Tambah</button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingIuran"></span>
+                <button class="btn-tambah" data-modal="modalIuran"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
         </div>
         <div class="table-responsive">
             <table>
@@ -1073,7 +1117,7 @@
             </table>
         </div>
         <div style="margin-top:1rem;text-align:right;">
-            <span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">2.400.000</span></span>
+            <span class="tag tag-iuran"><i class="fas fa-circle-check"></i> Total iuran terkumpul: Rp <span id="totalIuranText">0</span></span>
         </div>
     </div>
 
@@ -1081,6 +1125,7 @@
     <div id="tab-pengaturan" class="panel">
         <div class="section-title">
             <span><i class="fas fa-gear" style="color:#1f6b58;"></i> Pengaturan RT</span>
+            <span class="loading-text" id="loadingSettings"></span>
         </div>
         <div class="settings-grid">
             <div class="settings-card">
@@ -1372,163 +1417,179 @@
 
 <script>
     // ======================================================================
-    // DATA
+    // FIREBASE CONFIG
     // ======================================================================
-    let dataKeluarga = [
-        {
-            kepala: 'UJANG PRYATNA WAPRAK',
-            anggota: 4,
-            alamat: 'WASIOR II',
-            kontak: '0812-3456',
-            noKK: '9207011408171003',
-            rt: '001',
-            rw: '002',
-            kodePos: '98362',
-            fileUpload: null,
-            anggotaDetail: [
-                { no:1, nama:'UJANG PRYATNA WAPRAK', nik:'9107011303740001', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'KRISTEN', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'AB' },
-                { no:2, nama:'JOKO CONDRO KIRONO', nik:'9202040610930002', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
-                { no:3, nama:'DIAN IRAWATI', nik:'9202040511940001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-1994', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' },
-                { no:4, nama:'DINDA SIAHAYA', nik:'9202040511020001', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'16-11-2002', agama:'KRISTEN', pendidikan:'BELUM TAMAT SD/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
-            ]
-        },
-        {
-            kepala: 'H. SURYONO',
-            anggota: 4,
-            alamat: 'JL. MAWAR 12',
-            kontak: '0812-3456',
-            noKK: '9207011408171004',
-            rt: '001',
-            rw: '002',
-            kodePos: '98362',
-            fileUpload: null,
-            anggotaDetail: [
-                { no:1, nama:'H. SURYONO', nik:'9107011303740002', jk:'Laki-Laki', tmpLahir:'BANDUNG', tglLahir:'23-03-1974', agama:'ISLAM', pendidikan:'DIPLOMA (IV/STRATA 1)', pekerjaan:'PEGAWAI NEGERI SIPIL (PNS)', golDarah:'A' },
-                { no:2, nama:'SITI RAHAYU', nik:'9202040610930003', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1993', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'B' },
-                { no:3, nama:'AHMAD FAUZI', nik:'9202040610930004', jk:'Laki-Laki', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'O' },
-                { no:4, nama:'FATIMAH', nik:'9202040610930005', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'ISLAM', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' }
-            ]
-        },
-        {
-            kepala: 'IBU RATIH',
-            anggota: 3,
-            alamat: 'JL. MELATI 7',
-            kontak: '0856-7890',
-            noKK: '9207011408171005',
-            rt: '002',
-            rw: '003',
-            kodePos: '98363',
-            fileUpload: null,
-            anggotaDetail: [
-                { no:1, nama:'IBU RATIH', nik:'9107011303740003', jk:'Perempuan', tmpLahir:'JAKARTA', tglLahir:'15-07-1980', agama:'KRISTEN', pendidikan:'SARJANA (S1)', pekerjaan:'GURU', golDarah:'O' },
-                { no:2, nama:'DEWI', nik:'9202040610930006', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1995', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'AB' },
-                { no:3, nama:'AYU', nik:'9202040610930007', jk:'Perempuan', tmpLahir:'MANOKWARI', tglLahir:'06-10-1998', agama:'KRISTEN', pendidikan:'SLTA/SEDERAJAT', pekerjaan:'PELAJAR/MAHASISWA', golDarah:'TIDAK TAHU' }
-            ]
-        }
-    ];
+    const firebaseConfig = {
+        apiKey: "AIzaSyBIIq8VrSFfWm-il1mdxjWwos4tB5kHDA4",
+        authDomain: "aplikasi-rt-442f0.firebaseapp.com",
+        projectId: "aplikasi-rt-442f0",
+        storageBucket: "aplikasi-rt-442f0.firebasestorage.app",
+        messagingSenderId: "619193954122",
+        appId: "1:619193954122:web:85eaf9d6d0c6f70064dbb3"
+    };
 
-    let dokumentasi = [
-        { 
-            id: 1,
-            judul: 'Bersih-bersih sungai', 
-            tanggal: '12 Jan 2026', 
-            keterangan: 'Kegiatan gotong royong membersihkan sungai di sekitar lingkungan RT 08',
-            foto: null,
-            fotoPlaceholder: true
-        },
-        { 
-            id: 2,
-            judul: 'Tanam pohon produktif', 
-            tanggal: '28 Feb 2026', 
-            keterangan: 'Penanaman pohon mangga dan rambutan di lahan kosong RT 08',
-            foto: null,
-            fotoPlaceholder: true
-        },
-        { 
-            id: 3,
-            judul: 'Perbaikan jalan warga', 
-            tanggal: '15 Mar 2026', 
-            keterangan: 'Perbaikan jalan berlubang di Jalan Mawar RT 08',
-            foto: null,
-            fotoPlaceholder: true
-        },
-        { 
-            id: 4,
-            judul: 'Gotong royong pos ronda', 
-            tanggal: '2 Apr 2026', 
-            keterangan: 'Pembangunan dan renovasi pos ronda bersama warga RT 08',
-            foto: null,
-            fotoPlaceholder: true
-        }
-    ];
-
-    let tamuWajibLapor = [
-        { no: 1, nama: 'Irfan Hakim', nik: '9107011303740008', jk: 'Laki-Laki', tmpLahir: 'JAKARTA', tglLahir: '15-05-1985', agama: 'ISLAM', pendidikan: 'SARJANA (S1)', pekerjaan: 'PEGAWAI SWASTA', keperluan: 'Survey kependudukan', tanggal: '2026-04-10', status: 'Sudah Lapor', fileUpload: null },
-        { no: 2, nama: 'Dewi Sartika', nik: '9202040610930009', jk: 'Perempuan', tmpLahir: 'BANDUNG', tglLahir: '12-08-1990', agama: 'ISLAM', pendidikan: 'DIPLOMA (III/STRATA 1)', pekerjaan: 'GURU', keperluan: 'Kunjungan keluarga', tanggal: '2026-04-12', status: 'Sudah Lapor', fileUpload: null },
-        { no: 3, nama: 'Budi Santoso', nik: '9107011303740010', jk: 'Laki-Laki', tmpLahir: 'MANOKWARI', tglLahir: '23-03-1982', agama: 'KRISTEN', pendidikan: 'SLTA/SEDERAJAT', pekerjaan: 'WIRASWASTA', keperluan: 'Urusan administrasi', tanggal: '2026-04-14', status: 'Belum Lapor', fileUpload: null },
-        { no: 4, nama: 'Rina Anggraeni', nik: '9202040610930011', jk: 'Perempuan', tmpLahir: 'SURABAYA', tglLahir: '06-10-1995', agama: 'KRISTEN', pendidikan: 'SARJANA (S1)', pekerjaan: 'PELAJAR/MAHASISWA', keperluan: 'Penelitian skripsi', tanggal: '2026-04-16', status: 'Sudah Lapor', fileUpload: null },
-        { no: 5, nama: 'Teguh Wicaksono', nik: '9202040511940008', jk: 'Laki-Laki', tmpLahir: 'MANOKWARI', tglLahir: '16-11-1988', agama: 'ISLAM', pendidikan: 'SLTA/SEDERAJAT', pekerjaan: 'PEGAWAI SWASTA', keperluan: 'Pemasangan internet', tanggal: '2026-04-18', status: 'Belum Lapor', fileUpload: null },
-        { no: 6, nama: 'Nadia Putri', nik: '9202040511020009', jk: 'Perempuan', tmpLahir: 'MANOKWARI', tglLahir: '16-11-2000', agama: 'KRISTEN', pendidikan: 'BELUM TAMAT SD/SEDERAJAT', pekerjaan: 'PELAJAR/MAHASISWA', keperluan: 'Kunjungan sosial', tanggal: '2026-04-20', status: 'Sudah Lapor', fileUpload: null },
-        { no: 7, nama: 'Rizky Fauzan', nik: '9202040610930012', jk: 'Laki-Laki', tmpLahir: 'MAKASSAR', tglLahir: '22-12-1992', agama: 'ISLAM', pendidikan: 'DIPLOMA (IV/STRATA 1)', pekerjaan: 'PEGAWAI NEGERI SIPIL (PNS)', keperluan: 'Rapat koordinasi', tanggal: '2026-04-22', status: 'Belum Lapor', fileUpload: null }
-    ];
-
-    let iuranRT = [
-        { keluarga: 'UJANG PRYATNA WAPRAK', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-        { keluarga: 'H. SURYONO', bulan: 'April 2026', nominal: 200000, status: 'Lunas' },
-        { keluarga: 'IBU RATIH', bulan: 'April 2026', nominal: 200000, status: 'Lunas' }
-    ];
-
-    let dokumenCounter = dokumentasi.length + 1;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // ======================================================================
-    // SETTINGS DATA
+    // DATA REFERENCES
     // ======================================================================
+    const keluargaRef = db.collection('keluarga');
+    const dokumentasiRef = db.collection('dokumentasi');
+    const tamuRef = db.collection('tamu');
+    const iuranRef = db.collection('iuran');
+    const settingsRef = db.collection('settings').doc('pengaturan');
+
+    // ======================================================================
+    // GLOBAL STATE
+    // ======================================================================
+    let dataKeluarga = [];
+    let dokumentasi = [];
+    let tamuWajibLapor = [];
+    let iuranRT = [];
     let settingsData = {
-        namaRT: localStorage.getItem('rt_namaRT') || 'RT 08 · Kelurahan Makmur',
-        ketuaRT: localStorage.getItem('rt_ketuaRT') || '',
-        wakilRT: localStorage.getItem('rt_wakilRT') || '',
-        bendahara: localStorage.getItem('rt_bendahara') || '',
-        logoProvinsi: localStorage.getItem('rt_logoProvinsi') || '',
-        logoKabupaten: localStorage.getItem('rt_logoKabupaten') || ''
+        namaRT: 'RT 08 · Kelurahan Makmur',
+        ketuaRT: '',
+        wakilRT: '',
+        bendahara: '',
+        logoProvinsi: '',
+        logoKabupaten: ''
     };
 
     // ======================================================================
-    // FUNGSI VIEW & DOWNLOAD FILE
+    // LOADING INDICATORS
     // ======================================================================
-    function openFileView(fileData, title, jenis, owner) {
-        if (!fileData || !fileData.base64) {
+    function setLoading(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = text;
+    }
+
+    // ======================================================================
+    // FUNGSI UPLOAD FILE KE FIREBASE STORAGE
+    // ======================================================================
+    async function uploadFileToStorage(file, path) {
+        if (!file) return null;
+        const storageRef = storage.ref(path);
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        return downloadURL;
+    }
+
+    // ======================================================================
+    // FUNGSI VIEW & DOWNLOAD FILE DARI URL
+    // ======================================================================
+    function openFileViewFromUrl(fileUrl, fileName, fileType, owner) {
+        if (!fileUrl) {
             alert('File tidak ditemukan');
             return;
         }
         
-        document.getElementById('viewFileTitle').textContent = `Lihat ${jenis || 'Dokumen'} - ${owner || ''}`;
-        document.getElementById('viewFileName').textContent = fileData.nama || 'Dokumen';
-        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileData.jenis || 'Dokumen'} | Ukuran: ${fileData.size || '-'}`;
+        document.getElementById('viewFileTitle').textContent = `Lihat ${fileType || 'Dokumen'} - ${owner || ''}`;
+        document.getElementById('viewFileName').textContent = fileName || 'Dokumen';
+        document.getElementById('viewFileDetail').textContent = `Jenis: ${fileType || 'Dokumen'}`;
         
         const contentDiv = document.getElementById('viewFileContent');
-        const isImage = fileData.tipe && fileData.tipe.startsWith('image/');
+        const isImage = fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+        const isPdf = fileUrl.match(/\.pdf$/i);
         
         if (isImage) {
-            contentDiv.innerHTML = `<img src="${fileData.base64}" alt="${fileData.nama}" />`;
-        } else if (fileData.tipe && fileData.tipe === 'application/pdf') {
-            contentDiv.innerHTML = `<embed src="${fileData.base64}" type="application/pdf" class="pdf-view" />`;
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" />`;
+        } else if (isPdf) {
+            contentDiv.innerHTML = `<embed src="${fileUrl}" type="application/pdf" class="pdf-view" />`;
         } else {
-            // Coba tampilkan sebagai gambar
-            contentDiv.innerHTML = `<img src="${fileData.base64}" alt="${fileData.nama}" style="max-height:300px;" />`;
+            contentDiv.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-height:300px;" />`;
         }
         
-        // Set download button
         const downloadBtn = document.getElementById('viewFileDownload');
         downloadBtn.onclick = function() {
-            const link = document.createElement('a');
-            link.href = fileData.base64;
-            link.download = fileData.nama || 'dokumen';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            window.open(fileUrl, '_blank');
         };
         
         openModal('modalViewFile');
+    }
+
+    // ======================================================================
+    // LOAD DATA FROM FIREBASE
+    // ======================================================================
+    async function loadAllData() {
+        try {
+            // Load Keluarga
+            setLoading('loadingKeluarga', '<span class="loading-spinner"></span> Memuat...');
+            const keluargaSnapshot = await keluargaRef.orderBy('kepala').get();
+            dataKeluarga = [];
+            keluargaSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dataKeluarga.push(data);
+            });
+            setLoading('loadingKeluarga', '');
+
+            // Load Dokumentasi
+            setLoading('loadingDokumentasi', '<span class="loading-spinner"></span> Memuat...');
+            const dokSnapshot = await dokumentasiRef.orderBy('tanggal', 'desc').get();
+            dokumentasi = [];
+            dokSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dokumentasi.push(data);
+            });
+            setLoading('loadingDokumentasi', '');
+
+            // Load Tamu
+            setLoading('loadingTamu', '<span class="loading-spinner"></span> Memuat...');
+            const tamuSnapshot = await tamuRef.orderBy('no').get();
+            tamuWajibLapor = [];
+            tamuSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                tamuWajibLapor.push(data);
+            });
+            setLoading('loadingTamu', '');
+
+            // Load Iuran
+            setLoading('loadingIuran', '<span class="loading-spinner"></span> Memuat...');
+            const iuranSnapshot = await iuranRef.orderBy('bulan', 'desc').get();
+            iuranRT = [];
+            iuranSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                iuranRT.push(data);
+            });
+            setLoading('loadingIuran', '');
+
+            // Load Settings
+            setLoading('loadingSettings', '<span class="loading-spinner"></span> Memuat...');
+            const settingsDoc = await settingsRef.get();
+            if (settingsDoc.exists) {
+                settingsData = settingsDoc.data();
+            }
+            setLoading('loadingSettings', '');
+
+            renderAll();
+            updateSyncStatus(true);
+        } catch (error) {
+            console.error('Error loading data:', error);
+            setLoading('loadingKeluarga', '⚠️ Gagal memuat data');
+            setLoading('loadingDokumentasi', '⚠️ Gagal memuat data');
+            setLoading('loadingTamu', '⚠️ Gagal memuat data');
+            setLoading('loadingIuran', '⚠️ Gagal memuat data');
+            setLoading('loadingSettings', '⚠️ Gagal memuat data');
+            updateSyncStatus(false);
+            alert('Gagal memuat data dari Firebase. Pastikan koneksi internet Anda aktif.');
+        }
+    }
+
+    function updateSyncStatus(connected) {
+        const status = document.getElementById('syncStatus');
+        const indicator = document.getElementById('syncIndicator');
+        if (connected) {
+            status.innerHTML = '<i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase';
+            indicator.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud';
+        } else {
+            status.innerHTML = '<i class="fas fa-circle" style="color:#e74c3c;"></i> Tidak terhubung';
+            indicator.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#e74c3c;"></i> Offline';
+        }
     }
 
     // ======================================================================
@@ -1536,36 +1597,41 @@
     // ======================================================================
     function renderKeluarga() {
         const tbody = document.getElementById('tableKeluarga');
-        tbody.innerHTML = dataKeluarga.map((k, index) => {
-            const hasFile = k.fileUpload && k.fileUpload.base64;
-            const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
-            const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
-            const uploadText = hasFile ? 'Tersimpan' : 'Upload';
-            
-            let viewBtn = '';
-            if (hasFile) {
-                viewBtn = `<button class="btn-file-view" data-file-index="${index}" data-file-type="keluarga"><i class="fas fa-eye"></i></button>`;
-            }
-            
-            return `
-                <tr>
-                    <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
-                    <td>${k.anggota} jiwa</td>
-                    <td>${k.alamat}</td>
-                    <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak}</span></td>
-                    <td>
-                        <div class="btn-group">
-                            ${viewBtn}
-                            <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
-                            <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
-                            <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        if (dataKeluarga.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data keluarga. Klik "Tambah Keluarga" untuk menambahkan.</td></tr>`;
+        } else {
+            tbody.innerHTML = dataKeluarga.map((k, index) => {
+                const hasFile = k.fileUrl;
+                const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
+                const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
+                const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+                
+                let viewBtn = '';
+                if (hasFile) {
+                    viewBtn = `<button class="btn-file-view" data-file-url="${k.fileUrl}" data-file-name="${k.fileName || 'Dokumen'}" data-file-type="${k.fileType || 'Dokumen'}" data-owner="${k.kepala}"><i class="fas fa-eye"></i></button>`;
+                }
+                
+                return `
+                    <tr>
+                        <td><span class="keluarga-clickable" data-index="${index}">${k.kepala}</span></td>
+                        <td>${k.anggota || 0} jiwa</td>
+                        <td>${k.alamat || '-'}</td>
+                        <td><span class="tag tag-warga"><i class="fas fa-phone"></i> ${k.kontak || '-'}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                ${viewBtn}
+                                <button class="${uploadBtnClass}" data-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                                <button class="btn-tambah-anggota-row" data-index="${index}"><i class="fas fa-user-plus"></i></button>
+                                <button class="btn-edit" data-index="${index}"><i class="fas fa-pen"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
         document.getElementById('statKeluarga').textContent = dataKeluarga.length;
 
+        // Event listeners
         document.querySelectorAll('.keluarga-clickable').forEach(el => {
             el.addEventListener('click', function() {
                 const idx = parseInt(this.dataset.index);
@@ -1597,55 +1663,54 @@
             });
         });
 
-        document.querySelectorAll('.btn-file-view[data-file-type="keluarga"]').forEach(btn => {
+        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const idx = parseInt(this.dataset.fileIndex);
-                const k = dataKeluarga[idx];
-                if (k && k.fileUpload) {
-                    openFileView(k.fileUpload, 'Dokumen Keluarga', k.fileUpload.jenis || 'Dokumen', k.kepala);
-                }
+                const url = this.dataset.fileUrl;
+                const name = this.dataset.fileName;
+                const type = this.dataset.fileType;
+                const owner = this.dataset.owner;
+                openFileViewFromUrl(url, name, type, owner);
             });
         });
     }
 
     function renderDokumentasi() {
         const grid = document.getElementById('dokumentasiGrid');
-        grid.innerHTML = dokumentasi.map((d, index) => {
-            const hasFoto = d.foto && d.foto.base64;
-            let fotoHtml = '';
-            if (hasFoto) {
-                const isImage = d.foto.tipe && d.foto.tipe.startsWith('image/');
-                if (isImage) {
-                    fotoHtml = `<img src="${d.foto.base64}" alt="${d.judul}" class="dok-image" />`;
+        if (dokumentasi.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#6a7e94;background:white;border-radius:20px;border:1px solid #e9edf4;">Belum ada dokumentasi kerja bakti. Klik "Tambah" untuk menambahkan.</div>`;
+        } else {
+            grid.innerHTML = dokumentasi.map((d, index) => {
+                const hasFoto = d.fotoUrl;
+                let fotoHtml = '';
+                if (hasFoto) {
+                    fotoHtml = `<img src="${d.fotoUrl}" alt="${d.judul}" class="dok-image" />`;
                 } else {
-                    fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-file-image"></i></div>`;
+                    fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
                 }
-            } else {
-                fotoHtml = `<div class="dok-image-placeholder"><i class="fas fa-camera"></i></div>`;
-            }
-            
-            let downloadBtn = '';
-            if (hasFoto && d.foto.base64) {
-                downloadBtn = `<button class="btn-download-foto" data-dok-index="${index}"><i class="fas fa-download"></i> Download</button>`;
-            }
-            
-            return `
-                <div class="dok-item">
-                    ${fotoHtml}
-                    <div class="dok-body">
-                        <div class="dok-title">${d.judul}</div>
-                        <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal}</div>
-                        <div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div>
-                        <div class="dok-actions">
-                            <button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>
-                            ${downloadBtn}
-                            <button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button>
+                
+                let downloadBtn = '';
+                if (hasFoto) {
+                    downloadBtn = `<button class="btn-download-foto" data-url="${d.fotoUrl}" data-name="${d.judul}"><i class="fas fa-download"></i> Download</button>`;
+                }
+                
+                return `
+                    <div class="dok-item">
+                        ${fotoHtml}
+                        <div class="dok-body">
+                            <div class="dok-title">${d.judul || 'Kegiatan'}</div>
+                            <div class="dok-date"><i class="far fa-calendar-alt"></i> ${d.tanggal || '-'}</div>
+                            <div class="dok-description">${d.keterangan || 'Tidak ada keterangan'}</div>
+                            <div class="dok-actions">
+                                <button class="btn-upload" data-dok-index="${index}"><i class="fas fa-upload"></i> Upload Foto</button>
+                                ${downloadBtn}
+                                <button class="btn-hapus-dok" data-dok-index="${index}"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        }
         document.getElementById('statDokumentasi').textContent = dokumentasi.length;
 
         document.querySelectorAll('.btn-upload[data-dok-index]').forEach(btn => {
@@ -1659,11 +1724,9 @@
         document.querySelectorAll('.btn-download-foto').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const idx = parseInt(this.dataset.dokIndex);
-                const d = dokumentasi[idx];
-                if (d && d.foto && d.foto.base64) {
-                    downloadImage(d.foto.base64, d.judul || 'foto_kegiatan');
-                }
+                const url = this.dataset.url;
+                const name = this.dataset.name;
+                window.open(url, '_blank');
             });
         });
 
@@ -1672,59 +1735,60 @@
                 e.stopPropagation();
                 const idx = parseInt(this.dataset.dokIndex);
                 if (confirm('Hapus dokumentasi ini?')) {
-                    dokumentasi.splice(idx, 1);
-                    renderDokumentasi();
+                    const doc = dokumentasi[idx];
+                    if (doc.id) {
+                        dokumentasiRef.doc(doc.id).delete().then(() => {
+                            loadAllData();
+                        }).catch(err => {
+                            alert('Gagal menghapus: ' + err.message);
+                        });
+                    }
                 }
             });
         });
     }
 
-    function downloadImage(base64Data, filename) {
-        const link = document.createElement('a');
-        link.href = base64Data;
-        link.download = `${filename}_${new Date().getTime()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
     function renderTamu() {
         const tbody = document.getElementById('tableTamu');
-        tbody.innerHTML = tamuWajibLapor.map((t, index) => {
-            const hasFile = t.fileUpload && t.fileUpload.base64;
-            const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
-            const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
-            const uploadText = hasFile ? 'Tersimpan' : 'Upload';
-            const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
-            
-            let viewBtn = '';
-            if (hasFile) {
-                viewBtn = `<button class="btn-file-view" data-tamu-index="${index}" data-file-type="tamu"><i class="fas fa-eye"></i></button>`;
-            }
-            
-            return `
-                <tr>
-                    <td>${t.no || '-'}</td>
-                    <td><strong>${t.nama || '-'}</strong></td>
-                    <td>${t.nik || '-'}</td>
-                    <td>${t.jk || '-'}</td>
-                    <td>${t.tmpLahir || '-'}</td>
-                    <td>${t.tglLahir || '-'}</td>
-                    <td>${t.agama || '-'}</td>
-                    <td>${t.pendidikan || '-'}</td>
-                    <td>${t.pekerjaan || '-'}</td>
-                    <td>${t.keperluan || '-'}</td>
-                    <td>${t.tanggal || '-'}</td>
-                    <td><span class="tag ${cls}">${t.status}</span></td>
-                    <td>
-                        <div class="btn-group">
-                            ${viewBtn}
-                            <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        if (tamuWajibLapor.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data tamu. Klik "Tambah" untuk menambahkan.</td></tr>`;
+        } else {
+            tbody.innerHTML = tamuWajibLapor.map((t, index) => {
+                const hasFile = t.fileUrl;
+                const uploadBtnClass = hasFile ? 'btn-upload uploaded' : 'btn-upload';
+                const uploadIcon = hasFile ? 'fa-check-circle' : 'fa-upload';
+                const uploadText = hasFile ? 'Tersimpan' : 'Upload';
+                const cls = t.status === 'Sudah Lapor' ? 'tag-warga' : 'tag-tamu';
+                
+                let viewBtn = '';
+                if (hasFile) {
+                    viewBtn = `<button class="btn-file-view" data-file-url="${t.fileUrl}" data-file-name="${t.fileName || 'Dokumen'}" data-file-type="${t.fileType || 'Dokumen'}" data-owner="${t.nama}"><i class="fas fa-eye"></i></button>`;
+                }
+                
+                return `
+                    <tr>
+                        <td>${t.no || '-'}</td>
+                        <td><strong>${t.nama || '-'}</strong></td>
+                        <td>${t.nik || '-'}</td>
+                        <td>${t.jk || '-'}</td>
+                        <td>${t.tmpLahir || '-'}</td>
+                        <td>${t.tglLahir || '-'}</td>
+                        <td>${t.agama || '-'}</td>
+                        <td>${t.pendidikan || '-'}</td>
+                        <td>${t.pekerjaan || '-'}</td>
+                        <td>${t.keperluan || '-'}</td>
+                        <td>${t.tanggal || '-'}</td>
+                        <td><span class="tag ${cls}">${t.status}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                ${viewBtn}
+                                <button class="${uploadBtnClass}" data-tamu-index="${index}"><i class="fas ${uploadIcon}"></i> ${uploadText}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
         document.getElementById('statTamu').textContent = tamuWajibLapor.length;
 
         document.querySelectorAll('#tableTamu .btn-upload').forEach(btn => {
@@ -1735,28 +1799,32 @@
             });
         });
 
-        document.querySelectorAll('.btn-file-view[data-file-type="tamu"]').forEach(btn => {
+        document.querySelectorAll('.btn-file-view[data-file-url]').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const idx = parseInt(this.dataset.tamuIndex);
-                const t = tamuWajibLapor[idx];
-                if (t && t.fileUpload) {
-                    openFileView(t.fileUpload, 'Dokumen Tamu', t.fileUpload.jenis || 'Dokumen', t.nama);
-                }
+                const url = this.dataset.fileUrl;
+                const name = this.dataset.fileName;
+                const type = this.dataset.fileType;
+                const owner = this.dataset.owner;
+                openFileViewFromUrl(url, name, type, owner);
             });
         });
     }
 
     function renderIuran() {
         const tbody = document.getElementById('tableIuran');
-        let total = 0;
-        tbody.innerHTML = iuranRT.map(i => {
-            const lunas = i.status === 'Lunas';
-            if (lunas) total += i.nominal;
-            return `<tr><td><strong>${i.keluarga}</strong></td><td>${i.bulan}</td><td>Rp ${i.nominal.toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status}</span></td></tr>`;
-        }).join('');
-        document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
-        document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
+        if (iuranRT.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data iuran. Klik "Tambah" untuk menambahkan.</td></tr>`;
+        } else {
+            let total = 0;
+            tbody.innerHTML = iuranRT.map(i => {
+                const lunas = i.status === 'Lunas';
+                if (lunas) total += (i.nominal || 0);
+                return `<tr><td><strong>${i.keluarga || '-'}</strong></td><td>${i.bulan || '-'}</td><td>Rp ${(i.nominal || 0).toLocaleString('id-ID')}</td><td><span class="tag ${lunas ? 'tag-warga' : 'tag-tamu'}">${i.status || 'Belum'}</span></td></tr>`;
+            }).join('');
+            document.getElementById('statIuran').innerHTML = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
+        }
     }
 
     function renderHeaderLogos() {
@@ -1776,10 +1844,10 @@
     }
 
     function renderSettings() {
-        document.getElementById('settingNamaRT').value = settingsData.namaRT;
-        document.getElementById('settingKetuaRT').value = settingsData.ketuaRT;
-        document.getElementById('settingWakilRT').value = settingsData.wakilRT;
-        document.getElementById('settingBendahara').value = settingsData.bendahara;
+        document.getElementById('settingNamaRT').value = settingsData.namaRT || '';
+        document.getElementById('settingKetuaRT').value = settingsData.ketuaRT || '';
+        document.getElementById('settingWakilRT').value = settingsData.wakilRT || '';
+        document.getElementById('settingBendahara').value = settingsData.bendahara || '';
         
         document.getElementById('sidebarRTName').textContent = settingsData.namaRT || 'RT 08 · Kelurahan Makmur';
         document.getElementById('headerKetuaRT').textContent = settingsData.ketuaRT || 'Ketua RT';
@@ -1810,314 +1878,6 @@
     }
 
     // ======================================================================
-    // UPLOAD DOKUMENTASI
-    // ======================================================================
-    let uploadDokIndex = -1;
-    let selectedFileDok = null;
-
-    function openUploadDokumentasi(index) {
-        uploadDokIndex = index;
-        const d = dokumentasi[index];
-        document.getElementById('inpDokFoto').value = '';
-        document.getElementById('filePreviewDok').style.display = 'none';
-        selectedFileDok = null;
-        
-        if (d.foto && d.foto.base64) {
-            document.getElementById('filePreviewDok').style.display = 'flex';
-            document.getElementById('fileNamePreviewDok').textContent = d.foto.nama || 'Foto';
-            selectedFileDok = d.foto;
-        }
-        document.getElementById('inpDokKeterangan').value = d.keterangan || '';
-        document.getElementById('inpDokTanggal').value = d.tanggal ? d.tanggal.replace(/\s/g, '-') : '';
-        openModal('modalDokumentasi');
-    }
-
-    document.getElementById('inpDokFoto').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            alert('Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WEBP)');
-            this.value = '';
-            return;
-        }
-        if (file.size > 10 * 1024 * 1024) {
-            alert('Ukuran file maksimal 10MB');
-            this.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedFileDok = {
-                nama: file.name,
-                base64: e.target.result,
-                tipe: file.type,
-                size: (file.size / 1024).toFixed(1) + ' KB'
-            };
-            document.getElementById('filePreviewDok').style.display = 'flex';
-            document.getElementById('fileNamePreviewDok').textContent = file.name;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('btnHapusFileDok').addEventListener('click', function() {
-        document.getElementById('inpDokFoto').value = '';
-        document.getElementById('filePreviewDok').style.display = 'none';
-        selectedFileDok = null;
-    });
-
-    document.getElementById('simpanDokumentasi').addEventListener('click', function() {
-        const judul = document.getElementById('inpDokKeterangan').value.trim().slice(0, 50) || 'Kegiatan Kerja Bakti';
-        const keterangan = document.getElementById('inpDokKeterangan').value.trim();
-        const tanggalRaw = document.getElementById('inpDokTanggal').value;
-        
-        if (!tanggalRaw) {
-            alert('Tanggal kegiatan harus diisi');
-            return;
-        }
-        
-        const d = new Date(tanggalRaw + 'T00:00:00');
-        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-        const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        
-        if (uploadDokIndex !== -1) {
-            const existing = dokumentasi[uploadDokIndex];
-            existing.judul = judul;
-            existing.keterangan = keterangan;
-            existing.tanggal = tglStr;
-            if (selectedFileDok && selectedFileDok.base64) {
-                existing.foto = selectedFileDok;
-            }
-        } else {
-            dokumentasi.push({
-                id: dokumenCounter++,
-                judul: judul,
-                tanggal: tglStr,
-                keterangan: keterangan || 'Tidak ada keterangan',
-                foto: selectedFileDok || null,
-                fotoPlaceholder: !selectedFileDok
-            });
-        }
-        
-        renderDokumentasi();
-        closeModal('modalDokumentasi');
-        uploadDokIndex = -1;
-        selectedFileDok = null;
-        document.getElementById('inpDokFoto').value = '';
-        document.getElementById('filePreviewDok').style.display = 'none';
-        document.getElementById('inpDokKeterangan').value = '';
-        document.getElementById('inpDokTanggal').value = '';
-        alert('Dokumentasi berhasil disimpan!');
-    });
-
-    // ======================================================================
-    // SETTINGS SAVE
-    // ======================================================================
-    document.getElementById('simpanPengurus').addEventListener('click', function() {
-        settingsData.namaRT = document.getElementById('settingNamaRT').value.trim() || 'RT 08 · Kelurahan Makmur';
-        settingsData.ketuaRT = document.getElementById('settingKetuaRT').value.trim();
-        settingsData.wakilRT = document.getElementById('settingWakilRT').value.trim();
-        settingsData.bendahara = document.getElementById('settingBendahara').value.trim();
-        
-        localStorage.setItem('rt_namaRT', settingsData.namaRT);
-        localStorage.setItem('rt_ketuaRT', settingsData.ketuaRT);
-        localStorage.setItem('rt_wakilRT', settingsData.wakilRT);
-        localStorage.setItem('rt_bendahara', settingsData.bendahara);
-        
-        renderSettings();
-        alert('Data pengurus berhasil disimpan!');
-    });
-
-    document.getElementById('settingLogoProvinsi').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
-            settingsData.logoProvinsi = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('settingLogoKabupaten').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            document.getElementById('previewKabupaten').innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
-            settingsData.logoKabupaten = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('simpanLogo').addEventListener('click', function() {
-        if (settingsData.logoProvinsi) {
-            localStorage.setItem('rt_logoProvinsi', settingsData.logoProvinsi);
-        }
-        if (settingsData.logoKabupaten) {
-            localStorage.setItem('rt_logoKabupaten', settingsData.logoKabupaten);
-        }
-        renderSettings();
-        alert('Logo berhasil disimpan!');
-    });
-
-    // ======================================================================
-    // UPLOAD TAMU
-    // ======================================================================
-    let uploadTamuIndex = -1;
-    let selectedFileTamu = null;
-
-    function openUploadTamuModal(index) {
-        uploadTamuIndex = index;
-        const t = tamuWajibLapor[index];
-        document.getElementById('uploadTamuInfo').textContent = `${t.nama} - ${t.keperluan}`;
-        document.getElementById('inpJenisDokumenTamu').value = 'KTP';
-        document.getElementById('inpFileUploadTamu').value = '';
-        document.getElementById('filePreviewTamu').style.display = 'none';
-        selectedFileTamu = null;
-        
-        if (t.fileUpload && t.fileUpload.base64) {
-            document.getElementById('filePreviewTamu').style.display = 'flex';
-            document.getElementById('fileNamePreviewTamu').textContent = t.fileUpload.nama || 'Dokumen';
-            document.getElementById('inpJenisDokumenTamu').value = t.fileUpload.jenis || 'KTP';
-            selectedFileTamu = t.fileUpload;
-        }
-        openModal('modalUploadTamu');
-    }
-
-    document.getElementById('inpFileUploadTamu').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
-            this.value = '';
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB');
-            this.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedFileTamu = {
-                nama: file.name,
-                jenis: document.getElementById('inpJenisDokumenTamu').value,
-                base64: e.target.result,
-                tipe: file.type,
-                size: (file.size / 1024).toFixed(1) + ' KB'
-            };
-            document.getElementById('filePreviewTamu').style.display = 'flex';
-            document.getElementById('fileNamePreviewTamu').textContent = file.name;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('btnHapusFileTamu').addEventListener('click', function() {
-        document.getElementById('inpFileUploadTamu').value = '';
-        document.getElementById('filePreviewTamu').style.display = 'none';
-        selectedFileTamu = null;
-    });
-
-    document.getElementById('simpanUploadTamu').addEventListener('click', function() {
-        if (!selectedFileTamu || !selectedFileTamu.base64) {
-            alert('Silakan pilih file terlebih dahulu');
-            return;
-        }
-        const t = tamuWajibLapor[uploadTamuIndex];
-        if (!t) return;
-        t.fileUpload = {
-            nama: selectedFileTamu.nama,
-            jenis: document.getElementById('inpJenisDokumenTamu').value,
-            base64: selectedFileTamu.base64,
-            tipe: selectedFileTamu.tipe,
-            size: selectedFileTamu.size
-        };
-        renderTamu();
-        closeModal('modalUploadTamu');
-        alert(`File ${selectedFileTamu.nama} berhasil diupload untuk tamu ${t.nama}`);
-    });
-
-    // ======================================================================
-    // UPLOAD KELUARGA
-    // ======================================================================
-    let uploadTargetIndex = -1;
-    let selectedFile = null;
-
-    function openUploadModal(index) {
-        uploadTargetIndex = index;
-        const k = dataKeluarga[index];
-        document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
-        document.getElementById('inpJenisDokumen').value = 'KTP';
-        document.getElementById('inpFileUpload').value = '';
-        document.getElementById('filePreview').style.display = 'none';
-        selectedFile = null;
-        
-        if (k.fileUpload && k.fileUpload.base64) {
-            document.getElementById('filePreview').style.display = 'flex';
-            document.getElementById('fileNamePreview').textContent = k.fileUpload.nama || 'Dokumen';
-            document.getElementById('inpJenisDokumen').value = k.fileUpload.jenis || 'KTP';
-            selectedFile = k.fileUpload;
-        }
-        openModal('modalUpload');
-    }
-
-    document.getElementById('inpFileUpload').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
-            this.value = '';
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB');
-            this.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedFile = {
-                nama: file.name,
-                jenis: document.getElementById('inpJenisDokumen').value,
-                base64: e.target.result,
-                tipe: file.type,
-                size: (file.size / 1024).toFixed(1) + ' KB'
-            };
-            document.getElementById('filePreview').style.display = 'flex';
-            document.getElementById('fileNamePreview').textContent = file.name;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('btnHapusFile').addEventListener('click', function() {
-        document.getElementById('inpFileUpload').value = '';
-        document.getElementById('filePreview').style.display = 'none';
-        selectedFile = null;
-    });
-
-    document.getElementById('simpanUpload').addEventListener('click', function() {
-        if (!selectedFile || !selectedFile.base64) {
-            alert('Silakan pilih file terlebih dahulu');
-            return;
-        }
-        const k = dataKeluarga[uploadTargetIndex];
-        if (!k) return;
-        k.fileUpload = {
-            nama: selectedFile.nama,
-            jenis: document.getElementById('inpJenisDokumen').value,
-            base64: selectedFile.base64,
-            tipe: selectedFile.tipe,
-            size: selectedFile.size
-        };
-        renderKeluarga();
-        closeModal('modalUpload');
-        alert(`File ${selectedFile.nama} berhasil diupload untuk keluarga ${k.kepala}`);
-    });
-
-    // ======================================================================
     // KARTU KELUARGA
     // ======================================================================
     let currentKKIndex = -1;
@@ -2131,40 +1891,36 @@
         document.getElementById('kkNoKK').textContent = k.noKK || '9207011408171003';
         
         let fileHtml = '';
-        if (k.fileUpload && k.fileUpload.base64) {
-            const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
+        if (k.fileUrl) {
+            const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
             if (isImage) {
                 fileHtml = `
-                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;">
-                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromKK()" />
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:0.3rem;"><i class="fas fa-file-image"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
                     </div>
                 `;
             } else {
                 fileHtml = `
-                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromKK()">
-                        <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                    <div style="margin:0.5rem 0;padding:0.5rem;background:#f8faff;border-radius:8px;border:1px solid #dde3ed;cursor:pointer;" onclick="openFileViewFromUrl('${k.fileUrl}', '${k.fileName || 'Dokumen'}', '${k.fileType || 'Dokumen'}', '${k.kepala}')">
+                        <div style="font-weight:600;color:#0b2b3d;"><i class="fas fa-file-pdf"></i> ${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
                         <div style="font-size:0.8rem;color:#4a6a7a;">Klik untuk lihat</div>
                     </div>
                 `;
             }
         }
         
-        // Simpan reference untuk file view dari KK
-        window._kkFileData = k.fileUpload;
-        window._kkFileName = k.kepala;
-        
         let headerHtml = `
             <div class="kk-header-box">
                 <div>
                     <div class="kk-nama"><i class="fas fa-user" style="color:#1c5f4e;"></i> ${k.kepala}</div>
                     <div class="kk-detail">
-                        <i class="fas fa-map-pin"></i> ${k.alamat} &nbsp;|&nbsp;
+                        <i class="fas fa-map-pin"></i> ${k.alamat || '-'} &nbsp;|&nbsp;
                         RT ${k.rt || '001'} / RW ${k.rw || '002'} &nbsp;|&nbsp;
                         <i class="fas fa-code"></i> ${k.kodePos || '98362'}
                     </div>
                 </div>
-                <div class="kk-detail"><i class="fas fa-phone"></i> ${k.kontak}</div>
+                <div class="kk-detail"><i class="fas fa-phone"></i> ${k.kontak || '-'}</div>
             </div>
             ${fileHtml}
         `;
@@ -2218,13 +1974,6 @@
         openModal('modalKartuKeluarga');
     }
 
-    // Fungsi untuk open file view dari KK
-    window.openFileViewFromKK = function() {
-        if (window._kkFileData && window._kkFileData.base64) {
-            openFileView(window._kkFileData, 'Dokumen Keluarga', window._kkFileData.jenis || 'Dokumen', window._kkFileName || 'Keluarga');
-        }
-    };
-
     // ======================================================================
     // DOWNLOAD PDF
     // ======================================================================
@@ -2236,19 +1985,19 @@
         pdfContainer.style.cssText = 'padding:20px;background:white;font-family:"Segoe UI",Arial,sans-serif;';
         
         let fileHtmlPdf = '';
-        if (k.fileUpload && k.fileUpload.base64) {
-            const isImage = k.fileUpload.tipe && k.fileUpload.tipe.startsWith('image/');
+        if (k.fileUrl) {
+            const isImage = k.fileUrl.match(/\.(jpeg|jpg|png|gif|webp)$/i);
             if (isImage) {
                 fileHtmlPdf = `
                     <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
-                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
-                        <img src="${k.fileUpload.base64}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
+                        <div style="font-weight:600;color:#0b2b3d;margin-bottom:5px;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
+                        <img src="${k.fileUrl}" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #dde3ed;" />
                     </div>
                 `;
             } else {
                 fileHtmlPdf = `
                     <div style="margin:10px 0;padding:10px;background:#f8faff;border:1px solid #dde3ed;border-radius:8px;">
-                        <div style="font-weight:600;color:#0b2b3d;">${k.fileUpload.jenis || 'Dokumen'}: ${k.fileUpload.nama}</div>
+                        <div style="font-weight:600;color:#0b2b3d;">${k.fileType || 'Dokumen'}: ${k.fileName || 'Dokumen'}</div>
                         <div style="color:#4a6a7a;">PDF document</div>
                     </div>
                 `;
@@ -2286,9 +2035,9 @@
             <div style="background:#f8faff;border:1px solid #dde3ed;border-radius:8px;padding:12px 16px;margin-bottom:15px;display:flex;flex-wrap:wrap;justify-content:space-between;">
                 <div>
                     <div style="font-weight:700;font-size:16px;color:#0b2b3d;">${k.kepala}</div>
-                    <div style="color:#2a5f7a;font-size:13px;">${k.alamat} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div>
+                    <div style="color:#2a5f7a;font-size:13px;">${k.alamat || '-'} | RT ${k.rt || '001'}/RW ${k.rw || '002'} | ${k.kodePos || '98362'}</div>
                 </div>
-                <div style="color:#2a5f7a;font-size:13px;">${k.kontak}</div>
+                <div style="color:#2a5f7a;font-size:13px;">${k.kontak || '-'}</div>
             </div>
             ${fileHtmlPdf}
             <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #dde3ed;border-radius:8px;overflow:hidden;">
@@ -2336,13 +2085,13 @@
         let text = `KARTU KELUARGA\n`;
         text += `No. ${k.noKK || '9207011408171003'}\n\n`;
         text += `Nama Kepala Keluarga: ${k.kepala}\n`;
-        text += `Alamat: ${k.alamat}\n`;
+        text += `Alamat: ${k.alamat || '-'}\n`;
         text += `RT/RW: ${k.rt || '001'}/${k.rw || '002'}\n`;
         text += `Kode Pos: ${k.kodePos || '98362'}\n`;
-        text += `Kontak: ${k.kontak}\n\n`;
+        text += `Kontak: ${k.kontak || '-'}\n\n`;
         
-        if (k.fileUpload && k.fileUpload.base64) {
-            text += `Dokumen: ${k.fileUpload.jenis || 'Dokumen'} - ${k.fileUpload.nama}\n\n`;
+        if (k.fileUrl) {
+            text += `Dokumen: ${k.fileType || 'Dokumen'} - ${k.fileName || 'Dokumen'}\n\n`;
         }
         
         text += `DAFTAR ANGGOTA KELUARGA:\n`;
@@ -2381,9 +2130,9 @@
         document.getElementById('modalKeluargaTitle').innerHTML = '<i class="fas fa-pen" style="color:#1c5f4e;"></i> Edit Keluarga';
         document.getElementById('infoEditKeluarga').style.display = 'block';
         document.getElementById('infoEditKeluarga').innerHTML = `<i class="fas fa-edit"></i> Mengedit: <strong>${k.kepala}</strong>`;
-        document.getElementById('inpKepala').value = k.kepala;
-        document.getElementById('inpAlamat').value = k.alamat;
-        document.getElementById('inpKontak').value = k.kontak;
+        document.getElementById('inpKepala').value = k.kepala || '';
+        document.getElementById('inpAlamat').value = k.alamat || '';
+        document.getElementById('inpKontak').value = k.kontak || '';
         document.getElementById('inpNoKK').value = k.noKK || '';
         document.getElementById('inpRT').value = k.rt || '';
         document.getElementById('inpRW').value = k.rw || '';
@@ -2510,13 +2259,22 @@
         if (!k.anggotaDetail) k.anggotaDetail = [];
         k.anggotaDetail.push(newAnggota);
         k.anggota = k.anggotaDetail.length;
-        renderKeluarga();
-        closeModal('modalTambahAnggota');
-        alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
+        
+        // Update ke Firebase
+        keluargaRef.doc(k.id).update({
+            anggotaDetail: k.anggotaDetail,
+            anggota: k.anggota
+        }).then(() => {
+            loadAllData();
+            closeModal('modalTambahAnggota');
+            alert(`Anggota ${nama} berhasil ditambahkan ke keluarga ${k.kepala}`);
+        }).catch(err => {
+            alert('Gagal menambahkan anggota: ' + err.message);
+        });
     });
 
     // ======================================================================
-    // SIMPAN KELUARGA
+    // SIMPAN KELUARGA KE FIREBASE
     // ======================================================================
     document.getElementById('simpanKeluarga').addEventListener('click', function() {
         const kepala = document.getElementById('inpKepala').value.trim().toUpperCase();
@@ -2561,23 +2319,391 @@
             });
         });
 
+        const data = {
+            kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos,
+            anggotaDetail: anggotaList,
+            fileUrl: null,
+            fileName: null,
+            fileType: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
         if (editIndex === -1) {
-            dataKeluarga.push({ kepala, anggota: anggotaList.length, alamat, kontak, noKK, rt, rw, kodePos, fileUpload: null, anggotaDetail: anggotaList });
+            keluargaRef.add(data).then(() => {
+                loadAllData();
+                closeModal('modalKeluarga');
+                alert('Data keluarga berhasil disimpan!');
+            }).catch(err => {
+                alert('Gagal menyimpan: ' + err.message);
+            });
         } else {
-            dataKeluarga[editIndex].kepala = kepala;
-            dataKeluarga[editIndex].anggota = anggotaList.length;
-            dataKeluarga[editIndex].alamat = alamat;
-            dataKeluarga[editIndex].kontak = kontak;
-            dataKeluarga[editIndex].noKK = noKK;
-            dataKeluarga[editIndex].rt = rt;
-            dataKeluarga[editIndex].rw = rw;
-            dataKeluarga[editIndex].kodePos = kodePos;
-            dataKeluarga[editIndex].anggotaDetail = anggotaList;
-            editIndex = -1;
+            const docId = dataKeluarga[editIndex].id;
+            keluargaRef.doc(docId).update(data).then(() => {
+                loadAllData();
+                closeModal('modalKeluarga');
+                alert('Data keluarga berhasil diupdate!');
+                editIndex = -1;
+            }).catch(err => {
+                alert('Gagal mengupdate: ' + err.message);
+            });
         }
-        renderKeluarga();
-        closeModal('modalKeluarga');
-        alert('Data keluarga berhasil disimpan!');
+    });
+
+    // ======================================================================
+    // SIMPAN DOKUMENTASI
+    // ======================================================================
+    let uploadDokIndex = -1;
+    let selectedFileDok = null;
+
+    function openUploadDokumentasi(index) {
+        uploadDokIndex = index;
+        const d = dokumentasi[index];
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        selectedFileDok = null;
+        
+        if (d.fotoUrl) {
+            document.getElementById('filePreviewDok').style.display = 'flex';
+            document.getElementById('fileNamePreviewDok').textContent = d.fileName || 'Foto';
+            selectedFileDok = { url: d.fotoUrl, name: d.fileName };
+        }
+        document.getElementById('inpDokKeterangan').value = d.keterangan || '';
+        document.getElementById('inpDokTanggal').value = d.tanggal ? d.tanggal.replace(/\s/g, '-') : '';
+        openModal('modalDokumentasi');
+    }
+
+    document.getElementById('inpDokFoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WEBP)');
+            this.value = '';
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file maksimal 10MB');
+            this.value = '';
+            return;
+        }
+        document.getElementById('filePreviewDok').style.display = 'flex';
+        document.getElementById('fileNamePreviewDok').textContent = file.name;
+        selectedFileDok = file;
+    });
+
+    document.getElementById('btnHapusFileDok').addEventListener('click', function() {
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        selectedFileDok = null;
+    });
+
+    document.getElementById('simpanDokumentasi').addEventListener('click', async function() {
+        const judul = document.getElementById('inpDokKeterangan').value.trim().slice(0, 50) || 'Kegiatan Kerja Bakti';
+        const keterangan = document.getElementById('inpDokKeterangan').value.trim();
+        const tanggalRaw = document.getElementById('inpDokTanggal').value;
+        
+        if (!tanggalRaw) {
+            alert('Tanggal kegiatan harus diisi');
+            return;
+        }
+        
+        const d = new Date(tanggalRaw + 'T00:00:00');
+        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        const tglStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        
+        let fotoUrl = null;
+        let fileName = null;
+        
+        // Upload foto jika ada
+        if (selectedFileDok && selectedFileDok instanceof File) {
+            try {
+                const path = `dokumentasi/${Date.now()}_${selectedFileDok.name}`;
+                fotoUrl = await uploadFileToStorage(selectedFileDok, path);
+                fileName = selectedFileDok.name;
+            } catch (err) {
+                alert('Gagal upload foto: ' + err.message);
+                return;
+            }
+        } else if (selectedFileDok && selectedFileDok.url) {
+            // Jika sudah ada file sebelumnya (edit)
+            fotoUrl = selectedFileDok.url;
+            fileName = selectedFileDok.name;
+        }
+
+        const data = {
+            judul, keterangan, tanggal: tglStr,
+            fotoUrl, fileName,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (uploadDokIndex !== -1) {
+            const docId = dokumentasi[uploadDokIndex].id;
+            dokumentasiRef.doc(docId).update(data).then(() => {
+                loadAllData();
+                closeModal('modalDokumentasi');
+                alert('Dokumentasi berhasil diupdate!');
+                uploadDokIndex = -1;
+                selectedFileDok = null;
+            }).catch(err => {
+                alert('Gagal mengupdate: ' + err.message);
+            });
+        } else {
+            dokumentasiRef.add(data).then(() => {
+                loadAllData();
+                closeModal('modalDokumentasi');
+                alert('Dokumentasi berhasil ditambahkan!');
+                selectedFileDok = null;
+            }).catch(err => {
+                alert('Gagal menambahkan: ' + err.message);
+            });
+        }
+    });
+
+    document.querySelector('.btn-tambah[data-modal="modalDokumentasi"]').addEventListener('click', function() {
+        uploadDokIndex = -1;
+        selectedFileDok = null;
+        document.getElementById('inpDokFoto').value = '';
+        document.getElementById('filePreviewDok').style.display = 'none';
+        document.getElementById('inpDokKeterangan').value = '';
+        document.getElementById('inpDokTanggal').value = '';
+        openModal('modalDokumentasi');
+    });
+
+    // ======================================================================
+    // SETTINGS SAVE
+    // ======================================================================
+    document.getElementById('simpanPengurus').addEventListener('click', function() {
+        const data = {
+            namaRT: document.getElementById('settingNamaRT').value.trim() || 'RT 08 · Kelurahan Makmur',
+            ketuaRT: document.getElementById('settingKetuaRT').value.trim(),
+            wakilRT: document.getElementById('settingWakilRT').value.trim(),
+            bendahara: document.getElementById('settingBendahara').value.trim()
+        };
+        
+        settingsRef.set(data, { merge: true }).then(() => {
+            settingsData = { ...settingsData, ...data };
+            renderSettings();
+            alert('Data pengurus berhasil disimpan!');
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    });
+
+    document.getElementById('settingLogoProvinsi').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
+            // Upload ke storage
+            const storageRef = storage.ref(`logo/provinsi_${Date.now()}`);
+            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                settingsData.logoProvinsi = url;
+                localStorage.setItem('rt_logoProvinsi', url);
+                renderHeaderLogos();
+            }).catch(err => {
+                alert('Gagal upload logo: ' + err.message);
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('settingLogoKabupaten').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('previewKabupaten').innerHTML = `<img src="${ev.target.result}" alt="Logo Kabupaten" />`;
+            const storageRef = storage.ref(`logo/kabupaten_${Date.now()}`);
+            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                settingsData.logoKabupaten = url;
+                localStorage.setItem('rt_logoKabupaten', url);
+                renderHeaderLogos();
+            }).catch(err => {
+                alert('Gagal upload logo: ' + err.message);
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('simpanLogo').addEventListener('click', function() {
+        settingsRef.set({
+            logoProvinsi: settingsData.logoProvinsi || '',
+            logoKabupaten: settingsData.logoKabupaten || ''
+        }, { merge: true }).then(() => {
+            alert('Logo berhasil disimpan!');
+            renderSettings();
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    });
+
+    // ======================================================================
+    // UPLOAD TAMU
+    // ======================================================================
+    let uploadTamuIndex = -1;
+    let selectedFileTamu = null;
+
+    function openUploadTamuModal(index) {
+        uploadTamuIndex = index;
+        const t = tamuWajibLapor[index];
+        document.getElementById('uploadTamuInfo').textContent = `${t.nama} - ${t.keperluan}`;
+        document.getElementById('inpJenisDokumenTamu').value = 'KTP';
+        document.getElementById('inpFileUploadTamu').value = '';
+        document.getElementById('filePreviewTamu').style.display = 'none';
+        selectedFileTamu = null;
+        
+        if (t.fileUrl) {
+            document.getElementById('filePreviewTamu').style.display = 'flex';
+            document.getElementById('fileNamePreviewTamu').textContent = t.fileName || 'Dokumen';
+            selectedFileTamu = { url: t.fileUrl, name: t.fileName };
+        }
+        openModal('modalUploadTamu');
+    }
+
+    document.getElementById('inpFileUploadTamu').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
+        document.getElementById('filePreviewTamu').style.display = 'flex';
+        document.getElementById('fileNamePreviewTamu').textContent = file.name;
+        selectedFileTamu = file;
+    });
+
+    document.getElementById('btnHapusFileTamu').addEventListener('click', function() {
+        document.getElementById('inpFileUploadTamu').value = '';
+        document.getElementById('filePreviewTamu').style.display = 'none';
+        selectedFileTamu = null;
+    });
+
+    document.getElementById('simpanUploadTamu').addEventListener('click', async function() {
+        const jenis = document.getElementById('inpJenisDokumenTamu').value;
+        const t = tamuWajibLapor[uploadTamuIndex];
+        if (!t) return;
+        
+        let fileUrl = null;
+        let fileName = null;
+        
+        if (selectedFileTamu instanceof File) {
+            try {
+                const path = `tamu/${Date.now()}_${selectedFileTamu.name}`;
+                fileUrl = await uploadFileToStorage(selectedFileTamu, path);
+                fileName = selectedFileTamu.name;
+            } catch (err) {
+                alert('Gagal upload file: ' + err.message);
+                return;
+            }
+        } else if (selectedFileTamu && selectedFileTamu.url) {
+            fileUrl = selectedFileTamu.url;
+            fileName = selectedFileTamu.name;
+        } else {
+            alert('Silakan pilih file terlebih dahulu');
+            return;
+        }
+
+        tamuRef.doc(t.id).update({
+            fileUrl, fileName, fileType: jenis
+        }).then(() => {
+            loadAllData();
+            closeModal('modalUploadTamu');
+            alert(`File berhasil diupload untuk tamu ${t.nama}`);
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    });
+
+    // ======================================================================
+    // UPLOAD KELUARGA
+    // ======================================================================
+    let uploadTargetIndex = -1;
+    let selectedFile = null;
+
+    function openUploadModal(index) {
+        uploadTargetIndex = index;
+        const k = dataKeluarga[index];
+        document.getElementById('uploadKeluargaInfo').textContent = `${k.kepala} - ${k.alamat}`;
+        document.getElementById('inpJenisDokumen').value = 'KTP';
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+        
+        if (k.fileUrl) {
+            document.getElementById('filePreview').style.display = 'flex';
+            document.getElementById('fileNamePreview').textContent = k.fileName || 'Dokumen';
+            selectedFile = { url: k.fileUrl, name: k.fileName };
+        }
+        openModal('modalUpload');
+    }
+
+    document.getElementById('inpFileUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file PDF, JPEG, JPG, atau PNG yang diperbolehkan');
+            this.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB');
+            this.value = '';
+            return;
+        }
+        document.getElementById('filePreview').style.display = 'flex';
+        document.getElementById('fileNamePreview').textContent = file.name;
+        selectedFile = file;
+    });
+
+    document.getElementById('btnHapusFile').addEventListener('click', function() {
+        document.getElementById('inpFileUpload').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        selectedFile = null;
+    });
+
+    document.getElementById('simpanUpload').addEventListener('click', async function() {
+        const jenis = document.getElementById('inpJenisDokumen').value;
+        const k = dataKeluarga[uploadTargetIndex];
+        if (!k) return;
+        
+        let fileUrl = null;
+        let fileName = null;
+        
+        if (selectedFile instanceof File) {
+            try {
+                const path = `keluarga/${Date.now()}_${selectedFile.name}`;
+                fileUrl = await uploadFileToStorage(selectedFile, path);
+                fileName = selectedFile.name;
+            } catch (err) {
+                alert('Gagal upload file: ' + err.message);
+                return;
+            }
+        } else if (selectedFile && selectedFile.url) {
+            fileUrl = selectedFile.url;
+            fileName = selectedFile.name;
+        } else {
+            alert('Silakan pilih file terlebih dahulu');
+            return;
+        }
+
+        keluargaRef.doc(k.id).update({
+            fileUrl, fileName, fileType: jenis
+        }).then(() => {
+            loadAllData();
+            closeModal('modalUpload');
+            alert(`File berhasil diupload untuk keluarga ${k.kepala}`);
+        }).catch(err => {
+            alert('Gagal menyimpan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -2602,16 +2728,20 @@
             return; 
         }
         
-        tamuWajibLapor.push({ 
-            no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan, 
-            keperluan, tanggal, status, fileUpload: null 
+        const data = {
+            no, nama, nik, jk, tmpLahir, tglLahir, agama, pendidikan, pekerjaan,
+            keperluan, tanggal, status,
+            fileUrl: null, fileName: null, fileType: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        tamuRef.add(data).then(() => {
+            loadAllData();
+            closeModal('modalTamu');
+            alert('Data tamu berhasil ditambahkan!');
+        }).catch(err => {
+            alert('Gagal menambahkan: ' + err.message);
         });
-        renderTamu();
-        closeModal('modalTamu');
-        document.getElementById('inpNamaTamu').value = '';
-        document.getElementById('inpNikTamu').value = '';
-        document.getElementById('inpKeperluanTamu').value = '';
-        document.getElementById('inpTglTamu').value = '';
     });
 
     // ======================================================================
@@ -2623,12 +2753,19 @@
         const nominal = parseInt(document.getElementById('inpNominalIuran').value) || 0;
         const status = document.getElementById('inpStatusIuran').value;
         if (!keluarga || !bulan || nominal <= 0) { alert('Isi semua field dengan benar (nominal > 0)'); return; }
-        iuranRT.push({ keluarga, bulan, nominal, status });
-        renderIuran();
-        closeModal('modalIuran');
-        document.getElementById('inpKeluargaIuran').value = '';
-        document.getElementById('inpBulanIuran').value = '';
-        document.getElementById('inpNominalIuran').value = '';
+        
+        const data = {
+            keluarga, bulan, nominal, status,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        iuranRef.add(data).then(() => {
+            loadAllData();
+            closeModal('modalIuran');
+            alert('Data iuran berhasil ditambahkan!');
+        }).catch(err => {
+            alert('Gagal menambahkan: ' + err.message);
+        });
     });
 
     // ======================================================================
@@ -2640,16 +2777,6 @@
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
         if (id === 'modalKeluarga') resetModalKeluarga();
-        if (id === 'modalUpload') {
-            document.getElementById('inpFileUpload').value = '';
-            document.getElementById('filePreview').style.display = 'none';
-            selectedFile = null;
-        }
-        if (id === 'modalUploadTamu') {
-            document.getElementById('inpFileUploadTamu').value = '';
-            document.getElementById('filePreviewTamu').style.display = 'none';
-            selectedFileTamu = null;
-        }
         if (id === 'modalDokumentasi') {
             document.getElementById('inpDokFoto').value = '';
             document.getElementById('filePreviewDok').style.display = 'none';
@@ -2657,36 +2784,15 @@
             uploadDokIndex = -1;
         }
         if (id === 'modalViewFile') {
-            // reset content
             document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
         }
     }
-
-    document.querySelector('.btn-tambah[data-modal="modalDokumentasi"]').addEventListener('click', function() {
-        uploadDokIndex = -1;
-        selectedFileDok = null;
-        document.getElementById('inpDokFoto').value = '';
-        document.getElementById('filePreviewDok').style.display = 'none';
-        document.getElementById('inpDokKeterangan').value = '';
-        document.getElementById('inpDokTanggal').value = '';
-        openModal('modalDokumentasi');
-    });
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
         el.addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('show');
                 if (this.id === 'modalKeluarga') resetModalKeluarga();
-                if (this.id === 'modalUpload') {
-                    document.getElementById('inpFileUpload').value = '';
-                    document.getElementById('filePreview').style.display = 'none';
-                    selectedFile = null;
-                }
-                if (this.id === 'modalUploadTamu') {
-                    document.getElementById('inpFileUploadTamu').value = '';
-                    document.getElementById('filePreviewTamu').style.display = 'none';
-                    selectedFileTamu = null;
-                }
                 if (this.id === 'modalDokumentasi') {
                     document.getElementById('inpDokFoto').value = '';
                     document.getElementById('filePreviewDok').style.display = 'none';
@@ -2759,7 +2865,15 @@
     // ======================================================================
     // INIT
     // ======================================================================
-    renderAll();
+    // Load data dari Firestore
+    loadAllData();
+
+    // Listen to realtime updates
+    keluargaRef.onSnapshot(() => { loadAllData(); });
+    dokumentasiRef.onSnapshot(() => { loadAllData(); });
+    tamuRef.onSnapshot(() => { loadAllData(); });
+    iuranRef.onSnapshot(() => { loadAllData(); });
+    settingsRef.onSnapshot(() => { loadAllData(); });
 </script>
 </body>
 </html>
