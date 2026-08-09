@@ -137,39 +137,70 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.2rem;
             padding-bottom: 1.2rem;
             border-bottom: 2px solid #e9edf4;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .top-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .top-header-left .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .top-header-left .logo-container img {
+            max-height: 50px;
+            max-width: 50px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e9edf4;
+            padding: 3px;
+            background: white;
+        }
+        .top-header-left .logo-container .logo-divider {
+            width: 2px;
+            height: 40px;
+            background: #e9edf4;
+        }
+        .top-header-left .logo-container .no-logo-small {
+            font-size: 0.7rem;
+            color: #6a7e94;
+            font-style: italic;
         }
         .top-header .page-title {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 600;
             color: #0b2b3d;
         }
         .top-header .page-title i {
             color: #2a7f6e;
-            margin-right: 10px;
+            margin-right: 8px;
         }
         .top-header .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             background: white;
-            padding: 0.4rem 1.2rem 0.4rem 0.8rem;
+            padding: 0.3rem 1.2rem 0.3rem 0.8rem;
             border-radius: 60px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         .top-header .user-info i {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #2a7f6e;
             background: #e2f0ee;
-            padding: 8px;
+            padding: 6px;
             border-radius: 50%;
         }
         .top-header .user-info span {
             font-weight: 500;
             color: #1a3b4f;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         /* ========== STATS ========== */
@@ -730,7 +761,8 @@
                 margin-left: 0;
                 padding: 1.2rem;
             }
-            .top-header .page-title { font-size: 1.2rem; }
+            .top-header .page-title { font-size: 1.1rem; }
+            .top-header-left .logo-container img { max-height: 35px; max-width: 35px; }
             .modal-kk { padding: 1.2rem !important; }
             .kk-table { font-size: 0.65rem; min-width: 700px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -805,8 +837,19 @@
 <main class="main-content">
     <!-- TOP HEADER -->
     <div class="top-header">
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div class="top-header-left">
             <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+            <div class="logo-container" id="logoContainer">
+                <!-- Logo Provinsi -->
+                <div id="logoProvinsiHeader">
+                    <span class="no-logo-small">Logo Provinsi</span>
+                </div>
+                <div class="logo-divider"></div>
+                <!-- Logo Kabupaten -->
+                <div id="logoKabupatenHeader">
+                    <span class="no-logo-small">Logo Kabupaten</span>
+                </div>
+            </div>
             <div class="page-title" id="pageTitle"><i class="fas fa-people-group"></i> Data Keluarga</div>
         </div>
         <div class="user-info">
@@ -1258,6 +1301,24 @@
         document.getElementById('totalIuranText').textContent = total.toLocaleString('id-ID');
     }
 
+    function renderHeaderLogos() {
+        // Logo Provinsi di header
+        const provContainer = document.getElementById('logoProvinsiHeader');
+        if (settingsData.logoProvinsi) {
+            provContainer.innerHTML = `<img src="${settingsData.logoProvinsi}" alt="Logo Provinsi" title="Logo Provinsi" />`;
+        } else {
+            provContainer.innerHTML = `<span class="no-logo-small">Logo Provinsi</span>`;
+        }
+        
+        // Logo Kabupaten di header
+        const kabContainer = document.getElementById('logoKabupatenHeader');
+        if (settingsData.logoKabupaten) {
+            kabContainer.innerHTML = `<img src="${settingsData.logoKabupaten}" alt="Logo Kabupaten" title="Logo Kabupaten" />`;
+        } else {
+            kabContainer.innerHTML = `<span class="no-logo-small">Logo Kabupaten</span>`;
+        }
+    }
+
     function renderSettings() {
         document.getElementById('settingNamaRT').value = settingsData.namaRT;
         document.getElementById('settingWakilRT').value = settingsData.wakilRT;
@@ -1281,6 +1342,9 @@
         } else {
             previewKab.innerHTML = `<span class="no-logo">Belum ada logo</span>`;
         }
+        
+        // Update header logos
+        renderHeaderLogos();
     }
 
     function renderAll() {
@@ -1315,7 +1379,6 @@
         reader.onload = function(ev) {
             const preview = document.getElementById('previewProvinsi');
             preview.innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
-            // Simpan sementara
             settingsData.logoProvinsi = ev.target.result;
         };
         reader.readAsDataURL(file);
@@ -1341,8 +1404,8 @@
         if (settingsData.logoKabupaten) {
             localStorage.setItem('rt_logoKabupaten', settingsData.logoKabupaten);
         }
-        alert('Logo berhasil disimpan!');
         renderSettings();
+        alert('Logo berhasil disimpan!');
     });
 
     // ======================================================================
