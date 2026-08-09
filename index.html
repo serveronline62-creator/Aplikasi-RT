@@ -72,6 +72,11 @@
         .sidebar-brand .sync-status i {
             font-size: 0.6rem;
         }
+        .sidebar-brand .deploy-info {
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+        }
 
         .sidebar-menu {
             flex: 1;
@@ -130,13 +135,21 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             padding-top: 1rem;
             margin-top: 0.5rem;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: rgba(255,255,255,0.3);
             text-align: center;
         }
         .sidebar-footer .sync-indicator {
             color: #5bc0a8;
             font-size: 0.65rem;
+        }
+        .sidebar-footer .github-link {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 0.6rem;
+        }
+        .sidebar-footer .github-link:hover {
+            color: #5bc0a8;
         }
 
         .main-content {
@@ -972,6 +985,7 @@
             <h2>RT Kita</h2>
             <div class="rt-badge" id="sidebarRTName">RT 08 · Kelurahan Makmur</div>
             <div class="sync-status" id="syncStatus"><i class="fas fa-circle" style="color:#5bc0a8;"></i> Terhubung ke Firebase</div>
+            <div class="deploy-info"><i class="fas fa-cloud"></i> GitHub Pages</div>
         </div>
     </div>
     <nav class="sidebar-menu">
@@ -995,6 +1009,11 @@
     </nav>
     <div class="sidebar-footer">
         <div class="sync-indicator" id="syncIndicator"><i class="fas fa-cloud-upload-alt"></i> Tersimpan di Cloud</div>
+        <div style="margin-top:4px;">
+            <a href="https://github.com" target="_blank" class="github-link">
+                <i class="fab fa-github"></i> Hosted on GitHub Pages
+            </a>
+        </div>
     </div>
 </aside>
 
@@ -1428,6 +1447,7 @@
         appId: "1:619193954122:web:85eaf9d6d0c6f70064dbb3"
     };
 
+    // Inisialisasi Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const storage = firebase.storage();
@@ -2260,7 +2280,6 @@
         k.anggotaDetail.push(newAnggota);
         k.anggota = k.anggotaDetail.length;
         
-        // Update ke Firebase
         keluargaRef.doc(k.id).update({
             anggotaDetail: k.anggotaDetail,
             anggota: k.anggota
@@ -2414,7 +2433,6 @@
         let fotoUrl = null;
         let fileName = null;
         
-        // Upload foto jika ada
         if (selectedFileDok && selectedFileDok instanceof File) {
             try {
                 const path = `dokumentasi/${Date.now()}_${selectedFileDok.name}`;
@@ -2425,7 +2443,6 @@
                 return;
             }
         } else if (selectedFileDok && selectedFileDok.url) {
-            // Jika sudah ada file sebelumnya (edit)
             fotoUrl = selectedFileDok.url;
             fileName = selectedFileDok.name;
         }
@@ -2495,11 +2512,9 @@
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('previewProvinsi').innerHTML = `<img src="${ev.target.result}" alt="Logo Provinsi" />`;
-            // Upload ke storage
             const storageRef = storage.ref(`logo/provinsi_${Date.now()}`);
             storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
                 settingsData.logoProvinsi = url;
-                localStorage.setItem('rt_logoProvinsi', url);
                 renderHeaderLogos();
             }).catch(err => {
                 alert('Gagal upload logo: ' + err.message);
@@ -2517,7 +2532,6 @@
             const storageRef = storage.ref(`logo/kabupaten_${Date.now()}`);
             storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
                 settingsData.logoKabupaten = url;
-                localStorage.setItem('rt_logoKabupaten', url);
                 renderHeaderLogos();
             }).catch(err => {
                 alert('Gagal upload logo: ' + err.message);
@@ -2863,9 +2877,8 @@
     });
 
     // ======================================================================
-    // INIT
+    // INIT - Load data dari Firestore
     // ======================================================================
-    // Load data dari Firestore
     loadAllData();
 
     // Listen to realtime updates
