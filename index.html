@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- SheetJS untuk export Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -340,6 +339,7 @@
         .tag-warga { background: #e1f0ea; color: #14634b; }
         .tag-tamu { background: #fff1e0; color: #a1581c; }
         .tag-iuran { background: #e3eaf9; color: #1f4780; }
+        .tag-pelayanan { background: #f0e6f9; color: #6c3483; }
         .no-urut {
             text-align: center;
             font-weight: 600;
@@ -870,7 +870,6 @@
             text-decoration: underline;
         }
 
-        /* Icon keluarga & tamu style */
         .icon-keluarga, .icon-tamu {
             display: inline-flex;
             align-items: center;
@@ -1208,6 +1207,10 @@
         <button class="menu-item" data-tab="tab-tamu">
             <span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor
         </button>
+        <!-- MENU BARU: Pelayanan & Administrasi -->
+        <button class="menu-item" data-tab="tab-pelayanan">
+            <i class="fas fa-file-signature"></i> Pelayanan &amp; Administrasi
+        </button>
         <button class="menu-item" data-tab="tab-informasi">
             <i class="fas fa-info-circle"></i> Informasi &amp; Komunikasi
         </button>
@@ -1302,6 +1305,34 @@
         </div>
     </div>
 
+    <!-- PANEL PELAYANAN & ADMINISTRASI (BARU) -->
+    <div id="tab-pelayanan" class="panel">
+        <div class="section-title">
+            <span><i class="fas fa-file-signature" style="color:#6c3483;"></i> Pelayanan &amp; Administrasi</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingPelayanan"></span>
+                <button class="btn-tambah" data-modal="modalPelayanan"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:45px;">No</th>
+                        <th style="min-width:140px;">Jenis Layanan</th>
+                        <th style="min-width:150px;">Nama Pemohon</th>
+                        <th style="min-width:120px;">Tanggal</th>
+                        <th style="min-width:120px;">Status</th>
+                        <th style="min-width:100px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tablePelayanan">
+                    <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data pelayanan. Klik "Tambah" untuk menambahkan.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- PANEL INFORMASI -->
     <div id="tab-informasi" class="panel">
         <div class="section-title">
@@ -1324,7 +1355,6 @@
             </div>
         </div>
 
-        <!-- Filter & Export -->
         <div class="filter-iuran">
             <label>Bulan:</label>
             <select id="filterBulan">
@@ -1704,6 +1734,37 @@
     </div>
 </div>
 
+<!-- MODAL PELAYANAN (BARU) -->
+<div class="modal-overlay" id="modalPelayanan">
+    <div class="modal-box">
+        <h2><i class="fas fa-file-signature" style="color:#6c3483;"></i> Tambah Pelayanan / Administrasi</h2>
+        <label>Jenis Layanan</label>
+        <select id="inpPelayananJenis">
+            <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
+            <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
+            <option value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu</option>
+            <option value="Surat Keterangan Kematian">Surat Keterangan Kematian</option>
+            <option value="Surat Pengantar KK">Surat Pengantar KK</option>
+            <option value="Surat Pengantar KTP">Surat Pengantar KTP</option>
+            <option value="Lainnya">Lainnya</option>
+        </select>
+        <label>Nama Pemohon</label>
+        <input id="inpPelayananNama" placeholder="Nama lengkap pemohon" />
+        <label>Tanggal Pengajuan</label>
+        <input type="date" id="inpPelayananTanggal" />
+        <label>Status</label>
+        <select id="inpPelayananStatus">
+            <option value="Diproses">Diproses</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Ditolak">Ditolak</option>
+        </select>
+        <div class="modal-actions">
+            <button class="btn-batal" data-close="modalPelayanan">Batal</button>
+            <button class="btn-simpan" id="simpanPelayanan">Simpan</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL IURAN -->
 <div class="modal-overlay" id="modalIuran">
     <div class="modal-box">
@@ -1832,6 +1893,7 @@
     const informasiRef = db.collection('informasi');
     const tamuRef = db.collection('tamu');
     const iuranRef = db.collection('iuran');
+    const pelayananRef = db.collection('pelayanan'); // Collection baru untuk Pelayanan
     const settingsRef = db.collection('settings').doc('pengaturan');
 
     // ======================================================================
@@ -1842,6 +1904,7 @@
     let tamuWajibLapor = [];
     let iuranRT = [];
     let filteredIuran = [];
+    let dataPelayanan = []; // State untuk Pelayanan
     let settingsData = {
         namaRT: 'RT 08 · Kelurahan Makmur',
         ketuaRT: '',
@@ -1885,6 +1948,16 @@
             });
             setLoading('loadingTamu', '');
 
+            setLoading('loadingPelayanan', '<span class="loading-spinner"></span> Memuat...');
+            const pelayananSnapshot = await pelayananRef.orderBy('tanggal', 'desc').get();
+            dataPelayanan = [];
+            pelayananSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dataPelayanan.push(data);
+            });
+            setLoading('loadingPelayanan', '');
+
             setLoading('loadingInformasi', '<span class="loading-spinner"></span> Memuat...');
             const infoSnapshot = await informasiRef.orderBy('tanggal', 'desc').get();
             informasiData = [];
@@ -1912,10 +1985,7 @@
             }
             setLoading('loadingSettings', '');
 
-            // Update dropdown keluarga di modal iuran
             updateKeluargaDropdown();
-
-            // Apply filter after data loaded
             applyIuranFilter();
             renderAll();
             updateSyncStatus(true);
@@ -1923,6 +1993,7 @@
             console.error('Error loading data:', error);
             setLoading('loadingKeluarga', '⚠️ Gagal memuat data');
             setLoading('loadingTamu', '⚠️ Gagal memuat data');
+            setLoading('loadingPelayanan', '⚠️ Gagal memuat data');
             setLoading('loadingInformasi', '⚠️ Gagal memuat data');
             setLoading('loadingIuran', '⚠️ Gagal memuat data');
             setLoading('loadingSettings', '⚠️ Gagal memuat data');
@@ -2042,7 +2113,6 @@
         currentIuranFilter = { bulan, tahun, tglMulai, tglAkhir };
         
         filteredIuran = iuranRT.filter(item => {
-            // Filter bulan & tahun
             if (item.bulan) {
                 const parts = item.bulan.split(' ');
                 if (parts.length === 2) {
@@ -2052,7 +2122,6 @@
                     if (itemTahun !== tahun) return false;
                 }
             }
-            // Filter tanggal
             if (tglMulai || tglAkhir) {
                 const tglBayar = item.tanggal || '';
                 if (tglMulai && tglBayar < tglMulai) return false;
@@ -2241,6 +2310,59 @@
         });
     }
 
+    function renderPelayanan() {
+        const tbody = document.getElementById('tablePelayanan');
+        if (dataPelayanan.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#6a7e94;">Belum ada data pelayanan. Klik "Tambah" untuk menambahkan.</td></tr>`;
+        } else {
+            tbody.innerHTML = dataPelayanan.map((item, index) => {
+                const statusClass = item.status === 'Selesai' ? 'tag-warga' : (item.status === 'Ditolak' ? 'tag-tamu' : 'tag-pelayanan');
+                return `
+                    <tr>
+                        <td class="no-urut">${index + 1}</td>
+                        <td><span class="tag tag-pelayanan">${item.jenis || '-'}</span></td>
+                        <td><strong>${item.nama || '-'}</strong></td>
+                        <td>${item.tanggal || '-'}</td>
+                        <td><span class="tag ${statusClass}">${item.status || 'Diproses'}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn-edit" data-pelayanan-index="${index}"><i class="fas fa-pen"></i></button>
+                                <button class="btn-hapus-keluarga" data-pelayanan-index="${index}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Event listener untuk hapus pelayanan
+        document.querySelectorAll('#tablePelayanan .btn-hapus-keluarga').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.pelayananIndex);
+                const item = dataPelayanan[idx];
+                if (confirm(`Hapus data pelayanan "${item.jenis}" untuk ${item.nama}?`)) {
+                    pelayananRef.doc(item.id).delete().then(() => {
+                        loadAllData();
+                        alert('Data pelayanan berhasil dihapus!');
+                    }).catch(err => {
+                        alert('Gagal menghapus: ' + err.message);
+                    });
+                }
+            });
+        });
+
+        // Event listener untuk edit pelayanan (sederhana, alert)
+        document.querySelectorAll('#tablePelayanan .btn-edit').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.pelayananIndex);
+                const item = dataPelayanan[idx];
+                alert(`Edit data: ${item.jenis} - ${item.nama}\nFitur edit akan segera hadir.`);
+            });
+        });
+    }
+
     function renderInformasi() {
         const grid = document.getElementById('informasiGrid');
         if (informasiData.length === 0) {
@@ -2347,6 +2469,7 @@
     function renderAll() {
         renderKeluarga();
         renderTamu();
+        renderPelayanan();
         renderInformasi();
         renderIuran();
         renderSettings();
@@ -3231,6 +3354,35 @@
     });
 
     // ======================================================================
+    // SIMPAN PELAYANAN
+    // ======================================================================
+    document.getElementById('simpanPelayanan').addEventListener('click', function() {
+        const jenis = document.getElementById('inpPelayananJenis').value;
+        const nama = document.getElementById('inpPelayananNama').value.trim().toUpperCase();
+        const tanggal = document.getElementById('inpPelayananTanggal').value;
+        const status = document.getElementById('inpPelayananStatus').value;
+
+        if (!nama) { alert('Nama pemohon harus diisi!'); return; }
+        if (!tanggal) { alert('Tanggal pengajuan harus diisi!'); return; }
+
+        const data = {
+            jenis,
+            nama,
+            tanggal,
+            status,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        pelayananRef.add(data).then(() => {
+            loadAllData();
+            closeModal('modalPelayanan');
+            alert('Data pelayanan berhasil ditambahkan!');
+        }).catch(err => {
+            alert('Gagal menambahkan: ' + err.message);
+        });
+    });
+
+    // ======================================================================
     // SIMPAN INFORMASI dengan GoFile
     // ======================================================================
     let uploadInfoIndex = -1;
@@ -3639,7 +3791,6 @@
             return;
         }
         
-        // Buat container untuk PDF - murni tanpa elemen interaktif
         const pdfContainer = document.createElement('div');
         pdfContainer.style.cssText = 'padding:20px;background:white;font-family:"Segoe UI",Arial,sans-serif;width:100%;';
         
@@ -3813,13 +3964,18 @@
             document.getElementById('viewFileContent').innerHTML = '<p style="color:#6a7e94;text-align:center;">Tidak ada file untuk ditampilkan</p>';
         }
         if (id === 'modalIuran') {
-            // Reset form
             document.getElementById('inpKeluargaIuran').value = '';
             document.getElementById('inpBulanIuran').value = 'Januari';
             document.getElementById('inpTahunIuran').value = new Date().getFullYear();
             document.getElementById('inpTglIuran').value = '';
             document.getElementById('inpNominalIuran').value = '';
             document.getElementById('inpStatusIuran').value = 'Lunas';
+        }
+        if (id === 'modalPelayanan') {
+            document.getElementById('inpPelayananJenis').value = 'Surat Keterangan Domisili';
+            document.getElementById('inpPelayananNama').value = '';
+            document.getElementById('inpPelayananTanggal').value = '';
+            document.getElementById('inpPelayananStatus').value = 'Diproses';
         }
     }
 
@@ -3859,6 +4015,12 @@
                     document.getElementById('inpNominalIuran').value = '';
                     document.getElementById('inpStatusIuran').value = 'Lunas';
                 }
+                if (this.id === 'modalPelayanan') {
+                    document.getElementById('inpPelayananJenis').value = 'Surat Keterangan Domisili';
+                    document.getElementById('inpPelayananNama').value = '';
+                    document.getElementById('inpPelayananTanggal').value = '';
+                    document.getElementById('inpPelayananStatus').value = 'Diproses';
+                }
             }
         });
     });
@@ -3872,12 +4034,17 @@
             if (this.dataset.modal === 'modalKeluarga') resetModalKeluarga();
             if (this.dataset.modal === 'modalTamu') resetModalTamu();
             if (this.dataset.modal === 'modalIuran') {
-                // Set default tanggal hari ini
                 document.getElementById('inpTglIuran').value = new Date().toISOString().split('T')[0];
                 document.getElementById('inpTahunIuran').value = new Date().getFullYear();
                 document.getElementById('inpKeluargaIuran').value = '';
                 document.getElementById('inpNominalIuran').value = '';
                 document.getElementById('inpStatusIuran').value = 'Lunas';
+            }
+            if (this.dataset.modal === 'modalPelayanan') {
+                document.getElementById('inpPelayananTanggal').value = new Date().toISOString().split('T')[0];
+                document.getElementById('inpPelayananNama').value = '';
+                document.getElementById('inpPelayananJenis').value = 'Surat Keterangan Domisili';
+                document.getElementById('inpPelayananStatus').value = 'Diproses';
             }
             openModal(this.dataset.modal);
         });
@@ -3897,6 +4064,7 @@
     const pageTitles = {
         'tab-keluarga': 'Data Keluarga',
         'tab-tamu': 'Tamu Wajib Lapor',
+        'tab-pelayanan': 'Pelayanan & Administrasi',
         'tab-informasi': 'Informasi & Komunikasi',
         'tab-iuran': 'Iuran RT',
         'tab-pengaturan': 'Pengaturan RT'
@@ -3949,19 +4117,19 @@
         console.warn('⚠️ GoFile API token belum diatur. Silakan ganti GOFILE_API_TOKEN dengan token Anda.');
     }
 
-    // Set default values
     const now = new Date();
     document.getElementById('filterTahun').value = now.getFullYear();
     document.getElementById('inpTahunIuran').value = now.getFullYear();
     document.getElementById('inpTglIuran').value = now.toISOString().split('T')[0];
+    document.getElementById('inpPelayananTanggal').value = now.toISOString().split('T')[0];
 
-    // Initialize anggota counter
     updateAnggotaCounter();
 
     loadAllData();
 
     keluargaRef.onSnapshot(() => { loadAllData(); });
     tamuRef.onSnapshot(() => { loadAllData(); });
+    pelayananRef.onSnapshot(() => { loadAllData(); });
     informasiRef.onSnapshot(() => { loadAllData(); });
     iuranRef.onSnapshot(() => { loadAllData(); });
     settingsRef.onSnapshot(() => { loadAllData(); });
