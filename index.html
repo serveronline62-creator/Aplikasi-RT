@@ -1137,11 +1137,12 @@
         <button class="menu-item active" data-tab="tab-keluarga">
             <span class="icon-keluarga"><i class="fas fa-users"></i></span> Data Keluarga
         </button>
-        <button class="menu-item" data-tab="tab-informasi">
-            <i class="fas fa-info-circle"></i> Informasi &amp; Komunikasi
-        </button>
+        <!-- Tamu Wajib Lapor dipindahkan ke atas Informasi & Komunikasi -->
         <button class="menu-item" data-tab="tab-tamu">
             <span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor
+        </button>
+        <button class="menu-item" data-tab="tab-informasi">
+            <i class="fas fa-info-circle"></i> Informasi &amp; Komunikasi
         </button>
         <button class="menu-item" data-tab="tab-iuran">
             <i class="fas fa-coins"></i> Iuran RT
@@ -1207,19 +1208,7 @@
         </div>
     </div>
 
-    <!-- PANEL INFORMASI & KOMUNIKASI (sebelumnya Kerja Bakti) -->
-    <div id="tab-informasi" class="panel">
-        <div class="section-title">
-            <span><i class="fas fa-info-circle" style="color:#1f6b58;"></i> Informasi &amp; Komunikasi</span>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <span class="loading-text" id="loadingInformasi"></span>
-                <button class="btn-tambah" data-modal="modalInformasi"><i class="fas fa-plus"></i> Tambah</button>
-            </div>
-        </div>
-        <div class="dokumentasi-grid" id="informasiGrid"></div>
-    </div>
-
-    <!-- PANEL TAMU -->
+    <!-- PANEL TAMU (sekarang di atas Informasi) -->
     <div id="tab-tamu" class="panel">
         <div class="section-title">
             <span><span class="icon-tamu"><i class="fas fa-user"></i></span> Tamu Wajib Lapor</span>
@@ -1244,6 +1233,18 @@
                 <tbody id="tableTamu"></tbody>
             </table>
         </div>
+    </div>
+
+    <!-- PANEL INFORMASI & KOMUNIKASI (sekarang di bawah Tamu) -->
+    <div id="tab-informasi" class="panel">
+        <div class="section-title">
+            <span><i class="fas fa-info-circle" style="color:#1f6b58;"></i> Informasi &amp; Komunikasi</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="loading-text" id="loadingInformasi"></span>
+                <button class="btn-tambah" data-modal="modalInformasi"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
+        </div>
+        <div class="dokumentasi-grid" id="informasiGrid"></div>
     </div>
 
     <!-- PANEL IURAN -->
@@ -1495,7 +1496,7 @@
     </div>
 </div>
 
-<!-- MODAL INFORMASI (sebelumnya dokumentasi) -->
+<!-- MODAL INFORMASI -->
 <div class="modal-overlay" id="modalInformasi">
     <div class="modal-box">
         <h2><i class="fas fa-info-circle" style="color:#1c5f4e;"></i> Tambah Informasi / Komunikasi</h2>
@@ -1699,7 +1700,7 @@
     // DATA REFERENCES
     // ======================================================================
     const keluargaRef = db.collection('keluarga');
-    const informasiRef = db.collection('informasi'); // ganti dari dokumentasi
+    const informasiRef = db.collection('informasi');
     const tamuRef = db.collection('tamu');
     const iuranRef = db.collection('iuran');
     const settingsRef = db.collection('settings').doc('pengaturan');
@@ -1708,7 +1709,7 @@
     // GLOBAL STATE
     // ======================================================================
     let dataKeluarga = [];
-    let informasiData = []; // ganti dari dokumentasi
+    let informasiData = [];
     let tamuWajibLapor = [];
     let iuranRT = [];
     let settingsData = {
@@ -1743,16 +1744,6 @@
             });
             setLoading('loadingKeluarga', '');
 
-            setLoading('loadingInformasi', '<span class="loading-spinner"></span> Memuat...');
-            const infoSnapshot = await informasiRef.orderBy('tanggal', 'desc').get();
-            informasiData = [];
-            infoSnapshot.forEach(doc => {
-                const data = doc.data();
-                data.id = doc.id;
-                informasiData.push(data);
-            });
-            setLoading('loadingInformasi', '');
-
             setLoading('loadingTamu', '<span class="loading-spinner"></span> Memuat...');
             const tamuSnapshot = await tamuRef.orderBy('no').get();
             tamuWajibLapor = [];
@@ -1762,6 +1753,16 @@
                 tamuWajibLapor.push(data);
             });
             setLoading('loadingTamu', '');
+
+            setLoading('loadingInformasi', '<span class="loading-spinner"></span> Memuat...');
+            const infoSnapshot = await informasiRef.orderBy('tanggal', 'desc').get();
+            informasiData = [];
+            infoSnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                informasiData.push(data);
+            });
+            setLoading('loadingInformasi', '');
 
             setLoading('loadingIuran', '<span class="loading-spinner"></span> Memuat...');
             const iuranSnapshot = await iuranRef.orderBy('bulan', 'desc').get();
@@ -1785,8 +1786,8 @@
         } catch (error) {
             console.error('Error loading data:', error);
             setLoading('loadingKeluarga', '⚠️ Gagal memuat data');
-            setLoading('loadingInformasi', '⚠️ Gagal memuat data');
             setLoading('loadingTamu', '⚠️ Gagal memuat data');
+            setLoading('loadingInformasi', '⚠️ Gagal memuat data');
             setLoading('loadingIuran', '⚠️ Gagal memuat data');
             setLoading('loadingSettings', '⚠️ Gagal memuat data');
             updateSyncStatus(false);
@@ -3528,8 +3529,8 @@
     // ======================================================================
     const pageTitles = {
         'tab-keluarga': 'Data Keluarga',
-        'tab-informasi': 'Informasi & Komunikasi',
         'tab-tamu': 'Tamu Wajib Lapor',
+        'tab-informasi': 'Informasi & Komunikasi',
         'tab-iuran': 'Iuran RT',
         'tab-pengaturan': 'Pengaturan RT'
     };
@@ -3587,8 +3588,8 @@
     loadAllData();
 
     keluargaRef.onSnapshot(() => { loadAllData(); });
-    informasiRef.onSnapshot(() => { loadAllData(); });
     tamuRef.onSnapshot(() => { loadAllData(); });
+    informasiRef.onSnapshot(() => { loadAllData(); });
     iuranRef.onSnapshot(() => { loadAllData(); });
     settingsRef.onSnapshot(() => { loadAllData(); });
 </script>
